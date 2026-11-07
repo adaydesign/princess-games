@@ -365,10 +365,6 @@
       justify-content: center;
     }
 
-    .result .secondary {
-      margin-top: 10px;
-    }
-
     @media (max-width: 760px) {
       .app {
         padding: 14px;
@@ -519,12 +515,41 @@
     .answer-review-bar .actions {
       justify-content: center;
     }
+
+    .hero-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
   </style>
 </head>
 
 <body>
   <main class="app">
     <header class="hero">
+      <div class="hero-bar">
+        <a class="btn secondary back-link" href="index.html">← กลับหน้ารวมเกม</a>
+        <button id="soundToggle" class="btn secondary" type="button" aria-pressed="true">
+          🔊 เสียงเอฟเฟกต์: เปิด
+        </button>
+        <button id="voiceToggle" class="btn secondary" type="button" aria-pressed="true">
+          🗣️ คำบรรยาย: เปิด
+        </button>
+        <button id="repeatVoice" class="btn secondary" type="button">
+          🔊 ฟังคำแนะนำ
+        </button>
+      </div>
       <span class="badge">เกมฝึกสายตาและการสังเกต</span>
       <h1>เจ้าหญิงนักสังเกต</h1>
       <p>ภาพสองภาพต่างกันตรงไหน? หาให้เจอทั้ง 5 จุดกันเถอะ</p>
@@ -576,6 +601,9 @@
           <button id="backHome" class="btn secondary" type="button">
             เลือกฉาก
           </button>
+          <a class="btn secondary back-link" href="index.html">
+            ← หน้ารวมเกม
+          </a>
         </div>
       </div>
 
@@ -605,6 +633,9 @@
           <button id="reviewBackHome" class="btn secondary" type="button">
             กลับไปเลือกโหมด
           </button>
+          <a class="btn secondary back-link" href="index.html">
+            ← กลับหน้ารวมเกม
+          </a>
         </div>
       </div>
       <p class="bottom-note">
@@ -631,9 +662,14 @@
           สุ่มฉากใหม่
         </button>
       </div>
-      <button id="chooseAgain" class="btn secondary" type="button">
-        กลับไปเลือกฉาก
-      </button>
+      <div class="actions" style="margin-top:10px">
+        <button id="chooseAgain" class="btn secondary" type="button" style="margin-top:0">
+          กลับไปเลือกฉาก
+        </button>
+        <a class="btn secondary back-link" href="index.html">
+          ← กลับหน้ารวมเกม
+        </a>
+      </div>
     </div>
   </div>
 
@@ -1068,8 +1104,95 @@
         ticker: null,
         found: new Set(),
         targets: [],
-        timeouts: new Set()
+        timeouts: new Set(),
+        soundEnabled: true,
+        voiceEnabled: true,
+        lastSpokenText: "สวัสดีจ้ะ! มาช่วยเจ้าหญิงสังเกตภาพ แล้วหาจุดแตกต่างทั้งห้าจุดกันนะจ๊ะ",
+        lastTickSec: -1
       };
+
+      let audioCtx = null;
+
+      function unlockAudio() {
+        if (!state.soundEnabled) return null;
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return null;
+          if (!audioCtx) audioCtx = new Ctx();
+          if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playTone(freq, start, duration, type = "sine", volume = 0.08) {
+        const ctx = unlockAudio();
+        if (!ctx) return;
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const t = ctx.currentTime + start;
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.exponentialRampToValueAtTime(volume, t + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + duration + 0.02);
+        } catch (e) {}
+      }
+
+      function sfx(kind) {
+        if (!state.soundEnabled) return;
+        if (kind === "start") {
+          [523.25, 659.25, 783.99].forEach((f, i) =>
+            playTone(f, i * 0.09, 0.22, "triangle", 0.07)
+          );
+        } else if (kind === "found") {
+          [587.33, 783.99, 1046.5].forEach((f, i) =>
+            playTone(f, i * 0.08, 0.24, "sine", 0.09)
+          );
+        } else if (kind === "already") {
+          [440, 523.25].forEach((f, i) =>
+            playTone(f, i * 0.07, 0.14, "sine", 0.05)
+          );
+        } else if (kind === "wrong") {
+          playTone(260, 0, 0.16, "triangle", 0.06);
+          playTone(210, 0.1, 0.22, "sine", 0.05);
+        } else if (kind === "tick") {
+          playTone(760, 0, 0.07, "sine", 0.04);
+        } else if (kind === "win") {
+          [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5].forEach((f, i) =>
+            playTone(f, i * 0.11, 0.3, "triangle", 0.09)
+          );
+        } else if (kind === "lose") {
+          [440, 392, 349.23, 329.63].forEach((f, i) =>
+            playTone(f, i * 0.14, 0.28, "sine", 0.06)
+          );
+        } else if (kind === "click") {
+          playTone(520, 0, 0.06, "sine", 0.04);
+        }
+      }
+
+      function speak(text, force = false) {
+        if (text) state.lastSpokenText = text;
+        if ((!state.voiceEnabled && !force) || !("speechSynthesis" in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text || state.lastSpokenText);
+          u.lang = "th-TH";
+          u.rate = 0.92;
+          u.pitch = 1.14;
+          const v = window.speechSynthesis.getVoices().find(voice =>
+            voice.lang && voice.lang.toLowerCase().startsWith("th")
+          );
+          if (v) u.voice = v;
+          window.speechSynthesis.speak(u);
+        } catch (e) {}
+      }
 
       function esc(value) {
         return String(value).replace(/[&<>"']/g, c => ({
@@ -1935,6 +2058,11 @@
             remaining <= 10_000
           );
 
+          if (seconds <= 10 && seconds > 0 && seconds !== state.lastTickSec) {
+            state.lastTickSec = seconds;
+            sfx("tick");
+          }
+
           if (remaining <= 0) {
             endRound(false);
           }
@@ -1988,11 +2116,13 @@
           return;
         }
 
+        unlockAudio();
         resetAnswerReview();
 
         state.mode = "basic";
         state.challengeStartToken = null;
         state.challengeScene = null;
+        state.lastTickSec = -1;
 
         setClockPresentation(false);
 
@@ -2030,6 +2160,9 @@
           state.playing = true;
           $("status").textContent = "มองหาจุดแตกต่าง แล้วแตะภาพฝั่งไหนก็ได้เลย!";
           state.ticker = setInterval(updateTimer, 100);
+          sfx("start");
+          const names = scene.pair.map(key => PEOPLE[key].name).join(" กับ ");
+          speak(`สวัสดีจ้ะ! มาช่วยเจ้าหญิง${names} หาจุดแตกต่างห้าจุด ในฉาก${scene.title}กันนะจ๊ะ`);
         };
 
         $("backHome").focus({preventScroll: true});
@@ -2088,6 +2221,8 @@
         setSummaryVisible(false);
         $("game").hidden = true;
         $("home").hidden = false;
+        sfx("click");
+        speak("เลือกดินแดนของเจ้าหญิงที่อยากเล่นได้เลยนะจ๊ะ");
         $("randomStart").focus({preventScroll: true});
         window.scrollTo({top: 0, behavior: "auto"});
       }
@@ -2172,6 +2307,13 @@
           revealChallengeAnswers();
         }
 
+        sfx(won ? "win" : "lose");
+        if (won) {
+          speak("ไชโย! หนูตาไวมากเลยจ้ะ ช่วยเจ้าหญิงหาจุดแตกต่างครบทั้งห้าจุดแล้ว เก่งที่สุดเลย!");
+        } else {
+          speak("หมดเวลาแล้วจ้ะ ไม่เป็นไรนะคนเก่ง กดดูเฉลยสีส้ม หรือลองเล่นใหม่ได้เลยจ้ะ");
+        }
+
         const trophy = $("summary").querySelector(".trophy");
         const timeLabel = $("summary").querySelector(".result > .hint");
 
@@ -2235,6 +2377,7 @@
 
       function handleBoardClick(event) {
         if (!state.playing) return;
+        unlockAudio();
         // ป้องกันการตอบหลังครบ 60 วินาที
 
         // แม้ตัวจับเวลาบนหน้าจอยังไม่ทันอัปเดต
@@ -2280,13 +2423,17 @@
         const hit = hits.find(item => !state.found.has(item.index));
 
         if (!hit && hits.length) {
+          sfx("already");
           $("status").textContent = "จุดนี้หาเจอแล้ว ลองมองหาจุดอื่นต่อได้เลย";
+          speak("จุดนี้หนูหาเจอแล้วจ้ะ ลองมองหาจุดอื่นต่อนะจ๊ะ");
           return;
         }
 
         if (!hit) {
+          sfx("wrong");
           markWrong(svg, x, y);
           $("status").textContent = "ยังไม่ใช่จุดนี้นะ ค่อย ๆ มองแล้วลองใหม่ได้เลย";
+          speak("เอ๊ะ ยังไม่ใช่ตรงนี้นะจ๊ะ ค่อย ๆ สังเกตดูใหม่นะ");
           return;
         }
 
@@ -2295,11 +2442,17 @@
         updateProgress();
 
         const remaining = 5 - state.found.size;
+        const spotName = hit.target.label || "จุดแตกต่าง";
         $("status").textContent =
-          `ถูกต้อง! ${hit.target.label || "เจอจุดแตกต่างแล้ว"}`
+          `ถูกต้อง! ${spotName}`
           + (remaining ? ` — เหลืออีก ${remaining} จุด` : "");
 
-        if (state.found.size === 5) finishGame();
+        if (state.found.size === 5) {
+          finishGame();
+        } else {
+          sfx("found");
+          speak(`เก่งมากจ้ะ! เจอ${spotName}แล้ว เหลืออีก ${remaining} จุดนะจ๊ะ`);
+        }
       }
 
       function buildMenu() {
@@ -2329,9 +2482,36 @@
 
       $("randomStart").addEventListener("click", () => startGame(randomIndex()));
 
-      //$("playAgain").addEventListener("click", () => startGame(state.index));
-      //$("randomAgain").addEventListener("click", () => startGame(randomIndex()));
       $("challengeStart").addEventListener("click", startChallenge);
+
+      $("soundToggle").addEventListener("click", () => {
+        state.soundEnabled = !state.soundEnabled;
+        $("soundToggle").textContent =
+          `🔊 เสียงเอฟเฟกต์: ${state.soundEnabled ? "เปิด" : "ปิด"}`;
+        $("soundToggle").setAttribute("aria-pressed", String(state.soundEnabled));
+        if (state.soundEnabled) {
+          unlockAudio();
+          sfx("found");
+        }
+      });
+
+      $("voiceToggle").addEventListener("click", () => {
+        state.voiceEnabled = !state.voiceEnabled;
+        $("voiceToggle").textContent =
+          `🗣️ คำบรรยาย: ${state.voiceEnabled ? "เปิด" : "ปิด"}`;
+        $("voiceToggle").setAttribute("aria-pressed", String(state.voiceEnabled));
+        if (state.voiceEnabled) {
+          speak("เปิดเสียงคำบรรยายของเจ้าหญิงแล้วจ้ะ");
+        } else if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+      });
+
+      $("repeatVoice").addEventListener("click", () => {
+        unlockAudio();
+        sfx("click");
+        speak(state.lastSpokenText, true);
+      });
 
       $("playAgain").addEventListener("click", () => {
         if (state.mode === "challenge") {
@@ -2366,7 +2546,7 @@
         if (event.key !== "Tab") return;
 
         const buttons = [
-          ...$("summary").querySelectorAll("button")
+          ...$("summary").querySelectorAll("button, a[href]")
         ].filter(button =>
           !button.disabled &&
           button.getClientRects().length > 0
@@ -2846,6 +3026,7 @@
       }
 
       function startChallenge() {
+        unlockAudio();
         resetAnswerReview();
         stopClock();
         clearTransient();
@@ -2856,6 +3037,7 @@
         state.mode = "challenge";
         state.elapsed = 0;
         state.found = new Set();
+        state.lastTickSec = -1;
 
         challengeRoundNumber += 1;
 
@@ -2908,6 +3090,8 @@
             state.startedAt = performance.now();
             state.playing = true;
             state.ticker = setInterval(updateTimer, 100);
+            sfx("start");
+            speak(`ภารกิจนักสังเกตของเจ้าหญิง ใน${scene.theme.name} เริ่มแล้วจ้ะ! มาช่วยกันหาจุดแตกต่างห้าจุด ภายในหกสิบวินาทีนะจ๊ะ`);
           });
         });
       }
@@ -3004,6 +3188,8 @@
       }
 
       function openAnswerReview() {
+        sfx("click");
+        speak("นี่คือเฉลยจ้ะ วงสีส้มพร้อมตัวเลขคือจุดที่ต่างกัน ลองสังเกตดูนะจ๊ะ");
         setSummaryVisible(false);
 
         $("answerReviewBar").hidden = false;
@@ -3069,6 +3255,19 @@ function validateChallengeScene(scene) {
     }
   }
 }
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.addEventListener?.("voiceschanged", () => {
+          window.speechSynthesis.getVoices();
+        });
+      }
+
+      window.addEventListener("pagehide", () => {
+        stopClock();
+        clearTransient();
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
 
       buildMenu();
 

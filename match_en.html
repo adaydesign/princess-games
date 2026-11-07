@@ -30,7 +30,7 @@ button {
   font: inherit;
   -webkit-tap-highlight-color: transparent;
 }
-button:focus-visible {
+button:focus-visible, a:focus-visible, .target:focus-visible {
   outline: 4px solid #235da5;
   outline-offset: 4px;
 }
@@ -85,6 +85,12 @@ h1 {
 .pill[aria-pressed="false"] {
   color: var(--muted);
   background: #f1ebf5;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 .welcome {
   text-align: center;
@@ -160,6 +166,11 @@ h1 {
   padding: 10px 18px;
   border-radius: 18px;
   font-weight: 800;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.target:hover {
+  transform: translateY(-2px);
 }
 .target-icon { font-size: 34px; line-height: 1.2; }
 .hint {
@@ -373,7 +384,7 @@ dialog p { line-height: 1.7; }
   .card-place { font-size: .67rem; }
   .number { width: 26px; height: 28px; flex-basis: 26px; }
   .tools { width: 100%; }
-  .tools button {
+  .tools button, .tools .back-link {
     flex: 1;
     font-size: .85rem;
     padding: 9px;
@@ -397,6 +408,7 @@ dialog p { line-height: 1.7; }
       <p class="subtitle">Look closely! Which card has all three objects?</p>
     </div>
     <div class="tools">
+      <a class="pill back-link" href="index.html">← Back to Games</a>
       <button id="soundBtn" class="pill" aria-pressed="true">
         🔊 Sound On
       </button>
@@ -477,6 +489,7 @@ dialog p { line-height: 1.7; }
   <div class="dialog-actions">
     <button id="againBtn" class="primary" autofocus>✨ Play Again</button>
     <button id="reviewBtn" class="secondary">View the Answer</button>
+    <a class="secondary back-link" href="index.html">← Back to Games</a>
   </div>
 </dialog>
 
@@ -1212,7 +1225,7 @@ if (speechSupported) {
   $("readBtn").title = "Speech synthesis is not supported on this device.";
 }
 
-async function unlockAudio() {
+function unlockAudio() {
   if (!soundEnabled) return;
 
   const AudioClass = window.AudioContext || window.webkitAudioContext;
@@ -1221,7 +1234,7 @@ async function unlockAudio() {
   try {
     if (!audioContext) audioContext = new AudioClass();
     if (audioContext.state === "suspended") {
-      await audioContext.resume();
+      audioContext.resume().catch(() => {});
     }
   } catch (_) {
     // Audio is optional. The game continues if unavailable.
@@ -1230,7 +1243,7 @@ async function unlockAudio() {
 
 function tone(frequency, duration, delay = 0, volume = .085) {
   if (!soundEnabled || !audioContext ||
-      audioContext.state !== "running") return;
+      audioContext.state === "closed") return;
 
   try {
     const start = audioContext.currentTime + delay;
@@ -1267,12 +1280,9 @@ const MELODIES = {
   ]
 };
 
-async function playEffect(kind) {
+function playEffect(kind) {
   if (!soundEnabled) return;
-  const serial = gameSerial;
-  await unlockAudio();
-
-  if (!soundEnabled || serial !== gameSerial) return;
+  unlockAudio();
 
   (MELODIES[kind] || []).forEach(([frequency, duration, delay]) =>
     tone(frequency, duration, delay)
@@ -1425,12 +1435,29 @@ function readQuestion(force = false) {
 }
 
 function renderRound() {
-  $("targets").innerHTML = state.targets.map(item => `
-    <div class="target">
+  $("targets").innerHTML = state.targets.map((item, idx) => `
+    <div class="target" role="button" tabindex="0" data-target-idx="${idx}" aria-label="Hear ${escapeXML(item.name)}">
       <span class="target-icon" aria-hidden="true">${item.emoji}</span>
       <span>${escapeXML(item.name)}</span>
     </div>
   `).join("");
+
+  $("targets").querySelectorAll(".target").forEach(el => {
+    const idx = Number(el.dataset.targetIdx);
+    const item = state.targets[idx];
+    const trigger = () => {
+      unlockAudio();
+      playEffect("click");
+      speak(`Look for the ${item.name}!`, true);
+    };
+    el.addEventListener("click", trigger);
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        trigger();
+      }
+    });
+  });
 
   const fragment = document.createDocumentFragment();
 

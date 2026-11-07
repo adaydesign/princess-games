@@ -379,15 +379,15 @@ footer {
   </header>
 
   <nav class="filters" aria-label="กรองรายการเกมตามภาษา">
-    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (8 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (12 เกม)</button>
     <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (6 เกม)</button>
-    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (2 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (6 เกม)</button>
   </nav>
 
   <main class="grid" id="gameGrid" aria-label="รายการเกมทั้งหมด"></main>
 
   <footer>
-    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games)</strong><br>
+    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games) — เวอร์ชันแอปพลิเคชัน v1.1.0</strong><br>
     แต่ละเกมอยู่ในไฟล์ HTML เพียงไฟล์เดียว • วาดภาพประกอบทั้งหมดด้วยโค้ด SVG • ใช้เสียงพูด Web Speech API และเสียงดนตรีสังเคราะห์ Web Audio API โดยไม่พึ่งพาไฟล์ภายนอก
   </footer>
 </div>
@@ -547,6 +547,86 @@ const GAMES = [
     </svg>`
   },
   {
+    id: "pattern_ariel_en",
+    href: "pattern_ariel_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Ariel's Pearl Necklace",
+    skill: "Patterns & Sequences (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมสร้อยไข่มุกของแอเรียล ฝึกคำศัพท์โลกใต้ทะเลและทักษะการสังเกตแบบรูปภาษาอังกฤษ",
+    speech: "Ariel's Pearl Necklace. Look at the pattern of pearls, shells, and starfish, and help Princess Ariel finish her necklace!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #c7f6fa, #85d9eb 60%, #4da7cb)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="32" cy="30" r="6" fill="#fff" opacity=".5"/>
+      <path d="M22 45 Q110 115 198 45" fill="none" stroke="#f6c445" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="48" cy="64" r="18" fill="#fbf8ff" stroke="#b9a6e0" stroke-width="3.5"/>
+      <circle cx="42" cy="58" r="5" fill="#fff"/>
+      <g transform="translate(88 76)">
+        <path d="M0 16 C-16 14 -22 2 -20 -8 C-18 -20 -8 -26 0 -26 C8 -26 18 -20 20 -8 C22 2 16 14 0 16Z" fill="#ffa3c7" stroke="#d9568f" stroke-width="3.5"/>
+        <path d="M0 14 V-22 M0 14 L-11 -18 M0 14 L11 -18" stroke="#d9568f" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <g transform="translate(132 76)">
+        <path d="M0 -22 L6 -6 L23 -5 L10 6 L14 22 L0 13 L-14 22 L-10 6 L-23 -5 L-6 -6Z" fill="#ffb347" stroke="#e07b1a" stroke-width="3" stroke-linejoin="round"/>
+      </g>
+      <circle cx="174" cy="64" r="18" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="3.5"/>
+      <text x="174" y="71" text-anchor="middle" font-size="18" font-weight="bold" fill="#1d4fa8">EN</text>
+    </svg>`
+  },
+  {
+    id: "lantern_rapunzel_en",
+    href: "lantern_rapunzel_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Rapunzel's Floating Lanterns",
+    skill: "Memory & Sequence (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมโคมลอยของราพันเซล ฝึกจำลำดับแสงสีและเสียงดนตรีพร้อมคำบรรยายภาษาอังกฤษ",
+    speech: "Rapunzel's Floating Lanterns. Watch the glowing lanterns and tap them in the same order in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #232060, #5440a3 60%, #9664d0)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="188" cy="28" r="16" fill="#fff6d6"/>
+      <g transform="translate(52 72)">
+        <ellipse cx="0" cy="0" rx="26" ry="30" fill="#ff8fb8" opacity=".35"/>
+        <rect x="-11" y="-26" width="22" height="5" rx="2" fill="#8b5a2b"/>
+        <path d="M-12 -21 Q-22 0 -11 22 H11 Q22 0 12 -21Z" fill="#ff8fb8" stroke="#d4507f" stroke-width="2.5"/>
+      </g>
+      <g transform="translate(110 56)">
+        <ellipse cx="0" cy="0" rx="30" ry="34" fill="#ffd04d" opacity=".45"/>
+        <rect x="-12" y="-28" width="24" height="5" rx="2" fill="#8b5a2b"/>
+        <path d="M-13 -23 Q-24 0 -12 24 H12 Q24 0 13 -23Z" fill="#ffd04d" stroke="#d39a12" stroke-width="2.5"/>
+        <circle r="6" fill="#b06f00"/>
+      </g>
+      <g transform="translate(168 74)">
+        <rect x="-22" y="-22" width="44" height="44" rx="12" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="3"/>
+        <text x="0" y="7" text-anchor="middle" font-size="20" font-weight="bold" fill="#1d4fa8">EN</text>
+      </g>
+    </svg>`
+  },
+  {
+    id: "find_difference_en",
+    href: "find_difference1.1_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Princess Spot the Difference",
+    skill: "Observation (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมเจ้าหญิงนักสังเกต เปรียบเทียบภาพปราสาททั้งสองฝั่งและฟังเสียงชมเชยภาษาอังกฤษ",
+    speech: "Princess Spot the Difference. Compare the two royal pictures and tap the differences in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #ffe8f3, #e6e2ff 60%, #d8f0ff)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="20" y="22" width="76" height="92" rx="12" fill="#fff" stroke="#2d6cdf" stroke-width="3.5"/>
+      <rect x="116" y="22" width="76" height="92" rx="12" fill="#fff" stroke="#2d6cdf" stroke-width="3.5"/>
+      <circle cx="42" cy="44" r="9" fill="#ffd24c"/>
+      <path d="M36 92 L58 54 L80 92Z" fill="#e56ca5"/>
+      <path d="M138 34 L141 41 L149 42 L143 47 L145 55 L138 50 L131 55 L133 47 L127 42 L135 41Z" fill="#ffd24c"/>
+      <path d="M132 92 L154 54 L176 92Z" fill="#7c56cf"/>
+      <circle cx="156" cy="76" r="22" fill="#e8f1ffbb" stroke="#ff9800" stroke-width="5"/>
+      <text x="156" y="83" text-anchor="middle" font-size="16" font-weight="bold" fill="#1d4fa8">EN</text>
+      <path d="M172 92 L192 112" stroke="#ff9800" stroke-width="7" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
     id: "match_en",
     href: "match_en.html",
     lang: "en",
@@ -583,6 +663,26 @@ const GAMES = [
       <text x="136" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="#dc4087">3</text>
       <rect x="170" y="48" width="38" height="44" rx="12" fill="#f6c445" stroke="#c58b12" stroke-width="3"/>
       <text x="189" y="77" text-anchor="middle" font-size="21" font-weight="bold" fill="#4a2d00">10</text>
+    </svg>`
+  },
+  {
+    id: "maze_en",
+    href: "maze_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Princess Maze — Royal Labyrinth",
+    skill: "Spatial & Planning (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมเขาวงกตเจ้าหญิง พาเจ้าหญิงเดินหาทางออกในเขาวงกตพร้อมเสียงพากย์ภาษาอังกฤษ",
+    speech: "Princess Maze Royal Labyrinth. Guide the princess through the magical maze to the castle in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #e0f5ec, #e3e2ff 65%, #ffe3f2)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="36" y="18" width="148" height="104" rx="14" fill="#fff" stroke="#2d6cdf" stroke-width="4"/>
+      <path d="M36 52 H130 M86 52 V88 M86 88 H152 M152 44 V88" stroke="#2d6cdf" stroke-width="5" stroke-linecap="round"/>
+      <path d="M54 34 H158 V70 H110 V104 H166" fill="none" stroke="#f4be3b" stroke-width="5" stroke-dasharray="6 5" stroke-linecap="round"/>
+      <circle cx="54" cy="34" r="9" fill="#e84e98"/>
+      <rect x="148" y="86" width="30" height="28" rx="7" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="2.5"/>
+      <text x="163" y="105" text-anchor="middle" font-size="14" font-weight="bold" fill="#1d4fa8">EN</text>
     </svg>`
   }
 ];

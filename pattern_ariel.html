@@ -24,7 +24,7 @@ body {
   overflow-x: hidden;
 }
 button { font: inherit; cursor: pointer; touch-action: manipulation; }
-button:focus-visible, input:focus-visible {
+button:focus-visible, a:focus-visible, input:focus-visible {
   outline: 4px solid #ffd54a;
   outline-offset: 4px;
 }
@@ -577,7 +577,9 @@ function tone(frequency, delay, duration, type = "sine", volume = 0.1) {
 }
 
 function sfx(kind) {
-  if (kind === "right") {
+  if (kind === "start") {
+    [523.25, 659.25, 783.99].forEach((f, i) => tone(f, i * 0.09, 0.22));
+  } else if (kind === "right") {
     [659.25, 783.99, 987.77, 1318.5].forEach((f, i) => tone(f, i * 0.1, 0.3));
   } else if (kind === "wrong") {
     tone(330, 0, 0.18, "triangle", 0.07);
@@ -719,6 +721,7 @@ function celebrate(amount = 30) {
 
 function startGame() {
   unlockAudio();
+  sfx("start");
   cancelSpeech();
   clearTimeout(advanceTimer);
   advanceTimer = null;
@@ -852,7 +855,10 @@ function finishGame() {
     </div>
     <p>ตอบถูกตั้งแต่ครั้งแรก <strong>${state.firstTry}</strong> จาก ${TOTAL_QUESTIONS} ข้อ<br>
     หนูช่วยแอเรียลหาแบบรูปได้เก่งมาก!</p>
-    <button class="control primary" type="button" id="again">เล่นอีกครั้ง</button>`;
+    <div class="controls">
+      <button class="control primary" type="button" id="again">เล่นอีกครั้ง</button>
+      <a class="control secondary" href="index.html" style="text-decoration:none;display:inline-flex;align-items:center">← กลับหน้ารวมเกม</a>
+    </div>`;
   $("again").addEventListener("click", startGame);
   $("again").focus({ preventScroll: true });
 

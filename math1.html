@@ -25,7 +25,7 @@ body {
     linear-gradient(#e6d9ff, #fff0f7 65%, #d7f4ed);
 }
 button { font: inherit; cursor: pointer; touch-action: manipulation; }
-button:focus-visible, input:focus-visible {
+button:focus-visible, a:focus-visible, input:focus-visible {
   outline: 4px solid #156fa9;
   outline-offset: 5px;
 }
@@ -85,6 +85,12 @@ h1 {
   padding: 12px 21px;
   font-weight: bold;
   min-height: 46px;
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 .primary { color: white; background: var(--purple); }
 .secondary { color: var(--purple); background: white; border: 2px solid #dbc4f0; }
@@ -319,6 +325,7 @@ h1 {
   </section>
 
   <div class="controls">
+    <a class="control secondary back-link" href="index.html">← กลับหน้ารวมเกม</a>
     <button class="control primary" id="start">เริ่มเล่น</button>
     <button class="control secondary" id="stop" disabled>หยุดเล่น</button>
     <button class="control secondary" id="repeat" disabled>ฟังอีกครั้ง</button>
@@ -603,29 +610,46 @@ function unlockAudio() {
   }
 }
 
-function chime() {
+function playTone(frequency, delay, duration, type = "sine", peak = 0.08) {
   if (!$("sound").checked || !audioContext ||
-      audioContext.state !== "running") return;
-
-  const start = audioContext.currentTime;
-  [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+      audioContext.state === "closed") return;
+  try {
     const oscillator = audioContext.createOscillator();
     const gain = audioContext.createGain();
-    const time = start + index * 0.12;
-    oscillator.type = "sine";
+    const time = audioContext.currentTime + delay;
+    oscillator.type = type;
     oscillator.frequency.value = frequency;
-    gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(0.11, time + 0.018);
-    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+    gain.gain.setValueAtTime(0.0001, time);
+    gain.gain.linearRampToValueAtTime(peak, time + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
     oscillator.connect(gain);
     gain.connect(audioContext.destination);
     oscillator.start(time);
-    oscillator.stop(time + 0.32);
+    oscillator.stop(time + duration + 0.02);
     oscillator.onended = () => {
       oscillator.disconnect();
       gain.disconnect();
     };
+  } catch {}
+}
+
+function chime() {
+  [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+    playTone(frequency, index * 0.12, 0.3, "sine", 0.11);
   });
+}
+
+function sfx(kind) {
+  if (kind === "start") {
+    [440, 554.37, 659.25].forEach((f, i) => playTone(f, i * 0.09, 0.22, "triangle", 0.08));
+  } else if (kind === "wrong") {
+    playTone(280, 0, 0.16, "triangle", 0.07);
+    playTone(230, 0.11, 0.22, "sine", 0.06);
+  } else if (kind === "finish") {
+    [523.25, 659.25, 783.99, 659.25, 1046.5].forEach((f, i) =>
+      playTone(f, i * 0.11, 0.28, "triangle", 0.09)
+    );
+  }
 }
 
 /* ---------- เวลาและคะแนน ---------- */
@@ -815,6 +839,7 @@ function choose(number, button, round) {
   }
 
   state.mistakes++;
+  sfx("wrong");
   button.classList.remove("wrong");
   void button.offsetWidth;
   button.classList.add("wrong");
@@ -842,6 +867,7 @@ function startGame() {
   cancelSpeech();
   clearTimeout(state.nextTimer);
   unlockAudio();
+  sfx("start");
 
   state.running = true;
   state.locked = false;
@@ -871,6 +897,8 @@ function stopGame() {
   clearTimeout(state.nextTimer);
   state.nextTimer = null;
   cancelSpeech();
+  unlockAudio();
+  sfx("finish");
   setAnswerButtonsDisabled(true);
 
   $("start").disabled = false;
@@ -885,8 +913,9 @@ function stopGame() {
     : "ยังไม่มีข้อที่ตอบถูก";
 
   $("summary").hidden = false;
-  $("summary").textContent =
-    `จบการเล่นรอบนี้ • ตอบถูก ${state.score} ข้อ • เวลารวม ${formatTime(state.duration)} • เวลาเฉลี่ย: ${average}`;
+  $("summary").innerHTML =
+    `<div>จบการเล่นรอบนี้ • ตอบถูก ${state.score} ข้อ • เวลารวม ${formatTime(state.duration)} • เวลาเฉลี่ย: ${average}</div>` +
+    `<div style="margin-top:10px"><a class="control secondary back-link" href="index.html">← กลับหน้ารวมเกม</a></div>`;
 
   const text = `ขอบคุณที่มาเล่นด้วยกันนะ วันนี้ตอบถูก ${state.score} ข้อแล้ว พักผ่อนแล้วกลับมาเล่นกับเจ้าหญิงได้อีกนะ`;
   showMessage(text);

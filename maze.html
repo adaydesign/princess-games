@@ -36,7 +36,7 @@ button{
 }
 button:hover{filter:brightness(.97)}
 button:active{transform:translateY(2px);box-shadow:none}
-button:focus-visible,select:focus-visible{
+button:focus-visible,select:focus-visible,a:focus-visible{
   outline:3px solid #ffb92e;outline-offset:2px;
 }
 button.primary{
@@ -44,6 +44,16 @@ button.primary{
   color:white;border-color:transparent;
 }
 button:disabled{opacity:.55;cursor:default}
+.back-link{
+  display:inline-flex;align-items:center;gap:4px;
+  border:1px solid var(--line);border-radius:12px;
+  background:white;color:var(--ink);
+  min-height:36px;padding:7px 10px;
+  text-decoration:none;font-weight:bold;font-size:12px;
+  box-shadow:0 3px 0 #dac9e6;
+}
+.back-link:hover{filter:brightness(.97)}
+.back-link:active{transform:translateY(2px);box-shadow:none}
 [hidden]{display:none!important}
 .app{
   height:100vh;height:100dvh;
@@ -54,10 +64,10 @@ button:disabled{opacity:.55;cursor:default}
 }
 header{
   display:flex;align-items:center;
-  justify-content:space-between;gap:8px;flex-shrink:0;
+  justify-content:space-between;gap:8px;flex-shrink:0;flex-wrap:wrap;
 }
 h1{font-size:clamp(16px,2.3vw,25px);margin:0}
-.audio{display:flex;gap:5px}
+.audio{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
 .audio button{font-size:12px}
 .toolbar{
   display:grid;grid-template-columns:1fr 1.2fr 1fr 1fr;
@@ -166,7 +176,7 @@ h1{font-size:clamp(16px,2.3vw,25px);margin:0}
   .stats{gap:4px}
   .stat{padding:5px 3px;font-size:10px}
   .stat strong{font-size:13px}
-  .audio button{padding:6px;font-size:10px}
+  .audio button,.back-link{padding:6px;font-size:10px}
   .hints{font-size:10px}
   .card{padding:17px}
 }
@@ -174,7 +184,7 @@ h1{font-size:clamp(16px,2.3vw,25px);margin:0}
   .app{gap:4px;padding:4px}
   header h1{font-size:16px}
   .toolbar{grid-template-columns:1fr 1.2fr 1fr 1fr}
-  button,select{min-height:29px;padding:4px 6px}
+  button,select,.back-link{min-height:29px;padding:4px 6px}
   .stat{padding:3px}
   .pad{grid-template-rows:repeat(2,27px);width:114px;
        grid-template-columns:repeat(3,34px)}
@@ -191,10 +201,13 @@ h1{font-size:clamp(16px,2.3vw,25px);margin:0}
 <body>
 <main class="app">
   <header>
-    <h1>👑 เขาวงกตเจ้าหญิง</h1>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <a class="back-link" href="index.html">← กลับหน้ารวมเกม</a>
+      <h1>👑 เขาวงกตเจ้าหญิง</h1>
+    </div>
     <div class="audio">
       <button id="soundButton" aria-pressed="true">เสียง: เปิด</button>
-      <button id="voiceButton" aria-pressed="false">เสียงพูด: ปิด</button>
+      <button id="voiceButton" aria-pressed="true">เสียงพูด: เปิด</button>
       <button id="helpButton" aria-label="วิธีเล่น">?</button>
     </div>
   </header>
@@ -329,7 +342,7 @@ PRINCESSES.forEach((p,i)=>{
 let game=null, config=null, staticLayer=null, actorLayer=null, fxLayer=null;
 let particles=[], lastFrame=0, lastDraw=0, nextMoveAt=0;
 let cameraCell=0, toastUntil=0;
-let soundEnabled=true, voiceEnabled=false, audioContext=null;
+let soundEnabled=true, voiceEnabled=true, audioContext=null;
 let dialogReturnFocus=null;
 
 function freshSeed(){
@@ -406,7 +419,7 @@ function unlockAudio(){
   }catch(e){}
 }
 function tone(freq,start,duration,type="sine",volume=.07){
-  if(!soundEnabled || !audioContext || audioContext.state!=="running")return;
+  if(!soundEnabled || !audioContext || audioContext.state==="closed")return;
   try{
     const osc=audioContext.createOscillator();
     const gain=audioContext.createGain();
@@ -443,13 +456,16 @@ function sfx(kind){
 }
 function speak(text){
   if(!voiceEnabled || !("speechSynthesis" in window))return;
-  speechSynthesis.cancel();
-  const utterance=new SpeechSynthesisUtterance(text);
-  utterance.lang="th-TH";
-  utterance.rate=.92;
-  const thaiVoice=speechSynthesis.getVoices().find(v=>v.lang.startsWith("th"));
-  if(thaiVoice)utterance.voice=thaiVoice;
-  speechSynthesis.speak(utterance);
+  try{
+    speechSynthesis.cancel();
+    const utterance=new SpeechSynthesisUtterance(text);
+    utterance.lang="th-TH";
+    utterance.rate=.92;
+    utterance.pitch=1.14;
+    const thaiVoice=speechSynthesis.getVoices().find(v=>v.lang.startsWith("th"));
+    if(thaiVoice)utterance.voice=thaiVoice;
+    speechSynthesis.speak(utterance);
+  }catch(e){}
 }
 
 /* ---------- SVG: ตัวละครและอุปกรณ์ ---------- */
@@ -1071,6 +1087,7 @@ function hit(reason,returnCell,displace){
   toast(`${reason} · พลัง -1 · กลับช่องก่อนหน้า`);
   updateHUD();
   if(game.hp<=0)finish(false,"พลังชีวิตหมด");
+  else speak(`อุ๊ย! ระวัง${reason}นะจ๊ะ ลองเดินใหม่จ้ะ`);
 }
 function collectPotion(){
   const p=game.potions.find(p=>!p.collected&&same(p,game.player));
@@ -1084,6 +1101,7 @@ function collectPotion(){
   game.collected++;
   sfx("potion");burst(p,"#a7df91",20);
   toast(`${POTION_NAMES[p.type]} · พลัง +1`);
+  speak(`เย่! ได้รับ${POTION_NAMES[p.type]} เพิ่มพลังหัวใจหนึ่งดวงจ้ะ`);
   updateHUD();
 }
 function move(direction){
@@ -1195,7 +1213,10 @@ function readyDialog(){
     ${g.level===3?`
       <p class="small">แผนที่กว้าง 2 หน้าจอ เลื่อนได้เฉพาะซ้าย–ขวา<br>
       ครั้งนี้เริ่มฝั่ง${g.reverse?"ขวา ไปทางซ้าย":"ซ้าย ไปทางขวา"}</p>`:""}
-    <div class="actions"><button id="begin" class="primary">เริ่มผจญภัย</button></div>
+    <div class="actions">
+      <button id="begin" class="primary">เริ่มผจญภัย</button>
+      <a class="back-link" href="index.html">← กลับหน้ารวมเกม</a>
+    </div>
     <p class="small">เสียงเริ่มหลังแตะปุ่ม · ภาพการ์ตูนวาดใหม่ ไม่ใช่ภาพทางการ</p>
   `);
   $("begin").onclick=start;
@@ -1210,7 +1231,8 @@ function start(){
   game.enemyAt=game.enemyPeriod;
   nextMoveAt=0;
   sfx("start");
-  speak("ช่วยเจ้าหญิงเดินไปถึงประตูดาวกันเถอะ");
+  const pName=PRINCESSES[Number($("princess").value)].name;
+  speak(`สวัสดีจ้ะ! พาเจ้าหญิง${pName} เดินไปหาประตูดาวที่${THEMES[game.theme].name}กันนะจ๊ะ`);
   toast(game.level===1?
     "เดินไปยังประตูที่มีดาวได้เลย!":
     "รอจุดเขียวก่อนข้ามกับดัก ระวังศัตรูด้วยนะ",4000);
@@ -1224,8 +1246,9 @@ function finish(win,reason){
   else game.elapsed=Date.now()-game.startAt;
 
   sfx(win?"win":"lose");
-  speak(win?"ยินดีด้วย คุณช่วยเจ้าหญิงได้สำเร็จ":
-    "ไม่เป็นไรนะ ลองใหม่ได้เสมอ");
+  const pName=PRINCESSES[Number($("princess").value)].name;
+  speak(win?`เก่งมากเลยจ้ะ! พาเจ้าหญิง${pName}ออกจากเขาวงกตได้สำเร็จแล้ว`:
+    "ไม่เป็นไรนะคนเก่ง มาลองช่วยเจ้าหญิงใหม่อีกครั้งนะจ๊ะ");
   if(win)burst(game.player,"#ffd66b",85,"confetti");
   updateHUD();
 
@@ -1233,7 +1256,7 @@ function finish(win,reason){
     <div class="big">${win?"🏆":"🌷"}</div>
     <h2 id="dialogTitle">${win?"ยินดีด้วย! ผ่านด่านแล้ว":"ไม่เป็นไร ลองใหม่ได้นะ"}</h2>
     <p>${win?
-      `คุณช่วย${PRINCESSES[Number($("princess").value)].name}ออกจากเขาวงกตสำเร็จ!`:
+      `คุณช่วย${pName}ออกจากเขาวงกตสำเร็จ!`:
       reason+" · ฝึกอีกนิดก็เก่งขึ้นแล้ว"}</p>
     <div class="summary">
       <div>เวลาที่ใช้<br><strong>${formatTime(game.elapsed)}</strong></div>
@@ -1248,6 +1271,7 @@ function finish(win,reason){
       <button id="retry" class="primary">เล่นด่านเดิมอีกครั้ง</button>
       <button id="resultShuffle">สุ่มผังธีมเดิม</button>
       <button id="resultNew">เริ่มเกมใหม่</button>
+      <a class="back-link" href="index.html">← กลับหน้ารวมเกม</a>
     </div>
   `);
   $("retry").onclick=()=>prepare("replay");
@@ -1257,7 +1281,7 @@ function finish(win,reason){
 function help(){
   if(game&&game.mode==="playing"){
     toast("ลูกศร/WASD → ประตูดาว · จุดเขียวผ่านได้ · ยา +1 · เวลาไม่หยุด",6500);
-    speak("เดินไปประตูดาว รอศัตรูผ่าน และรอจุดเขียวก่อนข้ามกับดัก");
+    speak("เดินไปที่ประตูดาว รอศัตรูเดินผ่านไปก่อน และรอจุดเขียวก่อนข้ามกับดักนะจ๊ะ");
     return;
   }
   readyDialog();
@@ -1316,7 +1340,7 @@ document.addEventListener("keydown",e=>{
   if(!$("overlay").hidden){
     // เก็บโฟกัสไว้ใน dialog
     if(e.key==="Tab"){
-      const buttons=[...$("dialog").querySelectorAll("button:not(:disabled)")];
+      const buttons=[...$("dialog").querySelectorAll("button:not(:disabled), a[href]")];
       if(!buttons.length)return;
       const first=buttons[0],last=buttons[buttons.length-1];
       if(e.shiftKey&&document.activeElement===first){
@@ -1346,7 +1370,9 @@ $("sameTheme").onclick=()=>prepare("sameTheme");
 $("level").onchange=()=>prepare("sameTheme");
 $("princess").onchange=()=>{
   renderActors(performance.now());
-  toast(`เลือก${PRINCESSES[Number($("princess").value)].name}แล้ว`);
+  const pName=PRINCESSES[Number($("princess").value)].name;
+  toast(`เลือก${pName}แล้ว`);
+  speak(`เลือกเจ้าหญิง${pName}จ้า`);
 };
 $("soundButton").onclick=()=>{
   soundEnabled=!soundEnabled;
@@ -1362,10 +1388,18 @@ $("voiceButton").onclick=()=>{
   voiceEnabled=!voiceEnabled;
   $("voiceButton").textContent="เสียงพูด: "+(voiceEnabled?"เปิด":"ปิด");
   $("voiceButton").setAttribute("aria-pressed",String(voiceEnabled));
-  if(voiceEnabled)speak("พร้อมผจญภัยแล้ว");
+  if(voiceEnabled)speak("เปิดเสียงพูดของเจ้าหญิงแล้วจ้ะ");
   else speechSynthesis.cancel();
 };
 $("helpButton").onclick=help;
+
+if("speechSynthesis" in window){
+  speechSynthesis.getVoices();
+  speechSynthesis.addEventListener?.("voiceschanged",()=>speechSynthesis.getVoices());
+}
+window.addEventListener("pagehide",()=>{
+  if("speechSynthesis" in window)speechSynthesis.cancel();
+});
 
 if("ResizeObserver" in window){
   new ResizeObserver(()=>fitBoard()).observe($("stage"));

@@ -1,0 +1,3281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Princess Spot the Difference — Observation Game</title>
+
+  <style>
+    :root {
+      --purple: #7351c7;
+      --purple-dark: #533297;
+      --pink: #ffe3ef;
+      --ink: #34304c;
+      --muted: #706b84;
+      --green: #128343;
+      --border: #e8def6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Tahoma, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, #ffe5ef, transparent 38%),
+        radial-gradient(circle at 90% 10%, #ddf3ff, transparent 36%),
+        #faf7ff;
+      min-height: 100vh;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 4px solid #edb533;
+      outline-offset: 4px;
+    }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    .app {
+      width: min(1440px, 100%);
+      margin: auto;
+      padding: 22px;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-block;
+      color: var(--purple-dark);
+      background: #eee6ff;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: clamp(25px, 4vw, 42px);
+      margin: 12px 0 8px;
+      line-height: 1.4;
+    }
+
+    .hero p,
+    .hint {
+      color: var(--muted);
+      line-height: 1.8;
+      margin: 6px 0;
+    }
+
+    .panel {
+      padding: 22px;
+      background: #ffffffeb;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 12px 35px #6443940a;
+    }
+
+    .section-head,
+    .toolbar,
+    .actions,
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .section-head,
+    .toolbar {
+      justify-content: space-between;
+    }
+
+    .section-head {
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      margin: 0 0 5px;
+      font-size: 23px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      min-height: 46px;
+      font-weight: bold;
+      transition: transform .15s, background .15s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .primary {
+      color: white;
+      background: var(--purple);
+      box-shadow: 0 5px 12px #7351c725;
+    }
+
+    .primary:hover {
+      background: var(--purple-dark);
+    }
+
+    .secondary {
+      color: var(--purple-dark);
+      background: #efe8fc;
+    }
+
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+    }
+
+    .scene-card {
+      overflow: hidden;
+      text-align: left;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 0;
+      background: white;
+      color: var(--ink);
+      transition: transform .15s, border-color .15s, box-shadow .15s;
+    }
+
+    .scene-card:hover {
+      transform: translateY(-4px);
+      border-color: #b99be9;
+      box-shadow: 0 8px 20px #7351c715;
+    }
+
+    .thumbnail {
+      display: block;
+      aspect-ratio: 3 / 2;
+      background: #e9f3ff;
+      overflow: hidden;
+    }
+
+    .thumbnail svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .card-copy {
+      display: block;
+      padding: 12px 14px 15px;
+    }
+
+    .card-copy strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .card-copy small {
+      color: var(--muted);
+      display: block;
+      line-height: 1.6;
+    }
+
+    .toolbar {
+      margin-bottom: 16px;
+    }
+
+    .game-title {
+      margin: 0;
+      font-size: 23px;
+    }
+
+    .game-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 15px;
+      min-width: 108px;
+      text-align: center;
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .stat strong {
+      font-size: 23px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .boards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .board {
+      min-width: 0;
+      overflow: hidden;
+      background: white;
+      border: 3px solid white;
+      border-radius: 20px;
+      box-shadow: 0 8px 28px #51357712;
+    }
+
+    .board-label {
+      text-align: center;
+      padding: 10px;
+      background: #efe8ff;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--purple-dark);
+    }
+
+    .board:nth-child(2) .board-label {
+      background: #ffe8f1;
+    }
+
+    .image-area {
+      aspect-ratio: 3 / 2;
+      line-height: 0;
+      background: #eaf4ff;
+    }
+
+    .game-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: crosshair;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .marks {
+      pointer-events: none;
+    }
+
+    .status {
+      min-height: 32px;
+      margin: 17px 0 9px;
+      text-align: center;
+      font-weight: bold;
+      line-height: 1.7;
+      color: var(--purple-dark);
+    }
+
+    .progress-dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 10px 0 16px;
+    }
+
+    .dot {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 2px solid #ded3ef;
+      background: white;
+      color: #978ca7;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .dot.done {
+      color: white;
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .bottom-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #27203899;
+      backdrop-filter: blur(7px);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .result {
+      width: min(470px, 100%);
+      text-align: center;
+      padding: 32px;
+      border-radius: 28px;
+      background: white;
+      box-shadow: 0 22px 80px #241a4940;
+    }
+
+    .trophy {
+      font-size: 66px;
+      margin-bottom: 10px;
+    }
+
+    .result h2 {
+      font-size: 28px;
+    }
+
+    .result-time {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--purple);
+      margin: 8px 0 20px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result .actions {
+      justify-content: center;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        padding: 14px;
+      }
+
+      .panel {
+        padding: 16px;
+      }
+
+      .boards {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+      }
+
+      .stats {
+        gap: 8px;
+      }
+
+      .stat {
+        min-width: 88px;
+        padding: 8px 12px;
+      }
+
+      .scene-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .card-copy {
+        padding: 10px;
+      }
+
+      .card-copy strong {
+        font-size: 13px;
+      }
+
+      .card-copy small {
+        font-size: 11px;
+      }
+
+      .section-head {
+        align-items: flex-start;
+      }
+
+      .result {
+        padding: 26px 18px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        transition: none !important;
+      }
+    }
+
+    .challenge-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      padding: 22px;
+      margin-bottom: 24px;
+      border-radius: 20px;
+      color: #fff;
+      background: linear-gradient(125deg, #49347c, #8a4591);
+    }
+
+    .challenge-banner h2 {
+      margin: 9px 0;
+      color: #fff;
+    }
+
+    .challenge-banner p {
+      margin: 0;
+      line-height: 1.8;
+      color: #f4e9ff;
+    }
+
+    .level-tag {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #ffe7a5;
+    }
+
+    .challenge-btn {
+      background: #ffe29a;
+      color: #50325c;
+      box-shadow: 0 5px 16px #24113330;
+    }
+
+    .challenge-btn:hover {
+      background: #fff0bf;
+    }
+
+    .basic-heading {
+      margin: 0 0 16px;
+      color: var(--purple-dark);
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    #timer.timer-warning {
+      color: #d3324b;
+    }
+
+    #timer.timer-warning::after {
+      content: " !";
+    }
+
+    .answer-summary-note {
+      color: #835016;
+      line-height: 1.8;
+      margin: 12px 0;
+    }
+
+    .answer-btn {
+      background: #fff0cd;
+      color: #865019;
+      border: 2px solid #e6a041;
+      margin: 0 0 16px;
+    }
+
+    .answer-btn:hover {
+      background: #ffe5b0;
+    }
+
+    .answer-review-bar {
+      margin: 16px 0;
+      padding: 18px;
+      background: #fff8e9;
+      border: 2px solid #edbb6d;
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .answer-review-bar p {
+      margin: 0 0 14px;
+      color: #775120;
+      line-height: 1.8;
+    }
+
+    .answer-review-bar .actions {
+      justify-content: center;
+    }
+
+    .hero-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="hero-bar">
+        <a class="btn secondary back-link" href="index.html">← Back to Games</a>
+        <button id="soundToggle" class="btn secondary" type="button" aria-pressed="true">
+          🔊 Sound: ON
+        </button>
+        <button id="voiceToggle" class="btn secondary" type="button" aria-pressed="true">
+          🗣️ Voice: ON
+        </button>
+        <button id="repeatVoice" class="btn secondary" type="button">
+          🔊 Listen
+        </button>
+      </div>
+      <span class="badge">Royal Observation & Visual Game</span>
+      <h1>Princess Spot the Difference</h1>
+      <p>Where do the two pictures differ? Let's find all 5 differences!</p>
+    </header>
+
+    <section id="home" class="panel">
+      <div class="challenge-banner">
+        <div>
+          <span class="level-tag">LEVEL 2 — CHALLENGE</span>
+          <h2>60-Second Royal Detective Mission</h2>
+          <p>
+            Brand new scene every round • 50 objects • Spot 5 differences
+          </p>
+        </div>
+
+        <button id="challengeStart" class="btn challenge-btn" type="button">
+          Start Challenge
+        </button>
+      </div>
+
+      <p class="basic-heading">LEVEL 1 — BASIC · Choose from 50 Royal Scenes</p>
+      <div class="section-head">
+        <div>
+          <h2>Choose a Kingdom to Play</h2>
+          <p id="sceneCountHint" class="hint"></p>
+        </div>
+        <button id="randomStart" class="btn primary" type="button">
+          🎲 Pick a Random Scene
+        </button>
+      </div>
+      <div id="sceneGrid" class="scene-grid"></div>
+    </section>
+
+    <section id="game" hidden>
+      <div class="toolbar">
+        <div>
+          <h2 id="gameTitle" class="game-title"></h2>
+          <div id="gameSubtitle" class="game-subtitle"></div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <small>Time Used</small>
+            <strong id="timer">00:00</strong>
+          </div>
+          <div class="stat">
+            <small>Found</small>
+            <strong id="counter">0 / 5</strong>
+          </div>
+          <button id="backHome" class="btn secondary" type="button">
+            Choose Scene
+          </button>
+          <a class="btn secondary back-link" href="index.html">
+            ← All Games
+          </a>
+        </div>
+      </div>
+
+      <div class="boards">
+        <div class="board">
+          <div class="board-label">Picture 1</div>
+          <div id="leftBoard" class="image-area"></div>
+        </div>
+        <div class="board">
+          <div class="board-label">Picture 2</div>
+          <div id="rightBoard" class="image-area"></div>
+        </div>
+      </div>
+
+      <p id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <div id="dots" class="progress-dots" aria-hidden="true"></div>
+      <div id="answerReviewBar" class="answer-review-bar" hidden>
+        <p>
+          <strong>Round Answer Key:</strong>
+          Green circles show differences you found,
+          and numbered orange circles show the remaining spots.
+        </p>
+        <div class="actions">
+          <button id="reviewPlayAgain" class="btn primary" type="button">
+            New Challenge Round
+          </button>
+          <button id="reviewBackHome" class="btn secondary" type="button">
+            Back to Mode Select
+          </button>
+          <a class="btn secondary back-link" href="index.html">
+            ← Back to Games
+          </a>
+        </div>
+      </div>
+      <p class="bottom-note">
+        Tap or click either picture • Green circle = Correct • Red cross = Try again<br>
+        Relaxed count-up timer with no point penalties
+      </p>
+    </section>
+  </main>
+
+  <div id="summary" class="modal" role="dialog" aria-modal="true" aria-labelledby="resultTitle" hidden>
+    <div class="result">
+      <div class="trophy" aria-hidden="true">🏆</div>
+      <h2 id="resultTitle">Great Job! All 5 Found!</h2>
+      <p id="resultScene"></p>
+      <p class="hint">Time used this round</p>
+      <div id="resultTime" class="result-time"></div>
+      <p id="answerSummaryNote" class="answer-summary-note" hidden></p>
+      <button id="showAnswers" class="btn answer-btn" type="button" hidden>Show Answers on Picture</button>
+      <div class="actions">
+        <button id="playAgain" class="btn primary" type="button">
+          Play Same Scene Again
+        </button>
+        <button id="randomAgain" class="btn primary" type="button">
+          Random New Scene
+        </button>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <button id="chooseAgain" class="btn secondary" type="button" style="margin-top:0">
+          Back to Scene Select
+        </button>
+        <a class="btn secondary back-link" href="index.html">
+          ← Back to Games
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    (() => {
+      const $ = id => document.getElementById(id);
+      const NS = "http://www.w3.org/2000/svg";
+
+      /*
+       * ระบบพิกัดภาพทั้งหมดคือ 900 × 600
+       * ภาพสองฝั่งสร้างจากข้อมูลชุดเดียวกัน
+       * เปลี่ยนเฉพาะวัตถุใน targets จำนวน 5 จุดเท่านั้น
+       */
+
+      const PEOPLE = {
+        elsa: {
+          name: "Elsa", hair: "#f8e4aa", dress: "#76d8ec",
+          accent: "#d9faff", skin: "#ffddce", style: "braid"
+        },
+        belle: {
+          name: "Belle", hair: "#744428", dress: "#f4c74b",
+          accent: "#fff0a0", skin: "#f9d4b7", style: "bun"
+        },
+        ariel: {
+          name: "Ariel", hair: "#dc514b", dress: "#54c6ae",
+          accent: "#b786dd", skin: "#ffdcc5", style: "long"
+        },
+        rapunzel: {
+          name: "Rapunzel", hair: "#f3ca63", dress: "#b38ae0",
+          accent: "#efd6ff", skin: "#ffdfc8", style: "braid"
+        },
+        cinderella: {
+          name: "Cinderella", hair: "#e6b65d", dress: "#8eb9f1",
+          accent: "#e4f3ff", skin: "#ffe0d1", style: "bun"
+        },
+        snow: {
+          name: "Snow White", hair: "#363344", dress: "#f5d35b",
+          accent: "#648ace", skin: "#ffe1d4", style: "bob"
+        },
+        jasmine: {
+          name: "Jasmine", hair: "#303140", dress: "#51c7cb",
+          accent: "#bcf6ed", skin: "#c98f65", style: "long"
+        },
+        aurora: {
+          name: "Aurora", hair: "#e8bf6d", dress: "#e897c7",
+          accent: "#ffe4f5", skin: "#ffe0ce", style: "long"
+        },
+        mulan: {
+          name: "Mulan", hair: "#323449", dress: "#7bb793",
+          accent: "#efa9b2", skin: "#f0c49f", style: "bun"
+        },
+        tiana: {
+          name: "Tiana", hair: "#40302c", dress: "#9ac76c",
+          accent: "#e2efab", skin: "#a9714e", style: "bun"
+        }
+      };
+
+      const SCENES = (() => {
+        // ธีมพื้นหลังที่ฟังก์ชันวาดภาพเดิมรองรับ
+        const THEMES = {
+          castle: {
+            world: "castle",
+            sky: "#cbeeff",
+            land: "#a7d990",
+            flower: "#ee83b3",
+            buddy: "bunny"
+          },
+          snow: {
+            world: "snow",
+            sky: "#d1e8ff",
+            land: "#f0faff",
+            flower: "#a890eb",
+            buddy: "snowman"
+          },
+          sea: {
+            world: "sea",
+            sky: "#c5edff",
+            land: "#f6dfac",
+            flower: "#ef8baf",
+            buddy: "crab"
+          },
+          forest: {
+            world: "forest",
+            sky: "#e1f3ce",
+            land: "#acd18b",
+            flower: "#f391b1",
+            buddy: "bunny"
+          },
+          lantern: {
+            world: "lantern",
+            sky: "#535c9c",
+            land: "#b3bfd5",
+            flower: "#ffc779",
+            buddy: "cat"
+          },
+          desert: {
+            world: "desert",
+            sky: "#f9dfbe",
+            land: "#edce99",
+            flower: "#cc8bea",
+            buddy: "cat"
+          },
+          mountain: {
+            world: "mountain",
+            sky: "#d9eef3",
+            land: "#b0d098",
+            flower: "#eb84b0",
+            buddy: "panda"
+          },
+          lily: {
+            world: "lily",
+            sky: "#d0eee2",
+            land: "#b6d39b",
+            flower: "#f098c5",
+            buddy: "frog"
+          },
+          garden: {
+            world: "garden",
+            sky: "#f9dfec",
+            land: "#b9d69a",
+            flower: "#eb789c",
+            buddy: "bunny"
+          },
+          wintersea: {
+            world: "wintersea",
+            sky: "#beeafa",
+            land: "#e1edf0",
+            flower: "#a89ae7",
+            buddy: "penguin"
+          }
+        };
+
+        /*
+         * ข้อมูลแต่ละแถว:
+         * [รหัสฉาก, ชื่อฉาก, ตัวละครซ้าย, ตัวละครขวา, ธีม]
+         *
+         * รหัส 10 ฉากแรกคงเดิม เพื่อให้การตั้งค่า AI_IMAGES เดิม
+         * ยังใช้งานได้โดยไม่ต้องเปลี่ยนชื่อ
+         */
+        const DATA = [
+          // ────────── ฉาก 1–10: ชุดเริ่มต้น ──────────
+          [
+            "castle", "Rainbow Castle Garden",
+            "belle", "cinderella", "castle"
+          ],
+          [
+            "snow", "Cozy Snow Palace",
+            "elsa", "rapunzel", "snow"
+          ],
+          [
+            "sea", "Seaside Picnic",
+            "ariel", "jasmine", "sea"
+          ],
+          [
+            "forest", "Enchanted Flower Forest",
+            "snow", "aurora", "forest"
+          ],
+          [
+            "lantern", "Lakeside Lantern Night",
+            "rapunzel", "belle", "lantern"
+          ],
+          [
+            "desert", "Oasis Palace Garden",
+            "jasmine", "cinderella", "desert"
+          ],
+          [
+            "mountain", "Cherry Blossom Foothills",
+            "mulan", "snow", "mountain"
+          ],
+          [
+            "lily", "Lotus Pond & Little Friends",
+            "tiana", "ariel", "lily"
+          ],
+          [
+            "garden", "Rose Garden Tea Party",
+            "aurora", "belle", "garden"
+          ],
+          [
+            "wintersea", "Blue Crystal Bay",
+            "elsa", "ariel", "wintersea"
+          ],
+
+          // ────────── ฉาก 11–20: เพื่อนใหม่ต่างดินแดน ──────────
+          [
+            "castle-02", "Elsa Visits the Castle Garden",
+            "elsa", "belle", "castle"
+          ],
+          [
+            "snow-02", "Cinderella in the Snow Kingdom",
+            "cinderella", "elsa", "snow"
+          ],
+          [
+            "sea-02", "Rapunzel Watches the Sailboat",
+            "rapunzel", "ariel", "sea"
+          ],
+          [
+            "forest-02", "Belle & Mulan's Forest Walk",
+            "belle", "mulan", "forest"
+          ],
+          [
+            "lantern-02", "Tiana & Rapunzel's Lanterns",
+            "tiana", "rapunzel", "lantern"
+          ],
+          [
+            "desert-02", "Aurora Visits Jasmine's Palace",
+            "aurora", "jasmine", "desert"
+          ],
+          [
+            "mountain-02", "Cinderella & Cherry Blossoms",
+            "cinderella", "mulan", "mountain"
+          ],
+          [
+            "lily-02", "Snow White at the Lotus Pond",
+            "snow", "tiana", "lily"
+          ],
+          [
+            "garden-02", "Ariel in the Sweet Rose Garden",
+            "ariel", "aurora", "garden"
+          ],
+          [
+            "wintersea-02", "Jasmine at Crystal Bay",
+            "jasmine", "elsa", "wintersea"
+          ],
+
+          // ────────── ฉาก 21–30: วันหยุดแสนสนุก ──────────
+          [
+            "castle-03", "Rapunzel's Castle Holiday",
+            "rapunzel", "snow", "castle"
+          ],
+          [
+            "snow-03", "Belle & the Snowman Friend",
+            "belle", "tiana", "snow"
+          ],
+          [
+            "sea-03", "Mulan & Aurora by the Sea",
+            "mulan", "aurora", "sea"
+          ],
+          [
+            "forest-03", "Jasmine & Rapunzel Explore the Woods",
+            "jasmine", "rapunzel", "forest"
+          ],
+          [
+            "lantern-03", "Elsa & Snow White's Lanterns",
+            "elsa", "snow", "lantern"
+          ],
+          [
+            "desert-03", "Belle & Ariel's Palace Trip",
+            "belle", "ariel", "desert"
+          ],
+          [
+            "mountain-03", "Tiana & Jasmine's Mountain View",
+            "tiana", "jasmine", "mountain"
+          ],
+          [
+            "lily-03", "Aurora & Cinderella by the Pond",
+            "aurora", "cinderella", "lily"
+          ],
+          [
+            "garden-03", "Elsa & Mulan in the Flower Garden",
+            "elsa", "mulan", "garden"
+          ],
+          [
+            "wintersea-03", "Rapunzel & Cinderella by the Bay",
+            "rapunzel", "cinderella", "wintersea"
+          ],
+
+          // ────────── ฉาก 31–40: การเดินทางของมิตรภาพ ──────────
+          [
+            "castle-04", "Tiana & Mulan Visit the Castle",
+            "tiana", "mulan", "castle"
+          ],
+          [
+            "snow-04", "Jasmine & Snow White's Winter Trip",
+            "jasmine", "snow", "snow"
+          ],
+          [
+            "sea-04", "Belle & Cinderella by the Ocean",
+            "belle", "cinderella", "sea"
+          ],
+          [
+            "forest-04", "Elsa & Aurora Meet Woodland Friends",
+            "elsa", "aurora", "forest"
+          ],
+          [
+            "lantern-04", "Ariel & Mulan Watch the Lanterns",
+            "ariel", "mulan", "lantern"
+          ],
+          [
+            "desert-04", "Tiana & Rapunzel in the Palace Garden",
+            "tiana", "rapunzel", "desert"
+          ],
+          [
+            "mountain-04", "Belle & Aurora's Blossom Stroll",
+            "belle", "aurora", "mountain"
+          ],
+          [
+            "lily-04", "Elsa & Cinderella See Water Lilies",
+            "elsa", "cinderella", "lily"
+          ],
+          [
+            "garden-04", "Jasmine & Mulan's Garden Picnic",
+            "jasmine", "mulan", "garden"
+          ],
+          [
+            "wintersea-04", "Ariel & Snow White Meet a Penguin",
+            "ariel", "snow", "wintersea"
+          ],
+
+          // ────────── ฉาก 41–50: นักสังเกตตัวน้อย ──────────
+          [
+            "castle-05", "Aurora & Rapunzel in the Castle Yard",
+            "aurora", "rapunzel", "castle"
+          ],
+          [
+            "snow-05", "Tiana & Elsa at the Ice Palace",
+            "tiana", "elsa", "snow"
+          ],
+          [
+            "sea-05", "Snow White & Cinderella Watch Ships",
+            "snow", "cinderella", "sea"
+          ],
+          [
+            "forest-05", "Ariel & Belle's Woodland Walk",
+            "ariel", "belle", "forest"
+          ],
+          [
+            "lantern-05", "Jasmine & Aurora Under the Moon",
+            "jasmine", "aurora", "lantern"
+          ],
+          [
+            "desert-05", "Mulan & Rapunzel at the Desert Palace",
+            "mulan", "rapunzel", "desert"
+          ],
+          [
+            "mountain-05", "Elsa & Belle Meet a Little Panda",
+            "elsa", "belle", "mountain"
+          ],
+          [
+            "lily-05", "Jasmine & Cinderella at Lotus Pond",
+            "jasmine", "cinderella", "lily"
+          ],
+          [
+            "garden-05", "Tiana & Aurora in the Rose Garden",
+            "tiana", "aurora", "garden"
+          ],
+          [
+            "wintersea-05", "Mulan & Snow White at Crystal Bay",
+            "mulan", "snow", "wintersea"
+          ]
+        ];
+
+        // ใช้สีที่ต่างจากสีฟ้าของดอกไม้ในภาพฝั่งที่ 2 อย่างชัดเจน
+        const FLOWER_COLORS = [
+          "#ee83b3", // ชมพู
+          "#ad79d5", // ม่วง
+          "#efa35b", // ส้ม
+          "#df7790", // กุหลาบ
+          "#d5ab48"  // เหลืองทอง
+        ];
+
+        const scenes = DATA.map((row, index) => {
+          const [id, title, leftPerson, rightPerson, themeKey] = row;
+          const theme = THEMES[themeKey];
+
+          return {
+            ...theme,
+            id,
+            title,
+            pair: [leftPerson, rightPerson],
+
+            // คงสีเดิมสำหรับ 10 ฉากแรก
+            // ฉากใหม่เปลี่ยนสีตามลำดับและชุดของฉาก
+            flower: index < 10
+              ? theme.flower
+              : FLOWER_COLORS[
+              (index + Math.floor(index / 10)) % FLOWER_COLORS.length
+              ]
+          };
+        });
+
+        // Validate scene data before use
+        if (scenes.length !== 50) {
+          throw new Error("Must have all 50 scenes");
+        }
+
+        if (new Set(scenes.map(scene => scene.id)).size !== scenes.length) {
+          throw new Error("Duplicate scene ID found");
+        }
+
+        scenes.forEach(scene => {
+          if (!scene.pair.every(key => PEOPLE[key])) {
+            throw new Error(`Missing character data for scene: ${scene.title}`);
+          }
+        });
+
+        return scenes;
+      })();
+      /*
+       * ตัวเลือกสำหรับใช้ภาพ AI / JPG แทน SVG
+       *
+       * 1. วาง JPG คู่ไว้ข้าง index.html
+       * 2. ใช้ภาพอัตราส่วน 3:2 เหมือนกันทั้งคู่
+       * 3. ระบุจุดต่างให้ตรงกับภาพจริง จำนวน 5 จุด
+       * 4. พิกัด x,y,r อยู่บนระบบพิกัด 900 × 600
+       *
+       * ตัวอย่าง: นำเครื่องหมายคอมเมนต์ออกแล้วแก้ข้อมูล
+       *
+       * const AI_IMAGES = {
+       *   castle: {
+       *     left: "castle-left.jpg",
+       *     right: "castle-right.jpg",
+       *     spots: [
+       *       { x: 275, y: 218, r: 32, label: "มงกุฎ" },
+       *       { x: 620, y: 324, r: 30, label: "สร้อยคอ" },
+       *       { x: 450, y: 125, r: 42, label: "ดวงดาว" },
+       *       { x: 125, y: 475, r: 43, label: "ดอกไม้" },
+       *       { x: 780, y: 488, r: 36, label: "โบ" }
+       *     ]
+       *   }
+       * };
+       */
+
+      const AI_IMAGES = {};
+
+      const state = {
+        index: -1,
+        playing: false,
+        startedAt: 0,
+        elapsed: 0,
+        ticker: null,
+        found: new Set(),
+        targets: [],
+        timeouts: new Set(),
+        soundEnabled: true,
+        voiceEnabled: true,
+        lastSpokenText: "Hello little friend! Let's help the princesses spot all five differences between the two pictures!",
+        lastTickSec: -1
+      };
+
+      let audioCtx = null;
+
+      function unlockAudio() {
+        if (!state.soundEnabled) return null;
+        try {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return null;
+          if (!audioCtx) audioCtx = new Ctx();
+          if (audioCtx.state === "suspended") audioCtx.resume().catch(() => {});
+          return audioCtx;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function playTone(freq, start, duration, type = "sine", volume = 0.08) {
+        const ctx = unlockAudio();
+        if (!ctx) return;
+        try {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const t = ctx.currentTime + start;
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.0001, t);
+          gain.gain.exponentialRampToValueAtTime(volume, t + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + duration + 0.02);
+        } catch (e) {}
+      }
+
+      function sfx(kind) {
+        if (!state.soundEnabled) return;
+        if (kind === "start") {
+          [523.25, 659.25, 783.99].forEach((f, i) =>
+            playTone(f, i * 0.09, 0.22, "triangle", 0.07)
+          );
+        } else if (kind === "found") {
+          [587.33, 783.99, 1046.5].forEach((f, i) =>
+            playTone(f, i * 0.08, 0.24, "sine", 0.09)
+          );
+        } else if (kind === "already") {
+          [440, 523.25].forEach((f, i) =>
+            playTone(f, i * 0.07, 0.14, "sine", 0.05)
+          );
+        } else if (kind === "wrong") {
+          playTone(260, 0, 0.16, "triangle", 0.06);
+          playTone(210, 0.1, 0.22, "sine", 0.05);
+        } else if (kind === "tick") {
+          playTone(760, 0, 0.07, "sine", 0.04);
+        } else if (kind === "win") {
+          [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5].forEach((f, i) =>
+            playTone(f, i * 0.11, 0.3, "triangle", 0.09)
+          );
+        } else if (kind === "lose") {
+          [440, 392, 349.23, 329.63].forEach((f, i) =>
+            playTone(f, i * 0.14, 0.28, "sine", 0.06)
+          );
+        } else if (kind === "click") {
+          playTone(520, 0, 0.06, "sine", 0.04);
+        }
+      }
+
+      function speak(text, force = false) {
+        if (text) state.lastSpokenText = text;
+        if ((!state.voiceEnabled && !force) || !("speechSynthesis" in window)) return;
+        try {
+          window.speechSynthesis.cancel();
+          const u = new SpeechSynthesisUtterance(text || state.lastSpokenText);
+          u.lang = "en-US";
+          u.rate = 0.92;
+          u.pitch = 1.14;
+          const v = window.speechSynthesis.getVoices().find(voice =>
+            voice.lang && voice.lang.toLowerCase().startsWith("en")
+          );
+          if (v) u.voice = v;
+          window.speechSynthesis.speak(u);
+        } catch (e) {}
+      }
+
+      function esc(value) {
+        return String(value).replace(/[&<>"']/g, c => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;",
+          '"': "&quot;", "'": "&#39;"
+        }[c]));
+      }
+
+      function circle(x, y, r, fill, extra = "") {
+        return `<circle cx="${x}" cy="${y}" r="${r}"
+      fill="${fill}" ${extra}/>`;
+      }
+
+      function ellipse(x, y, rx, ry, fill, extra = "") {
+        return `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"
+      fill="${fill}" ${extra}/>`;
+      }
+
+      function star(x, y, outer, inner, fill, extra = "") {
+        const points = Array.from({length: 10}, (_, i) => {
+          const angle = -Math.PI / 2 + i * Math.PI / 5;
+          const r = i % 2 === 0 ? outer : inner;
+          return `${x + Math.cos(angle) * r},${y + Math.sin(angle) * r}`;
+        }).join(" ");
+        return `<polygon points="${points}" fill="${fill}" ${extra}/>`;
+      }
+
+      function cloud(x, y, scale = 1) {
+        return `<g transform="translate(${x} ${y}) scale(${scale})"
+      fill="#ffffff" opacity=".83">
+      <ellipse cx="0" cy="0" rx="48" ry="19"/>
+      <circle cx="-23" cy="-12" r="22"/>
+      <circle cx="8" cy="-21" r="29"/>
+      <circle cx="34" cy="-7" r="20"/>
+    </g>`;
+      }
+
+      function tree(x, y, color = "#74ae79", scale = 1) {
+        return `<g transform="translate(${x} ${y}) scale(${scale})">
+      <path d="M-10 5 L-14 135 H14 L10 5Z" fill="#a37b59"/>
+      ${circle(-32, 5, 45, color)}
+      ${circle(29, 0, 48, color)}
+      ${circle(0, -37, 51, color)}
+      ${circle(-17, -44, 17, "#ffffff", 'opacity=".13"')}
+    </g>`;
+      }
+
+      function pine(x, y, scale = 1) {
+        return `<g transform="translate(${x} ${y}) scale(${scale})">
+      <path d="M-8 0H8V130H-8Z" fill="#b39383"/>
+      <path d="M0-110L-65 5H-42L-79 75H79L42 5H65Z"
+        fill="#93b5c9"/>
+      <path d="M0-110L-40-40H40Z M0-35L-52 37H52Z"
+        fill="#f6fcff"/>
+    </g>`;
+      }
+
+      function flower(x, y, color, size = 1) {
+        let petals = "";
+        for (let i = 0; i < 6; i++) {
+          const a = i * Math.PI / 3;
+          petals += circle(
+            Math.cos(a) * 19, Math.sin(a) * 19, 14, color
+          );
+        }
+
+        return `<g transform="translate(${x} ${y}) scale(${size})">
+      <path d="M0 12V72" stroke="#578e62"
+        stroke-width="8" stroke-linecap="round"/>
+      <path d="M0 50Q-43 18-33 52Q-18 70 0 57"
+        fill="#78b574"/>
+      <path d="M0 57Q35 30 34 55Q19 75 0 64"
+        fill="#8bc780"/>
+      ${petals}
+      ${circle(0, 0, 12, "#ffe897")}
+    </g>`;
+      }
+
+      function castle(x, y, color = "#e2b9e6", palace = false) {
+        const roof = palace
+          ? `<path d="M-109-115Q-108-163-80-183Q-48-159-49-115Z
+                  M49-115Q50-163 80-183Q112-159 111-115Z"
+               fill="#70c7c5"/>`
+          : `<path d="M-118-115L-80-172L-42-115Z
+                  M42-115L80-172L118-115Z"
+               fill="#a594d5"/>`;
+
+        return `<g transform="translate(${x} ${y})">
+      <path d="M-108-115H-52V80H-108Z
+               M52-115H108V80H52Z
+               M-54-72H54V80H-54Z"
+        fill="${color}"/>
+      ${roof}
+      <path d="M-57-72L0-127L57-72Z" fill="#c89fd4"/>
+      <path d="M-24 80V29Q0-3 24 29V80" fill="#a580aa"/>
+      <g fill="#f7efbd">
+        <rect x="-91" y="-76" width="22" height="32" rx="11"/>
+        <rect x="69" y="-76" width="22" height="32" rx="11"/>
+        <rect x="-12" y="-53" width="24" height="28" rx="12"/>
+      </g>
+    </g>`;
+      }
+
+      function scenery(scene) {
+        let s = `<rect width="900" height="600" fill="${scene.sky}"/>`;
+
+        if (scene.world === "lantern") {
+          s += circle(752, 76, 33, "#fff1c4");
+          [
+            [100, 140], [220, 95], [350, 65],
+            [565, 65], [685, 153], [827, 199]
+          ].forEach(([x, y]) => {
+            s += `<g transform="translate(${x} ${y})">
+          <rect x="-13" y="-18" width="26" height="35"
+            rx="7" fill="#ffdb96"/>
+          <path d="M-10 14H10" stroke="#dfa466" stroke-width="4"/>
+          ${circle(0, 0, 5, "#fff4c9")}
+        </g>`;
+          });
+        } else {
+          s += cloud(140, 84, 1.1) + cloud(722, 112, 1.2);
+          s += circle(780, 68, 34, "#fff2b7");
+        }
+
+        switch (scene.world) {
+          case "castle":
+            s += `<path d="M0 315Q180 155 340 308Q600 140 900 310V600H0"
+          fill="#b9dca8"/>`;
+            s += castle(455, 292);
+            break;
+
+          case "snow":
+            s += `<path d="M0 345L180 145L355 345L605 128L900 345"
+          fill="#b7cee7"/>
+          <path d="M115 218L180 145L241 214L204 202L180 216L152 199
+                   M540 205L605 128L679 209L638 191L606 205L577 183"
+          fill="#f8fcff"/>`;
+            s += castle(450, 310, "#c8e5f1");
+            s += pine(90, 296, .8) + pine(813, 302, .9);
+            break;
+
+          case "sea":
+          case "wintersea":
+            s += `<rect y="267" width="900" height="180"
+          fill="${scene.world === "sea" ? "#7bd0df" : "#81bed5"}"/>`;
+            for (let i = 0; i < 5; i++) {
+              s += `<path d="M${30 + i * 185} 321q30-14 60 0t60 0"
+            fill="none" stroke="#d8f7fc" stroke-width="5"/>`;
+            }
+            if (scene.world === "sea") {
+              s += `<path d="M775 267V161" stroke="#b48c70" stroke-width="5"/>
+            <path d="M770 165L709 245H770Z" fill="#fff5e6"/>
+            <path d="M781 185L826 245H781Z" fill="#f4b0c3"/>
+            <path d="M700 253H835L808 279H728Z" fill="#bc8790"/>`;
+            } else {
+              s += `<path d="M42 277L134 146L219 279Z
+                        M677 278L768 142L857 278Z"
+            fill="#dbf5ff"/>
+            <path d="M134 146L157 278H219Z
+                     M768 142L791 278H857Z" fill="#b0dbea"/>`;
+            }
+            break;
+
+          case "forest":
+            s += tree(78, 223, "#80b989", 1.4);
+            s += tree(455, 225, "#9bc58d", 1.25);
+            s += tree(826, 214, "#74aa81", 1.45);
+            break;
+
+          case "lantern":
+            s += `<path d="M0 307Q210 223 422 315T900 287V480H0"
+          fill="#666f9a"/>
+          <rect y="348" width="900" height="135" fill="#91acd2"/>`;
+            for (let i = 0; i < 7; i++) {
+              s += `<path d="M${i * 140 + 15} 388h65"
+            stroke="#d9d2da" stroke-width="5" stroke-linecap="round"/>`;
+            }
+            break;
+
+          case "desert":
+            s += `<path d="M0 338Q190 193 394 318Q650 172 900 329V500H0"
+          fill="#e6c399"/>`;
+            s += castle(457, 314, "#f5dba9", true);
+            s += tree(70, 263, "#9cbd8b", .7);
+            s += tree(831, 270, "#9cbd8b", .7);
+            break;
+
+          case "mountain":
+            s += `<path d="M0 345L196 139L376 343L566 171L785 351L900 268V500H0"
+          fill="#9bbec4"/>
+          <path d="M123 216L196 139L264 215L226 203L196 216L166 196"
+          fill="#f6faf8"/>`;
+            s += tree(69, 248, "#efb6ce", 1.15);
+            s += tree(823, 237, "#edabc9", 1.2);
+            break;
+
+          case "lily":
+            s += tree(69, 238, "#90bea0", 1.2);
+            s += tree(813, 235, "#8bb99c", 1.2);
+            s += `<ellipse cx="455" cy="366" rx="355" ry="110"
+          fill="#89c9c6"/>`;
+            [[177, 360], [425, 368], [697, 385]].forEach(([x, y]) => {
+              s += ellipse(x, y, 29, 10, "#74aa83");
+              s += `<path d="M${x - 13} ${y - 5}Q${x - 18} ${y - 38} ${x} ${y - 18}
+            Q${x + 18} ${y - 38} ${x + 13} ${y - 5}Z" fill="#f0b5d2"/>`;
+            });
+            break;
+
+          case "garden":
+            s += `<path d="M337 397V219Q450 88 563 219V397"
+          fill="none" stroke="#f9fff4" stroke-width="24"/>
+          <path d="M345 397V222Q450 108 555 222V397"
+          fill="none" stroke="#94b981" stroke-width="7"/>`;
+            [[355, 227], [386, 183], [510, 180], [547, 232]].forEach(([x, y]) => {
+              s += flower(x, y, "#e891ad", .45);
+            });
+            break;
+        }
+
+        s += `<path d="M0 431Q213 389 430 425Q685 390 900 430V600H0Z"
+      fill="${scene.land}"/>`;
+        s += `<path d="M369 600Q365 494 447 431H485Q440 505 562 600Z"
+      fill="#ffffff" opacity=".22"/>`;
+
+        // ของตกแต่งเหล่านี้เหมือนกันทั้งสองภาพ
+        s += flower(46, 530, "#fff3bf", .4);
+        s += flower(848, 537, "#fff3bf", .4);
+        s += ellipse(449, 541, 57, 13, "#775d84", 'opacity=".12"');
+
+        // ตะกร้าปิกนิกตรงกลาง
+        s += `<path d="M418 512Q448 453 479 512" fill="none"
+      stroke="#bc8f63" stroke-width="9"/>
+      <rect x="410" y="506" width="78" height="43" rx="11"
+        fill="#d6a776"/>
+      <path d="M419 521H479M419 535H479" stroke="#b8875f"
+        stroke-width="4"/>`;
+
+        return s;
+      }
+
+      function princess(key, x, y) {
+        const p = PEOPLE[key];
+        let extraHair = "";
+
+        if (p.style === "bun") {
+          extraHair = circle(0, -119, 24, p.hair);
+        } else if (p.style === "braid") {
+          for (let i = 0; i < 6; i++) {
+            extraHair += ellipse(
+              42 + Math.sin(i * .8) * 4, -45 + i * 21, 15, 17, p.hair
+            );
+          }
+        }
+
+        return `<g transform="translate(${x} ${y})">
+      ${ellipse(0, 174, 91, 14, "#526478", 'opacity=".13"')}
+
+      <path d="M-44-84Q-55-139 0-136Q58-133 47-75
+               L58 33H-56Z" fill="${p.hair}"/>
+      ${extraHair}
+
+      <path d="M-31-17Q-46 44-87 158Q0 191 87 158
+               Q46 44 31-17Z" fill="${p.dress}"
+        stroke="#51405c" stroke-opacity=".14" stroke-width="3"/>
+
+      <path d="M-11 1Q-13 80-53 158Q0 174 53 158Q13 80 11 1"
+        fill="${p.accent}" opacity=".52"/>
+
+      <path d="M-30-23Q-60-2-61 42M30-23Q60-2 61 42"
+        fill="none" stroke="${p.skin}" stroke-width="19"
+        stroke-linecap="round"/>
+
+      <path d="M-29-28Q0-8 29-28L31 19Q0 29-31 19Z"
+        fill="${p.accent}"/>
+
+      <path d="M-12-52V-29Q0-18 12-29V-52"
+        fill="${p.skin}"/>
+
+      ${ellipse(0, -79, 39, 45, p.skin)}
+      <path d="M-39-89Q-45-132 3-123Q43-122 40-86
+               Q16-94 4-115Q-12-88-39-89Z" fill="${p.hair}"/>
+
+      ${ellipse(-15, -76, 3.8, 5.5, "#443644")}
+      ${ellipse(15, -76, 3.8, 5.5, "#443644")}
+      ${ellipse(-24, -62, 8, 4.5, "#ef9e9e", 'opacity=".52"')}
+      ${ellipse(24, -62, 8, 4.5, "#ef9e9e", 'opacity=".52"')}
+
+      <path d="M-9-57Q0-49 9-57" fill="none"
+        stroke="#b96f73" stroke-width="3" stroke-linecap="round"/>
+
+      <path d="M-29-119L-35-143L-13-131L0-150L13-131L35-143L29-119Z"
+        fill="#f4d272" stroke="#d6ad4e" stroke-width="2"/>
+
+      <path d="M-29 20Q0 29 29 20" fill="none"
+        stroke="#fff8df" stroke-width="6"/>
+    </g>`;
+      }
+
+      function buddy(type, x, y) {
+        let shape = "";
+
+        if (type === "snowman") {
+          shape = `
+        ${circle(0, 5, 39, "#fffefd")}
+        ${circle(0, -46, 28, "#fffefd")}
+        ${circle(-9, -51, 3, "#474652")}
+        ${circle(9, -51, 3, "#474652")}
+        <path d="M-2-43L20-37L-2-35Z" fill="#eea452"/>
+        <path d="M-22-66H22M-16-67V-92H16V-67"
+          fill="#7685b0" stroke="#7685b0" stroke-width="8"/>
+        ${circle(0, 12, 4, "#8190a8")}
+        ${circle(0, 27, 4, "#8190a8")}`;
+        } else if (type === "crab") {
+          shape = `
+        <path d="M-24 2L-50-12M24 2L50-12M-26 18L-47 34M26 18L47 34"
+          stroke="#e98f7e" stroke-width="8" stroke-linecap="round"/>
+        ${ellipse(0, 6, 34, 25, "#efa08d")}
+        ${circle(-49, -17, 13, "#efa08d")}
+        ${circle(49, -17, 13, "#efa08d")}
+        <path d="M-13-10V-29M13-10V-29"
+          stroke="#efa08d" stroke-width="8"/>
+        ${circle(-13, -29, 5, "#454153")}
+        ${circle(13, -29, 5, "#454153")}`;
+        } else if (type === "frog") {
+          shape = `
+        ${ellipse(0, 11, 37, 30, "#89c887")}
+        ${circle(-19, -18, 18, "#89c887")}
+        ${circle(19, -18, 18, "#89c887")}
+        ${circle(-19, -20, 10, "#fffef0")}
+        ${circle(19, -20, 10, "#fffef0")}
+        ${circle(-19, -20, 4, "#3e4e43")}
+        ${circle(19, -20, 4, "#3e4e43")}
+        <path d="M-14 4Q0 17 14 4" fill="none"
+          stroke="#4d7c51" stroke-width="3"/>`;
+        } else {
+          const bodyColor = {
+            bunny: "#fff1e4", cat: "#e8b792",
+            panda: "#f9f8f1", penguin: "#718398"
+          }[type];
+
+          const earColor = type === "panda" ? "#555a6b" : bodyColor;
+
+          if (type === "bunny") {
+            shape += ellipse(-16, -62, 11, 32, bodyColor);
+            shape += ellipse(16, -62, 11, 32, bodyColor);
+            shape += ellipse(-16, -63, 5, 23, "#f2bdc9");
+            shape += ellipse(16, -63, 5, 23, "#f2bdc9");
+          } else if (type === "cat") {
+            shape += `<path d="M-30-28L-31-68L-6-47
+                          M30-28L31-68L6-47" fill="${bodyColor}"/>`;
+            shape += `<path d="M28 24Q65 17 53-12" fill="none"
+          stroke="${bodyColor}" stroke-width="13" stroke-linecap="round"/>`;
+          } else if (type === "panda") {
+            shape += circle(-24, -48, 14, earColor);
+            shape += circle(24, -48, 14, earColor);
+          }
+
+          shape += ellipse(0, 15, 32, 39, bodyColor);
+          shape += circle(0, -26, 32, bodyColor);
+          shape += ellipse(0, 17, 23, 27, "#fffdf3");
+
+          if (type === "panda") {
+            shape += ellipse(-12, -28, 10, 12, "#5b5e6d");
+            shape += ellipse(12, -28, 10, 12, "#5b5e6d");
+          }
+
+          shape += circle(-11, -29, 3.5, "#373946");
+          shape += circle(11, -29, 3.5, "#373946");
+
+          shape += type === "penguin"
+            ? `<path d="M-8-17H8L0-8Z" fill="#f3be68"/>`
+            : ellipse(0, -15, 5, 3.5, "#b47e81");
+
+          shape += `<path d="M-9-7Q0 1 9-7" fill="none"
+        stroke="#8b7175" stroke-width="2.5"/>`;
+        }
+
+        return `<g transform="translate(${x} ${y})">
+      ${ellipse(0, 54, 49, 10, "#596b75", 'opacity=".12"')}
+      ${shape}
+    </g>`;
+      }
+
+      // จำชุดคำตอบล่าสุดของแต่ละฉากระหว่างเปิดหน้านี้
+      const lastDifferenceSets = new Map();
+
+      // จุดที่สามารถสร้างความแตกต่างได้ทั้งหมด
+      // ใช้ระบบพิกัดเดียวกับภาพ SVG: 900 × 600
+      function differencePool(scene) {
+        const index = SCENES.indexOf(scene);
+
+        return [
+          {
+            id: "left-crown",
+            kind: "gem",
+            x: 275, y: 218, r: 28,
+            label: "Left Princess's Crown Gem"
+          },
+          {
+            id: "right-crown",
+            kind: "gem",
+            x: 620, y: 218, r: 28,
+            label: "Right Princess's Crown Gem"
+          },
+          {
+            id: "left-necklace",
+            kind: "necklace",
+            x: 275, y: 325, r: 28,
+            label: "Left Princess's Necklace"
+          },
+          {
+            id: "right-necklace",
+            kind: "necklace",
+            x: 620, y: 325, r: 28,
+            label: "Right Princess's Necklace"
+          },
+          {
+            id: "sky-symbol",
+            kind: "celestial",
+            x: 445 + (index % 3) * 12,
+            y: 112, r: 43,
+            label: "Star & Moon in the Sky"
+          },
+          {
+            id: "front-flower",
+            kind: "flower",
+            x: 125, y: 477, r: 42,
+            label: "Flower Petal Color"
+          },
+          {
+            id: "buddy-bow",
+            kind: "bow",
+            x: 780, y: 488, r: 34,
+            label: "Little Friend's Ribbon Bow"
+          },
+          {
+            id: "left-dress",
+            kind: "dress",
+            x: 275, y: 449, r: 31,
+            label: "Left Dress Emblem"
+          },
+          {
+            id: "right-dress",
+            kind: "dress",
+            x: 620, y: 449, r: 31,
+            label: "Right Dress Emblem"
+          },
+          {
+            id: "basket-badge",
+            kind: "badge",
+            x: 449, y: 525, r: 25,
+            label: "Picnic Basket Badge"
+          },
+          {
+            id: "butterfly",
+            kind: "butterfly",
+            x: 110, y: 190, r: 35,
+            label: "Fluttering Butterfly"
+          },
+          {
+            id: "balloon",
+            kind: "balloon",
+            x: 735, y: 195, r: 43,
+            label: "Balloon Color"
+          },
+          {
+            id: "mushroom",
+            kind: "mushroom",
+            x: 535, y: 551, r: 29,
+            label: "Mushroom Polka Dots"
+          },
+          {
+            id: "shell",
+            kind: "shell",
+            x: 370, y: 559, r: 28,
+            label: "Seashell Color"
+          },
+          {
+            id: "sky-heart",
+            kind: "heart",
+            x: 280, y: 110, r: 30,
+            label: "Sky Heart & Star"
+          }
+        ];
+      }
+
+      // Fisher–Yates shuffle: สับลำดับโดยไม่แก้ไขอาร์เรย์ต้นฉบับ
+      function shuffled(items) {
+        const result = [...items];
+
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+
+        return result;
+      }
+
+      // สุ่มจุดคำตอบใหม่ 5 จุดต่อรอบ
+      function svgTargets(scene) {
+        const pool = differencePool(scene);
+
+        let selected = shuffled(pool).slice(0, 5);
+
+        const signatureOf = items =>
+          items.map(item => item.id).sort().join("|");
+
+        const previous = lastDifferenceSets.get(scene.id);
+
+        // หากบังเอิญสุ่มได้ชุดเดิมทั้งหมด ให้เปลี่ยนอย่างน้อย 1 จุด
+        if (signatureOf(selected) === previous) {
+          const selectedIds = new Set(selected.map(item => item.id));
+          const alternatives = pool.filter(item => !selectedIds.has(item.id));
+
+          selected[0] =
+            alternatives[Math.floor(Math.random() * alternatives.length)];
+        }
+
+        lastDifferenceSets.set(scene.id, signatureOf(selected));
+
+        // สุ่มด้วยว่าฝั่งไหนจะเป็นรูปแบบ A หรือ B
+        // เช่น ดาวอาจอยู่ภาพ 1 หรือภาพ 2 ก็ได้
+        return selected.map(item => ({
+          ...item,
+          reversed: Math.random() < 0.5
+        }));
+      }
+
+      // รูปหัวใจ ใช้ซ้ำในของตกแต่งต่าง ๆ
+      function spotHeart(x, y, size, fill) {
+        return `
+    <g transform="translate(${x} ${y}) scale(${size / 24})">
+      <path
+        d="M0 19
+           C-5 13-25 1-23-12
+           C-21-25-6-27 0-15
+           C6-27 21-25 23-12
+           C25 1 5 13 0 19Z"
+        fill="${fill}"
+        stroke="#ffffff"
+        stroke-width="2"
+      />
+    </g>
+  `;
+      }
+
+      // วาดรายละเอียดหนึ่งจุด
+      // alternate = false: รูปแบบ A
+      // alternate = true:  รูปแบบ B
+      function drawDifferenceItem(item, alternate, scene) {
+        const {x, y, kind} = item;
+
+        switch (kind) {
+          case "gem":
+            // เพชรชมพู / อัญมณีกลมฟ้า
+            return alternate
+              ? circle(
+                x, y, 10, "#5cbbe3",
+                'stroke="#fff5d8" stroke-width="2"'
+              )
+              : `
+          <path
+            d="M${x} ${y - 12}
+               L${x + 10} ${y}
+               L${x} ${y + 12}
+               L${x - 10} ${y}Z"
+            fill="#e87faa"
+            stroke="#fff5d8"
+            stroke-width="2"
+          />
+        `;
+
+          case "necklace":
+            // มีสร้อย / ไม่มีสร้อย
+            if (alternate) return "";
+
+            return `
+        <path
+          d="M${x - 19} ${y - 12}
+             Q${x} ${y + 13} ${x + 19} ${y - 12}"
+          fill="none"
+          stroke="#ba954a"
+          stroke-width="4"
+        />
+        ${circle(
+              x, y + 2, 8, "#de72a0",
+              'stroke="#fff1ba" stroke-width="2"'
+            )}
+      `;
+
+          case "celestial":
+            // ดาว / ดวงจันทร์
+            return alternate
+              ? `
+          <path
+            d="M${x + 17} ${y - 31}
+               A34 34 0 1 0 ${x + 17} ${y + 31}
+               A26 30 0 0 1 ${x + 17} ${y - 31}Z"
+            fill="#ffe38c"
+            stroke="#fff2bf"
+            stroke-width="3"
+          />
+        `
+              : star(
+                x, y, 35, 17, "#ffe38c",
+                'stroke="#fff2bf" stroke-width="3"'
+              );
+
+          case "flower":
+            // เปลี่ยนเฉพาะสีของกลีบดอก
+            return flower(
+              x, y,
+              alternate ? "#65bee7" : scene.flower,
+              1
+            );
+
+          case "bow":
+            // มีโบ / ไม่มีโบ
+            if (alternate) return "";
+
+            return `
+        <g transform="translate(${x} ${y})">
+          <path
+            d="M0 0Q-36-27-27 2Q-32 26 0 7
+               M0 0Q36-27 27 2Q32 26 0 7"
+            fill="#ea7eae"
+            stroke="#cd6996"
+            stroke-width="2"
+          />
+          ${circle(0, 3, 7, "#ffc0d6")}
+        </g>
+      `;
+
+          case "dress":
+            // ดาวบนกระโปรง / หัวใจบนกระโปรง
+            return alternate
+              ? spotHeart(x, y, 19, "#ed82ae")
+              : star(
+                x, y, 23, 11, "#fff0a5",
+                'stroke="#c99a4d" stroke-width="2"'
+              );
+
+          case "badge":
+            // ตราวงกลม / ตราสี่เหลี่ยมข้าวหลามตัด
+            return alternate
+              ? `
+          <path
+            d="M${x} ${y - 17}
+               L${x + 17} ${y}
+               L${x} ${y + 17}
+               L${x - 17} ${y}Z"
+            fill="#b393df"
+            stroke="#fff7df"
+            stroke-width="3"
+          />
+        `
+              : circle(
+                x, y, 15, "#8dc3a0",
+                'stroke="#fff7df" stroke-width="3"'
+              );
+
+          case "butterfly":
+            // มีผีเสื้อ / ไม่มีผีเสื้อ
+            if (alternate) return "";
+
+            return `
+        <g transform="translate(${x} ${y})">
+          ${ellipse(-15, -8, 13, 18, "#e99bc8")}
+          ${ellipse(15, -8, 13, 18, "#e99bc8")}
+          ${ellipse(-12, 12, 10, 12, "#ba9be0")}
+          ${ellipse(12, 12, 10, 12, "#ba9be0")}
+          <path
+            d="M0-16V19M0-15L-7-25M0-15L7-25"
+            fill="none"
+            stroke="#695778"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </g>
+      `;
+
+          case "balloon":
+            // ลูกโป่งส้ม / ลูกโป่งม่วง
+            return `
+        <g transform="translate(${x} ${y})">
+          <path
+            d="M0 15Q-9 26 1 37"
+            fill="none"
+            stroke="#8b7d93"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+          <path
+            d="M0 9L-5 18H5Z"
+            fill="${alternate ? "#a58bd5" : "#eeaa67"}"
+          />
+          ${ellipse(
+              0, -10, 21, 26,
+              alternate ? "#b49ae6" : "#f6bb7d",
+              'stroke="#ffffff" stroke-width="2"'
+            )}
+          ${ellipse(
+              -7, -20, 5, 8, "#ffffff",
+              'opacity=".55"'
+            )}
+        </g>
+      `;
+
+          case "mushroom":
+            // เห็ดมีลายจุด / เห็ดไม่มีลายจุด
+            return `
+        <g transform="translate(${x} ${y})">
+          <rect
+            x="-7" y="-1"
+            width="14" height="22" rx="5"
+            fill="#fff0d7"
+            stroke="#c7a885"
+            stroke-width="2"
+          />
+          <path
+            d="M-25 0Q-21-29 0-27Q21-29 25 0Z"
+            fill="#dc8791"
+            stroke="#bb6b7d"
+            stroke-width="2"
+          />
+          ${alternate
+                ? ""
+                : circle(-12, -9, 4, "#fff3d9")
+                + circle(0, -18, 4, "#fff3d9")
+                + circle(12, -9, 4, "#fff3d9")
+              }
+        </g>
+      `;
+
+          case "shell":
+            // เปลือกหอยชมพู / เปลือกหอยสีฟ้า
+            return `
+        <g transform="translate(${x} ${y})">
+          <path
+            d="M-11 17L-25-5
+               Q-28-17-16-18
+               Q-10-29 0-22
+               Q10-29 16-18
+               Q28-17 25-5
+               L11 17Z"
+            fill="${alternate ? "#8ecfd9" : "#edb0c4"}"
+            stroke="#ffffff"
+            stroke-width="2"
+          />
+          <path
+            d="M0 14V-18M-4 14L-15-14M4 14L15-14"
+            fill="none"
+            stroke="${alternate ? "#589eaf" : "#b97797"}"
+            stroke-width="2"
+            stroke-linecap="round"
+          />
+        </g>
+      `;
+
+          case "heart":
+            // หัวใจ / ดาว
+            return alternate
+              ? star(
+                x, y, 25, 12, "#ffe28c",
+                'stroke="#ffffff" stroke-width="2"'
+              )
+              : spotHeart(x, y, 24, "#eea0bd");
+
+          default:
+            return "";
+        }
+      }
+
+      // วาดรายละเอียดทั้ง 15 จุด แต่เปลี่ยนเพียง 5 จุดที่เลือก
+      function differences(scene, changed, preview = false) {
+        const pool = differencePool(scene);
+
+        // ภาพตัวอย่างในเมนูไม่สุ่ม และไม่แก้ข้อมูลรอบที่กำลังเล่น
+        const activeTargets = preview ? [] : state.targets;
+
+        const selected = new Map(
+          activeTargets.map(target => [target.id, target])
+        );
+
+        return pool.map(item => {
+          const target = selected.get(item.id);
+
+          // จุดที่ไม่ได้สุ่มเป็นคำตอบ ใช้รูปแบบ A เหมือนกันทั้งสองภาพ
+          if (!target) {
+            return drawDifferenceItem(item, false, scene);
+          }
+
+          // จุดที่เป็นคำตอบ ให้สองภาพใช้คนละรูปแบบ
+          const alternate = target.reversed ? !changed : changed;
+
+          return drawDifferenceItem(item, alternate, scene);
+        }).join("");
+      }
+
+      function renderScene(scene, changed = false, preview = false) {
+        const pack = AI_IMAGES[scene.id];
+        const body = pack
+          ? `<image href="${esc(changed ? pack.right : pack.left)}"
+          width="900" height="600" preserveAspectRatio="xMidYMid meet"/>`
+          : scenery(scene)
+          + princess(scene.pair[0], 275, 350)
+          + princess(scene.pair[1], 620, 350)
+          + buddy(scene.buddy, 780, 482)
+          + differences(scene, changed, preview);
+
+        return `<svg xmlns="${NS}" viewBox="0 0 900 600"
+      class="${preview ? "" : "game-svg"}"
+      ${preview
+            ? 'aria-hidden="true"'
+            : `role="img" aria-label="${esc(scene.title)} Picture ${changed ? 2 : 1}"`}>
+      ${body}
+      ${preview ? "" : '<g class="marks"></g>'}
+    </svg>`;
+      }
+
+      function validatePack(pack) {
+        return pack
+          && typeof pack.left === "string"
+          && typeof pack.right === "string"
+          && Array.isArray(pack.spots)
+          && pack.spots.length === 5
+          && pack.spots.every(p =>
+            Number.isFinite(p.x) &&
+            Number.isFinite(p.y) &&
+            Number.isFinite(p.r) &&
+            p.x >= 0 && p.x <= 900 &&
+            p.y >= 0 && p.y <= 600 && p.r > 0
+          );
+      }
+
+      function formatTime(ms) {
+        const total = Math.floor(ms / 1000);
+        const seconds = total % 60;
+        const minutes = Math.floor(total / 60);
+        return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+      }
+
+      function updateTimer() {
+        if (!state.playing) return;
+
+        state.elapsed = performance.now() - state.startedAt;
+
+        if (state.mode === "challenge") {
+          const remaining = Math.max(
+            0,
+            CHALLENGE_LIMIT_MS - state.elapsed
+          );
+
+          // ปัดขึ้นเพื่อให้ตอนเริ่มแสดง 01:00
+          const seconds = Math.ceil(remaining / 1000);
+
+          $("timer").textContent =
+            `${String(Math.floor(seconds / 60)).padStart(2, "0")}:` +
+            `${String(seconds % 60).padStart(2, "0")}`;
+
+          $("timer").classList.toggle(
+            "timer-warning",
+            remaining <= 10_000
+          );
+
+          if (seconds <= 10 && seconds > 0 && seconds !== state.lastTickSec) {
+            state.lastTickSec = seconds;
+            sfx("tick");
+          }
+
+          if (remaining <= 0) {
+            endRound(false);
+          }
+
+          return;
+        }
+
+        $("timer").textContent = formatTime(state.elapsed);
+      }
+
+      function clearTransient() {
+        state.timeouts.forEach(id => clearTimeout(id));
+        state.timeouts.clear();
+      }
+
+      function later(callback, ms) {
+        const id = setTimeout(() => {
+          state.timeouts.delete(id);
+          callback();
+        }, ms);
+        state.timeouts.add(id);
+      }
+
+      function stopClock() {
+        clearInterval(state.ticker);
+        state.ticker = null;
+      }
+
+      function updateProgress() {
+        $("counter").textContent = `${state.found.size} / 5`;
+        $("dots").innerHTML = Array.from({length: 5}, (_, i) => {
+          const done = i < state.found.size;
+          return `<span class="dot ${done ? "done" : ""}">
+        ${done ? "✓" : i + 1}
+      </span>`;
+        }).join("");
+      }
+
+      function setSummaryVisible(visible) {
+        $("summary").hidden = !visible;
+        document.querySelector("main").inert = visible;
+        document.body.style.overflow = visible ? "hidden" : "";
+      }
+
+      function startGame(index) {
+        const scene = SCENES[index];
+        const pack = AI_IMAGES[scene.id];
+
+        if (pack && !validatePack(pack)) {
+          alert("Incomplete AI image pack: please specify 2 images and 5 difference spots.");
+          return;
+        }
+
+        unlockAudio();
+        resetAnswerReview();
+
+        state.mode = "basic";
+        state.challengeStartToken = null;
+        state.challengeScene = null;
+        state.lastTickSec = -1;
+
+        setClockPresentation(false);
+
+        document.querySelector(".bottom-note").textContent =
+          "Tap either picture • Green circle = Correct • Red cross = Try again • No time limit";
+
+        stopClock();
+        clearTransient();
+
+        state.index = index;
+        state.playing = false;
+        state.found = new Set();
+        state.elapsed = 0;
+        state.targets = pack ? pack.spots : svgTargets(scene);
+
+        // ทั้งสองภาพใช้ชุดคำตอบที่สุ่มไว้ชุดเดียวกัน
+        $("leftBoard").innerHTML = renderScene(scene, false);
+        $("rightBoard").innerHTML = renderScene(scene, true);
+
+        setSummaryVisible(false);
+        $("home").hidden = true;
+        $("game").hidden = false;
+        $("gameTitle").textContent = scene.title;
+        $("gameSubtitle").textContent =
+          scene.pair.map(key => PEOPLE[key].name).join(" × ");
+
+        $("leftBoard").innerHTML = renderScene(scene, false);
+        $("rightBoard").innerHTML = renderScene(scene, true);
+        $("timer").textContent = "00:00";
+        updateProgress();
+
+        const begin = () => {
+          state.startedAt = performance.now();
+          state.playing = true;
+          $("status").textContent = "Look closely for differences and tap either picture!";
+          state.ticker = setInterval(updateTimer, 100);
+          sfx("start");
+          const names = scene.pair.map(key => PEOPLE[key].name).join(" and ");
+          speak(`Hello little friend! Let's help Princess ${names} find five differences in ${scene.title}!`);
+        };
+
+        $("backHome").focus({preventScroll: true});
+        window.scrollTo({top: 0, behavior: "auto"});
+
+        // หากใช้ JPG ให้รอโหลดภาพทั้งคู่ก่อนเริ่มจับเวลา
+        if (pack) {
+          $("status").textContent = "Loading pictures...";
+          const expectedIndex = index;
+          const images = [
+            $("leftBoard").querySelector("image"),
+            $("rightBoard").querySelector("image")
+          ];
+
+          const loaded = images.map(node => new Promise((resolve, reject) => {
+            // ใช้ Image ตรวจสอบว่าไฟล์โหลดและถอดรหัสได้
+            const probe = new Image();
+            probe.onload = () => resolve();
+            probe.onerror = () => reject(new Error("image-load"));
+            probe.src = node.getAttribute("href");
+          }));
+
+          const token = {};
+          state.loadToken = token;
+
+          Promise.all(loaded).then(() => {
+            if (state.index !== expectedIndex ||
+              state.loadToken !== token || $("game").hidden) return;
+            begin();
+          }).catch(() => {
+            if (state.loadToken !== token || $("game").hidden) return;
+            $("status").textContent =
+              "Could not load image files. Please check the JPG filenames.";
+          });
+        } else {
+          state.loadToken = null;
+          begin();
+        }
+      }
+
+      function randomIndex() {
+        const choices = SCENES
+          .map((_, index) => index)
+          .filter(index => index !== state.index);
+        return choices[Math.floor(Math.random() * choices.length)];
+      }
+
+      function goHome() {
+        resetAnswerReview();
+        state.challengeStartToken = null;
+
+        stopClock();
+        clearTransient();
+        state.playing = false;
+        state.loadToken = null;
+        setSummaryVisible(false);
+        $("game").hidden = true;
+        $("home").hidden = false;
+        sfx("click");
+        speak("Choose a royal kingdom you would like to play!");
+        $("randomStart").focus({preventScroll: true});
+        window.scrollTo({top: 0, behavior: "auto"});
+      }
+
+      function appendSVG(parent, markup) {
+        const wrapper = document.createElementNS(NS, "g");
+        wrapper.innerHTML = markup;
+        parent.appendChild(wrapper);
+        return wrapper;
+      }
+
+      function markCorrect(target) {
+        document.querySelectorAll(".game-svg .marks").forEach(layer => {
+          const r = target.r + 4;
+
+          appendSVG(layer, `
+        <circle cx="${target.x}" cy="${target.y}" r="${r}"
+          fill="#30ba6814" stroke="white" stroke-width="10"/>
+        <circle cx="${target.x}" cy="${target.y}" r="${r}"
+          fill="none" stroke="#128343" stroke-width="6"/>
+        <circle cx="${target.x + r * .72}" cy="${target.y - r * .72}"
+          r="13" fill="#128343" stroke="white" stroke-width="2"/>
+        <path d="M${target.x + r * .72 - 6} ${target.y - r * .72}
+                 l4 5 8-10"
+          fill="none" stroke="white" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      `);
+        });
+      }
+
+      function markWrong(svg, x, y) {
+        const layer = svg.querySelector(".marks");
+        const path = `M${x - 12} ${y - 12}L${x + 12} ${y + 12}
+                  M${x + 12} ${y - 12}L${x - 12} ${y + 12}`;
+
+        const marker = appendSVG(layer, `
+      <path d="${path}" fill="none" stroke="white"
+        stroke-width="12" stroke-linecap="round"/>
+      <path d="${path}" fill="none" stroke="#df3c54"
+        stroke-width="7" stroke-linecap="round"/>
+    `);
+        marker.classList.add("wrong-mark");
+        later(() => marker.remove(), 2000);
+      }
+
+      function finishGame() {
+        if (!state.playing) return;
+
+        // ตรวจเวลาจริง ณ ตอนตอบ ไม่พึ่งแค่รอบ setInterval
+        if (
+          state.mode === "challenge" &&
+          performance.now() - state.startedAt >= CHALLENGE_LIMIT_MS
+        ) {
+          endRound(false);
+          return;
+        }
+
+        endRound(true);
+      }
+
+      function endRound(won) {
+        if (!state.playing) return;
+
+        const challenge = state.mode === "challenge";
+        const elapsed = performance.now() - state.startedAt;
+
+        state.elapsed = challenge
+          ? Math.min(elapsed, CHALLENGE_LIMIT_MS)
+          : elapsed;
+
+        state.playing = false;
+        stopClock();
+        clearTransient();
+
+        // clearTransient ยกเลิกตัวตั้งเวลาลบกากบาทด้วย
+        // จึงลบกากบาทที่ค้างออกโดยตรง
+        document.querySelectorAll(".wrong-mark").forEach(node => {
+          node.remove();
+        });
+        // หมดเวลาใน Challenge: วงเฉลยบนภาพก่อนแสดงหน้าสรุป
+        if (challenge && !won) {
+          revealChallengeAnswers();
+        }
+
+        sfx(won ? "win" : "lose");
+        if (won) {
+          speak("Hooray! You have such sharp eyes! You helped the princesses find all five differences!");
+        } else {
+          speak("Time is up, sweetie! That is okay! Tap Show Answers to see the orange circles, or play a new round!");
+        }
+
+        const trophy = $("summary").querySelector(".trophy");
+        const timeLabel = $("summary").querySelector(".result > .hint");
+
+        if (challenge) {
+          const remaining = Math.max(
+            0,
+            CHALLENGE_LIMIT_MS - state.elapsed
+          );
+
+          $("timer").textContent = won
+            ? formatTime(Math.ceil(remaining / 1000) * 1000)
+            : "00:00";
+
+          trophy.textContent = won ? "🏆" : "🌟";
+
+          $("resultTitle").textContent = won
+            ? "Challenge Complete!"
+            : "Time's Up! Try Again!";
+
+          $("resultScene").textContent =
+            `${state.challengeScene.theme.name} — Found ${state.found.size} / 5 spots`;
+
+          timeLabel.textContent = "Time used out of 60 seconds";
+
+          $("status").textContent = won
+            ? "Awesome! You found all 5 differences before time ran out!"
+            : `Time's up! You found ${state.found.size} spots. Try again next round!`;
+
+          $("playAgain").textContent = "New Challenge Round";
+
+          // Challenge สร้างใหม่อยู่แล้ว จึงใช้ปุ่มหลักเพียงปุ่มเดียว
+          $("randomAgain").hidden = true;
+        } else {
+          $("timer").textContent = formatTime(state.elapsed);
+
+          trophy.textContent = "🏆";
+          $("resultTitle").textContent = "Great Job! All 5 Found!";
+
+          $("resultScene").textContent =
+            SCENES[state.index].title;
+
+          timeLabel.textContent = "Time used this round";
+
+          $("status").textContent =
+            "Wonderful! You found all 5 differences!";
+
+          $("playAgain").textContent = "Play Same Scene Again";
+          $("randomAgain").textContent = "Random New Scene";
+          $("randomAgain").hidden = false;
+        }
+
+        $("resultTime").textContent = formatTime(state.elapsed);
+
+        // ชัยชนะเว้นจังหวะให้เห็นวงกลมสุดท้าย
+        // หมดเวลาแสดงสรุปทันที
+        later(() => {
+          setSummaryVisible(true);
+          $("playAgain").focus();
+        }, won ? 450 : 0);
+      }
+
+      function handleBoardClick(event) {
+        if (!state.playing) return;
+        unlockAudio();
+        // ป้องกันการตอบหลังครบ 60 วินาที
+
+        // แม้ตัวจับเวลาบนหน้าจอยังไม่ทันอัปเดต
+
+        if (state.mode === "challenge") {
+
+          updateTimer();
+
+          if (!state.playing) return;
+
+        }
+
+
+        // โค้ดตรวจตำแหน่งและแสดงวงกลมเดิมต่อจากตรงนี้
+        const svg = event.currentTarget.querySelector("svg");
+        if (!svg) return;
+
+        // แปลงตำแหน่งหน้าจอเป็นพิกัด SVG จริง
+        // จึงทำงานถูกต้องแม้ภาพย่อ/ขยายหรืออยู่บนมือถือ
+        const matrix = svg.getScreenCTM();
+        if (!matrix) return;
+
+        const point = svg.createSVGPoint();
+        point.x = event.clientX;
+        point.y = event.clientY;
+
+        const local = point.matrixTransform(matrix.inverse());
+        const x = local.x;
+        const y = local.y;
+
+        if (x < 0 || x > 900 || y < 0 || y > 600) return;
+
+        const hits = state.targets
+          .map((target, index) => ({
+            target,
+            index,
+            distance: Math.hypot(x - target.x, y - target.y)
+          }))
+          .filter(hit => hit.distance <= hit.target.r + 10)
+          .sort((a, b) => a.distance - b.distance);
+
+        // เลือกจุดที่ยังไม่เจอก่อน เผื่อใช้ JPG แล้วพื้นที่แตะซ้อนกัน
+        const hit = hits.find(item => !state.found.has(item.index));
+
+        if (!hit && hits.length) {
+          sfx("already");
+          $("status").textContent = "You already found this spot! Look for another one.";
+          speak("You already found this spot! Let's look for another one!");
+          return;
+        }
+
+        if (!hit) {
+          sfx("wrong");
+          markWrong(svg, x, y);
+          $("status").textContent = "Not quite here! Look closely and try again.";
+          speak("Oops, not right there! Take your time and look closely!");
+          return;
+        }
+
+        state.found.add(hit.index);
+        markCorrect(hit.target);
+        updateProgress();
+
+        const remaining = 5 - state.found.size;
+        const spotName = hit.target.label || "a difference";
+        $("status").textContent =
+          `Correct! ${spotName}`
+          + (remaining ? ` — ${remaining} more to go` : "");
+
+        if (state.found.size === 5) {
+          finishGame();
+        } else {
+          sfx("found");
+          speak(`Great job! You found the ${spotName}! ${remaining} more to go!`);
+        }
+      }
+
+      function buildMenu() {
+        $("sceneGrid").innerHTML = SCENES.map((scene, index) => `
+      <button type="button" class="scene-card"
+        data-scene="${index}"
+        aria-label="Play ${esc(scene.title)}">
+        <span class="thumbnail">
+          ${renderScene(scene, false, true)}
+        </span>
+        <span class="card-copy">
+          <strong>${index + 1}. ${esc(scene.title)}</strong>
+          <small>${scene.pair.map(key => PEOPLE[key].name).join(" × ")}</small>
+          <small>Spot 5 differences</small>
+        </span>
+      </button>
+    `).join("");
+
+        $("sceneGrid").addEventListener("click", event => {
+          const button = event.target.closest("button[data-scene]");
+          if (button) startGame(Number(button.dataset.scene));
+        });
+      }
+
+      $("leftBoard").addEventListener("click", handleBoardClick);
+      $("rightBoard").addEventListener("click", handleBoardClick);
+
+      $("randomStart").addEventListener("click", () => startGame(randomIndex()));
+
+      $("challengeStart").addEventListener("click", startChallenge);
+
+      $("soundToggle").addEventListener("click", () => {
+        state.soundEnabled = !state.soundEnabled;
+        $("soundToggle").textContent =
+          `🔊 Sound: ${state.soundEnabled ? "ON" : "OFF"}`;
+        $("soundToggle").setAttribute("aria-pressed", String(state.soundEnabled));
+        if (state.soundEnabled) {
+          unlockAudio();
+          sfx("found");
+        }
+      });
+
+      $("voiceToggle").addEventListener("click", () => {
+        state.voiceEnabled = !state.voiceEnabled;
+        $("voiceToggle").textContent =
+          `🗣️ Voice: ${state.voiceEnabled ? "ON" : "OFF"}`;
+        $("voiceToggle").setAttribute("aria-pressed", String(state.voiceEnabled));
+        if (state.voiceEnabled) {
+          speak("Princess voice narration is on!");
+        } else if ("speechSynthesis" in window) {
+          window.speechSynthesis.cancel();
+        }
+      });
+
+      $("repeatVoice").addEventListener("click", () => {
+        unlockAudio();
+        sfx("click");
+        speak(state.lastSpokenText, true);
+      });
+
+      $("playAgain").addEventListener("click", () => {
+        if (state.mode === "challenge") {
+          startChallenge();
+        } else {
+          startGame(state.index);
+        }
+      });
+
+      $("randomAgain").addEventListener("click", () => {
+        if (state.mode === "challenge") {
+          startChallenge();
+        } else {
+          startGame(randomIndex());
+        }
+      });
+      $("chooseAgain").addEventListener("click", goHome);
+
+      $("backHome").addEventListener("click", () => {
+        if (state.playing &&
+          !confirm("Return to scene selection? Your current timer will reset.")) return;
+        goHome();
+      });
+
+      // จัดการคีย์บอร์ดภายในหน้าสรุป ไม่ให้โฟกัสหลุดไปด้านหลัง
+      $("summary").addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          goHome();
+          return;
+        }
+
+        if (event.key !== "Tab") return;
+
+        const buttons = [
+          ...$("summary").querySelectorAll("button, a[href]")
+        ].filter(button =>
+          !button.disabled &&
+          button.getClientRects().length > 0
+        );
+
+        const first = buttons[0];
+        const last = buttons[buttons.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      });
+
+      // ======================================================
+      // LEVEL 2 — CHALLENGE
+      // สร้างข้อมูลภาพใหม่ 50 ตำแหน่ง แล้วเปลี่ยนเพียง 5 จุด
+      // ======================================================
+
+      const CHALLENGE_LIMIT_MS = 60_000;
+      let challengeRoundNumber = 0;
+
+      function challengeRandomInt(min, max) {
+        return min + Math.floor(Math.random() * (max - min + 1));
+      }
+
+      function challengePick(items) {
+        return items[challengeRandomInt(0, items.length - 1)];
+      }
+
+      function challengeShuffle(items) {
+        const result = [...items];
+
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = challengeRandomInt(0, i);
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+
+        return result;
+      }
+
+      function challengeDifferentColor(current) {
+        // ใช้ชุดสีต่างโทนเพื่อให้เด็กสังเกตได้ชัด
+        const colors = [
+          "#e16b8b",
+          "#4ca7d4",
+          "#e5ad39",
+          "#8767c5",
+          "#54a477"
+        ];
+
+        return challengePick(colors.filter(color => color !== current));
+      }
+
+      function createChallengeScene() {
+        const themes = [
+          {
+            name: "Princess Candy Garden",
+            sky: "#ffe3ef",
+            ground: "#fff2e0",
+            hill: "#f0c5db"
+          },
+          {
+            name: "Blue Crystal Meadow",
+            sky: "#d6f1ff",
+            ground: "#effaff",
+            hill: "#b8dce9"
+          },
+          {
+            name: "Magic Flower Garden",
+            sky: "#e5f3d5",
+            ground: "#f5f8dc",
+            hill: "#bedbab"
+          },
+          {
+            name: "Lavender Dreamland",
+            sky: "#e7e0ff",
+            ground: "#f5edff",
+            hill: "#c9b9e9"
+          },
+          {
+            name: "Seaside Royal Park",
+            sky: "#cfeefa",
+            ground: "#fff1d6",
+            hill: "#a9d9df"
+          }
+        ];
+
+        const theme = challengePick(themes);
+
+        const kinds = [
+          "flower", "butterfly", "mushroom", "gem",
+          "gift", "cup", "crown", "shell", "bird", "candy"
+        ];
+
+        const labels = {
+          flower: "Flower",
+          butterfly: "Butterfly",
+          mushroom: "Mushroom",
+          gem: "Royal Gem",
+          gift: "Gift Box",
+          cup: "Teacup",
+          crown: "Royal Crown",
+          shell: "Seashell",
+          bird: "Little Bird",
+          candy: "Sweet Candy"
+        };
+
+        /*
+         * พื้นที่วางวัตถุ 10 คอลัมน์ × 5 แถว = 50 ตำแหน่ง
+         *
+         * สุ่มตำแหน่งภายในแต่ละช่องเพื่อไม่ให้ทับกัน
+         * วัตถุและภาพพื้นหลังถูกสร้างจากข้อมูลนี้เพียงครั้งเดียว
+         */
+        const kindsForRound = challengeShuffle(
+          Array.from({length: 50}, (_, i) => kinds[i % kinds.length])
+        );
+
+        const slots = Array.from({length: 50}, (_, index) => {
+          const column = index % 10;
+          const row = Math.floor(index / 10);
+
+          const x = 50 + column * 89 + challengeRandomInt(-7, 7);
+          const y = 172 + row * 88 + challengeRandomInt(-7, 7);
+
+          const kind = kindsForRound[index];
+          const color = challengeDifferentColor(null);
+
+          return {
+            id: `challenge-${index}`,
+            kind,
+            x,
+            y,
+            r: 31,
+            label: labels[kind],
+            scale: challengeRandomInt(90, 106) / 100,
+            angle: challengeRandomInt(-12, 12),
+            color,
+            alternateColor: challengeDifferentColor(color),
+
+            // บางชิ้นเปลี่ยนสี บางชิ้นเปลี่ยนรายละเอียด
+            changeType: Math.random() < 0.5 ? "color" : "detail",
+            detail: Math.random() < 0.5
+          };
+        });
+
+        const targets = challengeShuffle(slots)
+          .slice(0, 5)
+          .map(slot => ({
+            id: slot.id,
+            x: slot.x,
+            y: slot.y,
+            r: slot.r,
+            label: slot.label,
+            reversed: Math.random() < 0.5
+          }));
+
+        // รายละเอียดพื้นหลังสุ่มครั้งเดียว ใช้ร่วมกันทั้งสองภาพ
+        const clouds = Array.from({length: 4}, (_, index) => ({
+          x: 80 + index * 225 + challengeRandomInt(-20, 20),
+          y: challengeRandomInt(32, 70),
+          scale: challengeRandomInt(55, 80) / 100
+        }));
+
+        const sparkles = Array.from({length: 14}, () => ({
+          x: challengeRandomInt(20, 880),
+          y: challengeRandomInt(12, 105),
+          r: challengeRandomInt(2, 4)
+        }));
+
+        return {
+          theme,
+          slots,
+          targets,
+          clouds,
+          sparkles,
+          castleX: challengeRandomInt(330, 570),
+          sunX: challengeRandomInt(65, 830)
+        };
+      }
+
+      function drawChallengeObjectBase(item, alternate) {
+        let color = item.color;
+        let detail = item.detail;
+
+        if (alternate) {
+          if (item.changeType === "color") {
+            color = item.alternateColor;
+          } else {
+            detail = !detail;
+          }
+        }
+
+        const ink = "#695874";
+        const cream = "#fff8df";
+        let body = "";
+
+        switch (item.kind) {
+          case "flower": {
+            const petals = Array.from({length: 5}, (_, index) => {
+              const angle = index * Math.PI * 2 / 5;
+              return circle(
+                Math.cos(angle) * 13,
+                -5 + Math.sin(angle) * 13,
+                9,
+                color
+              );
+            }).join("");
+
+            body = `
+        <path d="M0 2V27" stroke="#65a16b"
+          stroke-width="5" stroke-linecap="round"/>
+        ${detail
+                ? '<path d="M0 18Q-21 3-18 19Q-9 28 0 21Z" fill="#80b579"/>'
+                : ""
+              }
+        ${petals}
+        ${circle(0, -5, 7, "#ffe4a0")}
+      `;
+            break;
+          }
+
+          case "butterfly":
+            body = `
+        ${ellipse(-12, -7, 11, 16, color)}
+        ${ellipse(12, -7, 11, 16, color)}
+        ${ellipse(-10, 12, 9, 10, color)}
+        ${ellipse(10, 12, 9, 10, color)}
+        <path d="M0-17V21M0-15L-7-24M0-15L7-24"
+          fill="none" stroke="${ink}"
+          stroke-width="3" stroke-linecap="round"/>
+        ${detail
+                ? circle(-13, -7, 4, cream) + circle(13, -7, 4, cream)
+                : ""
+              }
+      `;
+            break;
+
+          case "mushroom":
+            body = `
+        <rect x="-7" y="-2" width="14" height="27"
+          rx="5" fill="#f9e8c9"/>
+        <path d="M-26 0Q-22-29 0-27Q22-29 26 0Z"
+          fill="${color}"/>
+        ${detail
+                ? circle(-12, -8, 4, cream)
+                + circle(0, -17, 4, cream)
+                + circle(12, -8, 4, cream)
+                : ""
+              }
+      `;
+            break;
+
+          case "gem":
+            body = `
+        <path d="M-23-10L-12-25H12L23-10L0 26Z"
+          fill="${color}" stroke="${ink}" stroke-width="2"/>
+        <path d="M-23-10H23M-12-25L0 26L12-25"
+          fill="none" stroke="${cream}" stroke-width="2"/>
+        ${detail
+                ? star(0, -6, 8, 4, cream)
+                : circle(0, -6, 6, cream)
+              }
+      `;
+            break;
+
+          case "gift":
+            body = `
+        <rect x="-22" y="-14" width="44" height="38"
+          rx="4" fill="${color}"/>
+        <rect x="-25" y="-20" width="50" height="11"
+          rx="3" fill="${color}"/>
+        <path d="M0-20V24" stroke="${cream}" stroke-width="7"/>
+        ${detail
+                ? `<path d="M0-20Q-29-40-19-17Q-9-12 0-20
+                        M0-20Q29-40 19-17Q9-12 0-20"
+                 fill="${cream}"/>`
+                : ""
+              }
+      `;
+            break;
+
+          case "cup":
+            body = `
+        <path d="M17-12Q37-15 31 5Q28 14 15 10"
+          fill="none" stroke="${color}" stroke-width="6"/>
+        <path d="M-23-17H20L16 15Q0 29-18 15Z"
+          fill="${color}"/>
+        <path d="M-27 26H25" stroke="${ink}"
+          stroke-width="3" stroke-linecap="round"/>
+        ${detail
+                ? star(-2, 0, 10, 5, cream)
+                : circle(-2, 0, 7, cream)
+              }
+      `;
+            break;
+
+          case "crown":
+            body = `
+        <path d="M-24-18L-12-5L0-25L12-5L24-18L19 20H-19Z"
+          fill="${color}" stroke="${ink}" stroke-width="2"/>
+        <path d="M-18 12H18" stroke="${cream}" stroke-width="3"/>
+        ${detail
+                ? `<path d="M0-8L8 1L0 9L-8 1Z" fill="${cream}"/>`
+                : circle(0, 1, 7, cream)
+              }
+      `;
+            break;
+
+          case "shell":
+            body = `
+        <path d="M-10 22L-26-3
+                 Q-28-16-16-17Q-8-30 0-21
+                 Q8-30 16-17Q28-16 26-3L10 22Z"
+          fill="${color}"/>
+        <path d="M0 19V-16M-4 18L-16-11M4 18L16-11"
+          fill="none" stroke="${cream}" stroke-width="2"/>
+        ${detail ? circle(0, 14, 6, "#fffef7") : ""}
+      `;
+            break;
+
+          case "bird":
+            body = `
+        ${ellipse(-3, 6, 21, 17, color)}
+        ${circle(10, -11, 13, color)}
+        <path d="M21-13L32-7L21-4Z" fill="#e9b34c"/>
+        <path d="M-20 6L-30-5L-28 13Z" fill="${color}"/>
+        ${circle(13, -13, 2.7, ink)}
+        <path d="M-8 21V28M5 21V28" stroke="${ink}"
+          stroke-width="2" stroke-linecap="round"/>
+        ${detail
+                ? '<path d="M-15 2Q-4-9 6 5Q-5 17-15 2Z" fill="#fff1c7"/>'
+                : ""
+              }
+      `;
+            break;
+
+          case "candy":
+            body = `
+        <path d="M-15-10L-30-18V18L-15 10
+                 M15-10L30-18V18L15 10"
+          fill="${color}"/>
+        <rect x="-18" y="-17" width="36" height="34"
+          rx="12" fill="${color}" stroke="${cream}" stroke-width="2"/>
+        ${detail
+                ? `<path d="M-7-14V14M7-14V14"
+                 stroke="${cream}" stroke-width="5"/>`
+                : circle(0, 0, 7, cream)
+              }
+      `;
+            break;
+        }
+
+        return `
+    <g transform="translate(${item.x} ${item.y})
+                  rotate(${item.angle})
+                  scale(${item.scale})">
+      ${body}
+    </g>
+  `;
+      }
+
+      // ตัววาด Challenge ใหม่:
+      // วัตถุที่เป็นคำตอบเปลี่ยนทั้งสีและสัญลักษณ์
+      // ทั้งสองอย่างอยู่บนวัตถุเดียว จึงนับเป็นจุดต่าง 1 จุด
+      function drawChallengeObject(item, alternate) {
+        const safeAlternateColor =
+          item.alternateColor &&
+            item.alternateColor !== item.color
+            ? item.alternateColor
+            : (item.color === "#4ca7d4" ? "#e16b8b" : "#4ca7d4");
+
+        const displayItem = {
+          ...item,
+          color: alternate ? safeAlternateColor : item.color,
+
+          // ไม่ใช้รายละเอียดเล็ก ๆ เป็นความแตกต่างอีก
+          detail: false
+        };
+
+        // วาดวัตถุหลักด้วยสีที่เลือกไว้
+        const body = drawChallengeObjectBase(displayItem, false);
+
+        // รูปแบบ A = วงกลม
+        // รูปแบบ B = สี่เหลี่ยมข้าวหลามตัด
+        // วาดทับด้านบนสุด เพื่อไม่ถูกส่วนอื่นของวัตถุบัง
+        const symbol = alternate
+          ? `
+      <path
+        d="M0-15L15 0L0 15L-15 0Z"
+        fill="#fffdf2"
+        stroke="#49375f"
+        stroke-width="3"
+      />
+    `
+          : `
+      <circle
+        cx="0" cy="0" r="10"
+        fill="#fffdf2"
+        stroke="#49375f"
+        stroke-width="3"
+      />
+    `;
+
+        return `
+    ${body}
+    <g
+      transform="translate(${item.x} ${item.y})
+                 rotate(${item.angle})
+                 scale(${item.scale})"
+      pointer-events="none"
+    >
+      ${symbol}
+    </g>
+  `;
+      }
+
+      function renderChallengeScene(scene, changed) {
+        const selected = new Map(
+          scene.targets.map(target => [target.id, target])
+        );
+
+        const background = `
+    <rect width="900" height="600" fill="${scene.theme.sky}"/>
+
+    ${circle(scene.sunX, 44, 23, "#fff1b1")}
+
+    ${scene.clouds.map(item =>
+          cloud(item.x, item.y, item.scale)
+        ).join("")}
+
+    ${scene.sparkles.map(item =>
+          star(item.x, item.y, item.r + 2, item.r, "#ffffff")
+        ).join("")}
+
+    <path d="M0 128Q160 58 325 130
+             Q535 45 720 125Q820 90 900 124V600H0Z"
+      fill="${scene.theme.hill}"/>
+
+    <g transform="translate(${scene.castleX} 82) scale(.28)">
+      ${castle(0, 0, "#edcce9")}
+    </g>
+
+    <path d="M0 138Q225 118 450 140Q675 117 900 139V600H0Z"
+      fill="${scene.theme.ground}"/>
+  `;
+
+        const objects = scene.slots.map(item => {
+          const target = selected.get(item.id);
+
+          const alternate = target
+            ? (target.reversed ? !changed : changed)
+            : false;
+
+          return drawChallengeObject(item, alternate);
+        }).join("");
+
+        return `
+    <svg xmlns="${NS}" viewBox="0 0 900 600"
+      class="game-svg"
+      role="img"
+      aria-label="Challenge ${esc(scene.theme.name)} Picture ${changed ? 2 : 1}">
+      ${background}
+      ${objects}
+      <g class="marks"></g>
+    </svg>
+  `;
+      }
+
+      function setClockPresentation(challenge) {
+        const label = $("timer").parentElement.querySelector("small");
+        label.textContent = challenge ? "Time Left" : "Time Used";
+        $("timer").classList.remove("timer-warning");
+      }
+
+      function startChallenge() {
+        unlockAudio();
+        resetAnswerReview();
+        stopClock();
+        clearTransient();
+
+        // ยกเลิกผลโหลด JPG ที่อาจค้างมาจาก Basic
+        state.loadToken = null;
+        state.playing = false;
+        state.mode = "challenge";
+        state.elapsed = 0;
+        state.found = new Set();
+        state.lastTickSec = -1;
+
+        challengeRoundNumber += 1;
+
+        const scene = createChallengeScene();
+        validateChallengeScene(scene);
+
+        state.challengeScene = scene;
+        state.targets = scene.targets;
+
+        setSummaryVisible(false);
+
+        $("home").hidden = true;
+        $("game").hidden = false;
+
+        $("gameTitle").textContent =
+          `Challenge ${challengeRoundNumber} — ${scene.theme.name}`;
+
+        $("gameSubtitle").textContent =
+          "Random New Scene • 50 Objects • Spot 5 differences in 60 seconds";
+
+        $("leftBoard").innerHTML = renderChallengeScene(scene, false);
+        $("rightBoard").innerHTML = renderChallengeScene(scene, true);
+
+        setClockPresentation(true);
+        $("timer").textContent = "01:00";
+
+        updateProgress();
+
+        $("status").textContent =
+          "Ready! Spot all 5 differences before time runs out!";
+
+        document.querySelector(".bottom-note").textContent =
+          "Tap either picture • Wrong taps don't deduct time • Find all 5 before 60s!";
+
+        $("backHome").focus({preventScroll: true});
+        window.scrollTo({top: 0, behavior: "auto"});
+
+        // ให้เบราว์เซอร์เตรียมภาพก่อนเริ่มเวลา
+        const token = {};
+        state.challengeStartToken = token;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            if (
+              state.challengeStartToken !== token ||
+              state.mode !== "challenge" ||
+              $("game").hidden
+            ) return;
+
+            state.startedAt = performance.now();
+            state.playing = true;
+            state.ticker = setInterval(updateTimer, 100);
+            sfx("start");
+            speak(`The Royal Detective Mission in the ${scene.theme.name} has begun! Let's find five differences within sixty seconds!`);
+          });
+        });
+      }
+      function resetAnswerReview() {
+        $("showAnswers").hidden = true;
+        $("answerSummaryNote").hidden = true;
+        $("answerSummaryNote").textContent = "";
+        $("answerReviewBar").hidden = true;
+
+        document.querySelectorAll(".answer-mark").forEach(node => {
+          node.remove();
+        });
+      }
+
+      function revealChallengeAnswers() {
+        // ลบเฉลยเก่าก่อน เพื่อป้องกันวงซ้ำ
+        document.querySelectorAll(".answer-mark").forEach(node => {
+          node.remove();
+        });
+
+        // found เก็บ index ของ target ไม่ใช่ id
+        // จึงต้องกรองโดยใช้ index เช่นเดียวกับระบบตรวจคำตอบเดิม
+        const missing = state.targets
+          .map((target, index) => ({target, index}))
+          .filter(({index}) => !state.found.has(index));
+
+        const layers = document.querySelectorAll(".game-svg .marks");
+
+        layers.forEach(layer => {
+          // ลบกากบาทที่ยังค้างอยู่ แต่เก็บวงตอบถูกไว้
+          layer.querySelectorAll(".wrong-mark").forEach(node => {
+            node.remove();
+          });
+
+          missing.forEach(({target}, order) => {
+            const radius = target.r + 4;
+            const number = order + 1;
+
+            const badgeX = target.x + radius * 0.7;
+            const badgeY = target.y - radius * 0.7;
+
+            const marker = appendSVG(layer, `
+        <circle
+          cx="${target.x}"
+          cy="${target.y}"
+          r="${radius}"
+          fill="#ffb63818"
+          stroke="#ffffff"
+          stroke-width="9"
+        />
+
+        <circle
+          cx="${target.x}"
+          cy="${target.y}"
+          r="${radius}"
+          fill="none"
+          stroke="#d47b08"
+          stroke-width="5"
+          stroke-dasharray="8 5"
+        />
+
+        <circle
+          cx="${badgeX}"
+          cy="${badgeY}"
+          r="13"
+          fill="#a95300"
+          stroke="#ffffff"
+          stroke-width="2"
+        />
+
+        <text
+          x="${badgeX}"
+          y="${badgeY + 5}"
+          text-anchor="middle"
+          font-family="Tahoma, sans-serif"
+          font-size="16"
+          font-weight="bold"
+          fill="#ffffff"
+        >${number}</text>
+      `);
+
+            marker.classList.add("answer-mark");
+          });
+        });
+
+        $("showAnswers").hidden = missing.length === 0;
+
+        $("answerSummaryNote").hidden = false;
+        $("answerSummaryNote").textContent =
+          `${missing.length} spots remaining. ` +
+          "Tap Show Answers to see orange circles on both pictures.";
+
+        return missing;
+      }
+
+      function openAnswerReview() {
+        sfx("click");
+        speak("Here is the answer key! The numbered orange circles show the differences. Take a look!");
+        setSummaryVisible(false);
+
+        $("answerReviewBar").hidden = false;
+
+        $("status").textContent =
+          `Time's up — Found ${state.found.size} / 5 spots. ` +
+          "Remaining spots are marked with numbered orange circles.";
+
+        // รอบนี้จบแล้ว จึงไม่รับคำตอบเพิ่มและไม่เดินเวลา
+        state.playing = false;
+        stopClock();
+
+        $("showAnswers").hidden = true;
+
+        $("reviewPlayAgain").focus({preventScroll: true});
+
+        document.querySelector(".boards").scrollIntoView({
+          behavior: "auto",
+          block: "start"
+        });
+      }
+      $("showAnswers").addEventListener("click", openAnswerReview);
+
+      $("reviewPlayAgain").addEventListener("click", startChallenge);
+
+      $("reviewBackHome").addEventListener("click", goHome);
+
+function validateChallengeScene(scene) {
+  if (scene.slots.length !== 50) {
+    throw new Error("Challenge must have 50 object slots");
+  }
+
+  const slotIds = new Set(scene.slots.map(item => item.id));
+
+  if (slotIds.size !== 50) {
+    throw new Error("Duplicate Challenge object ID found");
+  }
+
+  if (
+    scene.targets.length !== 5 ||
+    new Set(scene.targets.map(item => item.id)).size !== 5
+  ) {
+    throw new Error("Challenge must have 5 unique target spots");
+  }
+
+  for (const target of scene.targets) {
+    const item = scene.slots.find(slot => slot.id === target.id);
+
+    if (!item) {
+      throw new Error(`Target object not found: ${target.id}`);
+    }
+
+    if (item.x !== target.x || item.y !== target.y) {
+      throw new Error(`Target coordinates do not match object: ${target.id}`);
+    }
+
+    // Verify renderer creates visual difference
+    if (
+      drawChallengeObject(item, false) ===
+      drawChallengeObject(item, true)
+    ) {
+      throw new Error(`Target object does not visually change: ${target.id}`);
+    }
+  }
+}
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.getVoices();
+        window.speechSynthesis.addEventListener?.("voiceschanged", () => {
+          window.speechSynthesis.getVoices();
+        });
+      }
+
+      window.addEventListener("pagehide", () => {
+        stopClock();
+        clearTransient();
+        if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      });
+
+      buildMenu();
+
+
+      $("sceneCountHint").textContent =
+        `${SCENES.length} Scenes • 5 Differences per Scene • No Time Limit`;
+
+    })();
+  </script>
+</body>
+
+</html>

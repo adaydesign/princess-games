@@ -32,7 +32,7 @@
 
   button { font: inherit; }
   button { -webkit-tap-highlight-color: transparent; }
-  button:focus-visible {
+  button:focus-visible, a:focus-visible, .target:focus-visible {
     outline: 4px solid #235da5;
     outline-offset: 4px;
   }
@@ -98,6 +98,13 @@
   .pill[aria-pressed="false"] {
     color: #756582;
     background: #f1ebf5;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
   }
 
   .welcome {
@@ -188,6 +195,12 @@
     padding: 10px 18px;
     border-radius: 18px;
     font-weight: 800;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+
+  .target:hover {
+    transform: translateY(-2px);
   }
 
   .target-icon { font-size: 34px; line-height: 1.2; }
@@ -426,7 +439,7 @@
     .card-place { font-size: .67rem; }
     .number { width: 26px; height: 28px; flex-basis: 26px; }
     .tools { width: 100%; }
-    .tools button { flex: 1; font-size: .85rem; padding: 9px; }
+    .tools button, .tools .back-link { flex: 1; font-size: .85rem; padding: 9px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -447,6 +460,7 @@
       <p class="subtitle">มองให้ดี! สิ่งของทั้ง 3 อยู่ในการ์ดใบไหน?</p>
     </div>
     <div class="tools">
+      <a class="pill back-link" href="index.html">← กลับหน้ารวมเกม</a>
       <button id="soundBtn" class="pill" aria-pressed="true">🔊 เสียงเปิด</button>
       <button id="voiceBtn" class="pill" aria-pressed="true">🗣️ อ่านโจทย์เปิด</button>
       <button id="restartBtn" class="secondary" hidden>↻ เริ่มเกมใหม่</button>
@@ -516,6 +530,7 @@
   <div class="dialog-actions">
     <button id="againBtn" class="primary" autofocus>✨ เริ่มเกมใหม่</button>
     <button id="reviewBtn" class="secondary">ดูการ์ดเฉลย</button>
+    <a class="secondary back-link" href="index.html">← กลับหน้ารวมเกม</a>
   </div>
 </dialog>
 
@@ -1215,7 +1230,7 @@ function unlockAudio() {
 
 function tone(frequency, duration, delay = 0, type = "sine", volume = .1) {
   if (!soundEnabled || !audioContext ||
-      audioContext.state !== "running") return;
+      audioContext.state === "closed") return;
 
   try {
     const start = audioContext.currentTime + delay;
@@ -1381,12 +1396,29 @@ function readQuestion() {
 }
 
 function renderRound() {
-  $("targets").innerHTML = state.targets.map(item => `
-    <div class="target">
+  $("targets").innerHTML = state.targets.map((item, idx) => `
+    <div class="target" role="button" tabindex="0" data-target-idx="${idx}" aria-label="ฟังชื่อ ${item.name}">
       <span class="target-icon" aria-hidden="true">${item.emoji}</span>
       <span>${item.name}</span>
     </div>
   `).join("");
+
+  $("targets").querySelectorAll(".target").forEach(el => {
+    const idx = Number(el.dataset.targetIdx);
+    const item = state.targets[idx];
+    const trigger = () => {
+      unlockAudio();
+      playEffect("click");
+      speak(`ตามหา ${item.name} นะจ๊ะ`, true);
+    };
+    el.addEventListener("click", trigger);
+    el.addEventListener("keydown", e => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        trigger();
+      }
+    });
+  });
 
   const fragment = document.createDocumentFragment();
 
