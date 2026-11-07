@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7546ba">
+<title>ดินแดนเกมเจ้าหญิงแสนสนุก — รวมเกมพัฒนาทักษะเด็กอนุบาล</title>
+<style>
+:root {
+  --ink: #34234d;
+  --muted: #685780;
+  --purple: #7342b8;
+  --purple-dark: #4f2888;
+  --pink: #e64d96;
+  --gold: #f4be3b;
+  --paper: #ffffff;
+  --border: #eadcf8;
+  --shadow: 0 14px 36px #4e2a841c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Tahoma, "Noto Sans Thai", system-ui, sans-serif;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 12% 8%, #fff4bd 0, transparent 28%),
+    radial-gradient(circle at 88% 12%, #ffd6ec 0, transparent 32%),
+    linear-gradient(180deg, #f3e8ff 0%, #fff4fa 52%, #e6f7fb 100%);
+  overflow-x: hidden;
+}
+button, a {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+button { cursor: pointer; touch-action: manipulation; }
+button:focus-visible, a:focus-visible, input:focus-visible {
+  outline: 4px solid #ffb800;
+  outline-offset: 4px;
+}
+[hidden] { display: none !important; }
+
+.scenery {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .55;
+}
+.twinkle { animation: twinkle 2.8s ease-in-out infinite alternate; }
+@keyframes twinkle { from { opacity: .25; transform: scale(.85); } to { opacity: 1; transform: scale(1.1); } }
+.float-slow { animation: floatSlow 5s ease-in-out infinite alternate; }
+@keyframes floatSlow { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+
+.app {
+  max-width: 1180px;
+  margin: auto;
+  padding: 22px 16px 48px;
+}
+
+.hero {
+  text-align: center;
+  background: #ffffffdf;
+  border: 3px solid #fff;
+  border-radius: 32px;
+  padding: clamp(18px, 4vw, 32px) clamp(16px, 4vw, 28px);
+  box-shadow: var(--shadow);
+  margin-bottom: 22px;
+}
+.hero-emblem {
+  width: 110px;
+  height: 82px;
+  margin: 0 auto 6px;
+  display: block;
+}
+.hero-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: #f2e7ff;
+  color: var(--purple-dark);
+  font-weight: bold;
+  font-size: .88rem;
+}
+h1 {
+  font-size: clamp(1.65rem, 4.6vw, 2.65rem);
+  color: var(--purple-dark);
+  margin: 8px 0 8px;
+  line-height: 1.35;
+}
+.subtitle {
+  max-width: 720px;
+  margin: 0 auto 16px;
+  color: var(--muted);
+  font-size: clamp(.98rem, 2.4vw, 1.12rem);
+  line-height: 1.75;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 20px;
+  min-height: 46px;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform .15s, box-shadow .15s;
+}
+.btn:active { transform: translateY(2px); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: #fff;
+  box-shadow: 0 5px 0 #4d227944;
+}
+.sound-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  min-height: 46px;
+  background: #f6efff;
+  border: 2px solid #e3d2fa;
+  border-radius: 999px;
+  font-weight: bold;
+  color: var(--purple-dark);
+}
+.sound-setting input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--purple);
+}
+.sound-note {
+  margin: 8px 0 0;
+  font-size: .82rem;
+  color: var(--muted);
+  min-height: 1.3em;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 18px;
+}
+.filter-btn {
+  border: 2px solid #e2d1f8;
+  background: #ffffffd9;
+  color: var(--purple-dark);
+  border-radius: 999px;
+  padding: 9px 18px;
+  min-height: 42px;
+  font-weight: bold;
+  transition: background .15s, transform .15s;
+}
+.filter-btn:hover { transform: translateY(-2px); }
+.filter-btn[aria-pressed="true"] {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #fff;
+  box-shadow: 0 4px 12px #7342b838;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fffffff2;
+  border: 3px solid #fff;
+  border-radius: 28px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px #4e2a842b;
+}
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.card-art {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  height: 155px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border: 2px solid #ffffffaa;
+}
+.card-art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.badge-skill {
+  display: inline-block;
+  font-size: .78rem;
+  font-weight: bold;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: #f1e6ff;
+  color: var(--purple-dark);
+}
+.badge-new {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fff0c2;
+  color: #7c4d00;
+  border: 1px solid #f5ce62;
+}
+.badge-lang {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e1f3ff;
+  color: #14558b;
+}
+.card h2 {
+  font-size: 1.22rem;
+  margin: 4px 0 6px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.card p {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: .94rem;
+  line-height: 1.65;
+  flex: 1;
+}
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+}
+.play-btn {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  padding: 11px 16px;
+  border-radius: 999px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  box-shadow: 0 4px 0 #4d227938;
+  transition: filter .15s, transform .15s;
+}
+.play-btn:hover { filter: brightness(1.06); }
+.play-btn:active { transform: translateY(2px); box-shadow: none; }
+.speak-btn {
+  border: 2px solid #e2d1f8;
+  background: #faf5ff;
+  color: var(--purple-dark);
+  border-radius: 999px;
+  min-width: 46px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-weight: bold;
+  font-size: .88rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.speak-btn:hover { background: #efe2ff; }
+
+footer {
+  text-align: center;
+  margin-top: 32px;
+  padding: 18px 14px;
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.75;
+  background: #ffffffb8;
+  border-radius: 24px;
+  border: 2px solid #fff;
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+  .card-art { height: 140px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ฉากปราสาทเทพนิยายวาดด้วย SVG ทั้งหมด -->
+<svg class="scenery" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <g fill="#f4be3b">
+    <circle class="twinkle" cx="120" cy="90" r="4"/>
+    <circle class="twinkle" cx="340" cy="70" r="3" style="animation-delay:-1.2s"/>
+    <circle class="twinkle" cx="860" cy="80" r="4" style="animation-delay:-.7s"/>
+    <circle class="twinkle" cx="1070" cy="120" r="3.5" style="animation-delay:-1.8s"/>
+  </g>
+  <path d="M0 700 Q260 640 560 700 T1200 680 V800 H0Z" fill="#e5d4fa"/>
+  <path d="M0 735 Q340 690 680 735 T1200 725 V800 H0Z" fill="#d5bdf5"/>
+  <!-- ปราสาทฝั่งซ้ายและขวาแบบนุ่มนวล -->
+  <g transform="translate(55 470)" fill="#d9c2f4">
+    <rect x="20" y="90" width="70" height="160" rx="6"/>
+    <polygon points="12,92 55,25 98,92" fill="#c7a5ee"/>
+    <rect x="42" y="130" width="26" height="42" rx="13" fill="#fff6d6"/>
+  </g>
+  <g transform="translate(1030 450)" fill="#d9c2f4">
+    <rect x="20" y="90" width="80" height="180" rx="6"/>
+    <polygon points="10,92 60,20 110,92" fill="#c7a5ee"/>
+    <rect x="46" y="135" width="28" height="46" rx="14" fill="#fff6d6"/>
+  </g>
+</svg>
+
+<div class="app">
+  <header class="hero">
+    <svg class="hero-emblem float-slow" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M18 78 L28 32 L52 56 L70 18 L88 56 L112 32 L122 78Z" fill="#f6c445" stroke="#c98a14" stroke-width="4" stroke-linejoin="round"/>
+      <rect x="16" y="76" width="108" height="12" rx="6" fill="#e0a11b"/>
+      <circle cx="70" cy="16" r="7" fill="#ff7eb6"/>
+      <circle cx="28" cy="30" r="6" fill="#63c5ff"/>
+      <circle cx="112" cy="30" r="6" fill="#63c5ff"/>
+      <circle cx="70" cy="57" r="9" fill="#eb539f" stroke="#fff" stroke-width="2.5"/>
+      <circle cx="44" cy="62" r="5.5" fill="#9b6bff"/>
+      <circle cx="96" cy="62" r="5.5" fill="#9b6bff"/>
+    </svg>
+    <span class="hero-badge">👑 อาณาจักรการเรียนรู้ระดับปฐมวัย</span>
+    <h1>ดินแดนเกมเจ้าหญิงแสนสนุก</h1>
+    <p class="subtitle">
+      เลือกไอคอนเกมที่หนูอยากเล่นได้เลยจ้ะ ทุกเกมออกแบบสำหรับเด็กอนุบาล ภาพวาดด้วย SVG ทั้งหมด พร้อมเสียงบรรยายช่วยให้เล่นได้แม้ยังอ่านหนังสือไม่คล่อง
+    </p>
+
+    <div class="toolbar">
+      <button class="btn btn-primary" id="welcomeBtn" type="button">
+        🔊 ฟังคำแนะนำหน้าแรก
+      </button>
+      <label class="sound-setting">
+        <input type="checkbox" id="soundToggle" checked>
+        เปิดเสียงอ่านชื่อเกม
+      </label>
+    </div>
+    <p class="sound-note" id="soundNote" role="status" aria-live="polite"></p>
+  </header>
+
+  <nav class="filters" aria-label="กรองรายการเกมตามภาษา">
+    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (8 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (6 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (2 เกม)</button>
+  </nav>
+
+  <main class="grid" id="gameGrid" aria-label="รายการเกมทั้งหมด"></main>
+
+  <footer>
+    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games)</strong><br>
+    แต่ละเกมอยู่ในไฟล์ HTML เพียงไฟล์เดียว • วาดภาพประกอบทั้งหมดด้วยโค้ด SVG • ใช้เสียงพูด Web Speech API และเสียงดนตรีสังเคราะห์ Web Audio API โดยไม่พึ่งพาไฟล์ภายนอก
+  </footer>
+</div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const GAMES = [
+  {
+    id: "pattern_ariel",
+    href: "pattern_ariel.html",
+    lang: "th",
+    isNew: true,
+    title: "สร้อยไข่มุกของแอเรียล",
+    skill: "แบบรูป (Pattern)",
+    description: "สังเกตลำดับไข่มุก เปลือกหอย ปลาดาว แล้วช่วยเจ้าหญิงเงือกแอเรียลเลือกชิ้นถัดไปมาร้อยสร้อยให้ครบแบบรูป",
+    speech: "เกมสร้อยไข่มุกของแอเรียล ฝึกสังเกตแบบรูป แล้วช่วยแอเรียลร้อยสร้อยให้สวยงามนะจ๊ะ",
+    bg: "linear-gradient(150deg, #bff3f7, #7ad2e6 60%, #489ec2)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="32" cy="30" r="6" fill="#fff" opacity=".5"/>
+      <circle cx="190" cy="28" r="8" fill="#fff" opacity=".45"/>
+      <path d="M22 45 Q110 115 198 45" fill="none" stroke="#f6c445" stroke-width="5" stroke-linecap="round"/>
+      <!-- ไข่มุก -->
+      <circle cx="48" cy="64" r="18" fill="#fbf8ff" stroke="#b9a6e0" stroke-width="3.5"/>
+      <circle cx="42" cy="58" r="5" fill="#fff"/>
+      <!-- เปลือกหอย -->
+      <g transform="translate(88 76)">
+        <path d="M0 16 C-16 14 -22 2 -20 -8 C-18 -20 -8 -26 0 -26 C8 -26 18 -20 20 -8 C22 2 16 14 0 16Z" fill="#ffa3c7" stroke="#d9568f" stroke-width="3.5"/>
+        <path d="M0 14 V-22 M0 14 L-11 -18 M0 14 L11 -18" stroke="#d9568f" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <!-- ปลาดาว -->
+      <g transform="translate(132 76)">
+        <path d="M0 -22 L6 -6 L23 -5 L10 6 L14 22 L0 13 L-14 22 L-10 6 L-23 -5 L-6 -6Z" fill="#ffb347" stroke="#e07b1a" stroke-width="3" stroke-linejoin="round"/>
+        <circle cx="-4" cy="-1" r="2" fill="#7a4210"/><circle cx="4" cy="-1" r="2" fill="#7a4210"/>
+      </g>
+      <!-- ช่องคำถาม -->
+      <circle cx="174" cy="64" r="18" fill="#ffffffd9" stroke="#ef6f8e" stroke-width="3.5" stroke-dasharray="6 4"/>
+      <text x="174" y="72" text-anchor="middle" font-size="24" font-weight="bold" fill="#ef6f8e">?</text>
+    </svg>`
+  },
+  {
+    id: "lantern_rapunzel",
+    href: "lantern_rapunzel.html",
+    lang: "th",
+    isNew: true,
+    title: "โคมลอยของราพันเซล",
+    skill: "ความจำและลำดับ (Memory)",
+    description: "ดูโคมลอยที่สว่างขึ้นพร้อมเสียงดนตรีทีละดวง แล้วแตะโคมตามลำดับเดิมเพื่อปล่อยโคมลอยขึ้นเต็มท้องฟ้า",
+    speech: "เกมโคมลอยของราพันเซล ดูโคมที่สว่างและฟังเสียงดนตรี แล้วแตะโคมตามลำดับเดิมนะจ๊ะ",
+    bg: "linear-gradient(150deg, #1f1c55, #4d3998 60%, #8e5cc8)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="188" cy="28" r="16" fill="#fff6d6"/>
+      <circle cx="28" cy="24" r="2.5" fill="#fff"/><circle cx="140" cy="20" r="2" fill="#fff"/>
+      <!-- โคม 3 ดวง -->
+      <g transform="translate(52 72)">
+        <ellipse cx="0" cy="0" rx="26" ry="30" fill="#ff8fb8" opacity=".35"/>
+        <rect x="-11" y="-26" width="22" height="5" rx="2" fill="#8b5a2b"/>
+        <path d="M-12 -21 Q-22 0 -11 22 H11 Q22 0 12 -21Z" fill="#ff8fb8" stroke="#d4507f" stroke-width="2.5"/>
+        <path d="M0 6 L-6 0 C-10 -5 -4 -10 0 -5 C4 -10 10 -5 6 0Z" fill="#fff"/>
+      </g>
+      <g transform="translate(110 56)">
+        <ellipse cx="0" cy="0" rx="30" ry="34" fill="#ffd04d" opacity=".45"/>
+        <rect x="-12" y="-28" width="24" height="5" rx="2" fill="#8b5a2b"/>
+        <path d="M-13 -23 Q-24 0 -12 24 H12 Q24 0 13 -23Z" fill="#ffd04d" stroke="#d39a12" stroke-width="2.5"/>
+        <circle r="6" fill="#b06f00"/>
+      </g>
+      <g transform="translate(168 74)">
+        <ellipse cx="0" cy="0" rx="26" ry="30" fill="#7cc8ff" opacity=".35"/>
+        <rect x="-11" y="-26" width="22" height="5" rx="2" fill="#8b5a2b"/>
+        <path d="M-12 -21 Q-22 0 -11 22 H11 Q22 0 12 -21Z" fill="#7cc8ff" stroke="#2f86c9" stroke-width="2.5"/>
+        <path d="M0 -8 L2.5 -2.5 L8 -2 L4 2 L5 8 L0 5 L-5 8 L-4 2 L-8 -2 L-2.5 -2.5Z" fill="#fff"/>
+      </g>
+    </svg>`
+  },
+  {
+    id: "find_difference",
+    href: "find_difference1.1.html",
+    lang: "th",
+    isNew: false,
+    title: "เจ้าหญิงนักสังเกต — หาจุดแตกต่าง",
+    skill: "การสังเกต (Observation)",
+    description: "เปรียบเทียบภาพปราสาทและฉากเจ้าหญิงแสนสวยทั้งสองภาพ แล้วแตะหาจุดที่แตกต่างกันให้ครบทุกจุด",
+    speech: "เกมเจ้าหญิงนักสังเกต หาจุดแตกต่าง เปรียบเทียบภาพสองภาพแล้วแตะจุดที่ไม่เหมือนกันนะจ๊ะ",
+    bg: "linear-gradient(150deg, #ffe3ef, #e8def8 60%, #d4ecff)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="20" y="22" width="76" height="92" rx="12" fill="#fff" stroke="#8c62d0" stroke-width="3.5"/>
+      <rect x="116" y="22" width="76" height="92" rx="12" fill="#fff" stroke="#8c62d0" stroke-width="3.5"/>
+      <!-- ภาพซ้าย -->
+      <circle cx="42" cy="44" r="9" fill="#ffd24c"/>
+      <path d="M36 92 L58 54 L80 92Z" fill="#e56ca5"/>
+      <!-- ภาพขวา (ต่างกันที่ดาว) -->
+      <path d="M138 34 L141 41 L149 42 L143 47 L145 55 L138 50 L131 55 L133 47 L127 42 L135 41Z" fill="#ffd24c"/>
+      <path d="M132 92 L154 54 L176 92Z" fill="#7c56cf"/>
+      <!-- แว่นขยาย -->
+      <circle cx="156" cy="76" r="22" fill="#ffffff66" stroke="#ff9800" stroke-width="5"/>
+      <path d="M172 92 L192 112" stroke="#ff9800" stroke-width="7" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id: "match_th",
+    href: "match.html",
+    lang: "th",
+    isNew: false,
+    title: "ปราสาทนักสืบเจ้าหญิง",
+    skill: "จับคู่และเงา (Matching)",
+    description: "สวมบทนักสืบตัวน้อยในปราสาท สังเกตรูปทรงและเงาปริศนาเพื่อค้นหาสิ่งของและมงกุฎของเจ้าหญิง",
+    speech: "เกมปราสาทนักสืบเจ้าหญิง สังเกตเงาและจับคู่สิ่งของในปราสาทกันนะจ๊ะ",
+    bg: "linear-gradient(150deg, #f3e4ff, #ffd9ec 65%, #fff2d6)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- การ์ดสี -->
+      <rect x="24" y="24" width="74" height="92" rx="14" fill="#fff" stroke="#7543bc" stroke-width="3.5"/>
+      <path d="M40 82 L46 50 L61 65 L76 50 L82 82Z" fill="#f6c445" stroke="#c98a14" stroke-width="3" stroke-linejoin="round"/>
+      <!-- การ์ดเงา -->
+      <rect x="122" y="24" width="74" height="92" rx="14" fill="#efe6fa" stroke="#7543bc" stroke-width="3.5" stroke-dasharray="6 4"/>
+      <path d="M138 82 L144 50 L159 65 L174 50 L180 82Z" fill="#4b356e"/>
+      <path d="M98 70 H122" stroke="#e84e98" stroke-width="4" stroke-dasharray="4 4"/>
+    </svg>`
+  },
+  {
+    id: "math1_th",
+    href: "math1.html",
+    lang: "th",
+    isNew: false,
+    title: "เจ้าหญิงรวมเลขให้ได้ 10",
+    skill: "คณิตศาสตร์ (Make 10)",
+    description: "ช่วยเจ้าหญิงนับเพชรและจับคู่ตัวเลขสองจำนวนที่รวมกันได้เท่ากับ 10 พร้อมตารางช่วยนับเข้าใจง่าย",
+    speech: "เกมเจ้าหญิงรวมเลขให้ได้ 10 มาช่วยเจ้าหญิงหาตัวเลขที่บวกกันได้สิบนะจ๊ะ",
+    bg: "linear-gradient(150deg, #e7d8ff, #ffdbf0 60%, #d8f5ee)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="54" cy="70" r="28" fill="#fff" stroke="#7040ad" stroke-width="4"/>
+      <text x="54" y="80" text-anchor="middle" font-size="30" font-weight="bold" fill="#7040ad">6</text>
+      <text x="95" y="78" text-anchor="middle" font-size="26" font-weight="bold" fill="#dc4087">+</text>
+      <circle cx="136" cy="70" r="28" fill="#fff" stroke="#dc4087" stroke-width="4"/>
+      <text x="136" y="80" text-anchor="middle" font-size="30" font-weight="bold" fill="#dc4087">4</text>
+      <rect x="172" y="48" width="36" height="44" rx="12" fill="#f6c445" stroke="#c58b12" stroke-width="3"/>
+      <text x="190" y="78" text-anchor="middle" font-size="22" font-weight="bold" fill="#4a2d00">10</text>
+    </svg>`
+  },
+  {
+    id: "maze",
+    href: "maze.html",
+    lang: "th",
+    isNew: false,
+    title: "เขาวงกตเจ้าหญิง",
+    skill: "มิติสัมพันธ์และการวางแผน (Maze)",
+    description: "พาเจ้าหญิงเดินทางผ่านเขาวงกตมหัศจรรย์ เก็บอัญมณีและกุญแจเพื่อไปให้ถึงปราสาทปลายทาง",
+    speech: "เกมเขาวงกตเจ้าหญิง ช่วยพาเจ้าหญิงเดินหาทางออกในเขาวงกตไปสู่วังหลวงนะจ๊ะ",
+    bg: "linear-gradient(150deg, #dff5e8, #e6dcff 65%, #ffdff0)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="36" y="18" width="148" height="104" rx="14" fill="#fff" stroke="#7d4bc4" stroke-width="4"/>
+      <path d="M36 52 H130 M86 52 V88 M86 88 H152 M152 44 V88" stroke="#7d4bc4" stroke-width="5" stroke-linecap="round"/>
+      <path d="M54 34 H158 V70 H110 V104 H166" fill="none" stroke="#f4be3b" stroke-width="5" stroke-dasharray="6 5" stroke-linecap="round"/>
+      <circle cx="54" cy="34" r="9" fill="#e84e98"/>
+      <polygon points="168,94 176,108 160,108" fill="#169868"/>
+    </svg>`
+  },
+  {
+    id: "match_en",
+    href: "match_en.html",
+    lang: "en",
+    isNew: false,
+    title: "Princess Castle Detectives",
+    skill: "Matching & Shadows (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมปราสาทนักสืบเจ้าหญิง ฝึกฟังคำศัพท์ภาษาอังกฤษควบคู่กับการสังเกตเงาและจับคู่ภาพ",
+    speech: "Princess Castle Detectives. Match the royal items and shadows in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #e2f0ff, #f1e4ff 60%, #ffe3f1)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="26" y="24" width="74" height="92" rx="14" fill="#fff" stroke="#2d6cdf" stroke-width="3.5"/>
+      <path d="M42 82 L48 50 L63 65 L78 50 L84 82Z" fill="#f6c445" stroke="#c98a14" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="120" y="24" width="74" height="92" rx="14" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="3.5"/>
+      <text x="157" y="78" text-anchor="middle" font-size="26" font-weight="bold" fill="#1d4fa8">EN</text>
+    </svg>`
+  },
+  {
+    id: "math1_en",
+    href: "math1_en.html",
+    lang: "en",
+    isNew: false,
+    title: "Princess Make 10",
+    skill: "Math & Number Bonds (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมรวมเลขให้ได้ 10 ฝึกนับเลขภาษาอังกฤษ One to Ten และจับคู่ตัวเลขที่รวมกันได้ 10",
+    speech: "Princess Make Ten. Find the number friends that make ten in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #dff6ff, #ece2ff 60%, #ffe8f4)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="56" cy="70" r="27" fill="#fff" stroke="#2d6cdf" stroke-width="4"/>
+      <text x="56" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="#2d6cdf">7</text>
+      <text x="96" y="78" text-anchor="middle" font-size="25" font-weight="bold" fill="#dc4087">+</text>
+      <circle cx="136" cy="70" r="27" fill="#fff" stroke="#dc4087" stroke-width="4"/>
+      <text x="136" y="80" text-anchor="middle" font-size="28" font-weight="bold" fill="#dc4087">3</text>
+      <rect x="170" y="48" width="38" height="44" rx="12" fill="#f6c445" stroke="#c58b12" stroke-width="3"/>
+      <text x="189" y="77" text-anchor="middle" font-size="21" font-weight="bold" fill="#4a2d00">10</text>
+    </svg>`
+  }
+];
+
+let audioContext = null;
+let thaiVoice = null;
+let englishVoice = null;
+let currentFilter = "all";
+
+function loadVoices() {
+  if (!("speechSynthesis" in window)) {
+    $("soundNote").textContent = "เบราว์เซอร์นี้ไม่มีเสียงพูด แต่สามารถกดเข้าเล่นเกมได้ตามปกติ";
+    return;
+  }
+  const voices = window.speechSynthesis.getVoices();
+  const th = voices.filter(v => /^th(?:[-_]|$)/i.test(v.lang));
+  const en = voices.filter(v => /^en(?:[-_]|$)/i.test(v.lang));
+  thaiVoice = th.find(v => v.localService) || th[0] || null;
+  englishVoice = en.find(v => v.localService) || en[0] || null;
+  $("soundNote").textContent = thaiVoice
+    ? "กดปุ่ม 🔊 บนการ์ดเพื่อฟังคำอธิบายเกมด้วยเสียงพูดภาษาไทย"
+    : "สามารถกดปุ่ม 🔊 บนการ์ดเพื่อฟังชื่อเกมได้";
+}
+
+function unlockAudio() {
+  if (!$("soundToggle").checked) return;
+  try {
+    const AudioClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioClass) return;
+    if (!audioContext) audioContext = new AudioClass();
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+  } catch {
+    // ไม่ต้องทำอะไรหากอุปกรณ์ไม่รองรับ
+  }
+}
+
+function chime() {
+  if (!$("soundToggle").checked || !audioContext || audioContext.state === "closed") return;
+  [659.25, 880].forEach((freq, i) => {
+    const time = audioContext.currentTime + i * 0.08;
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = "triangle";
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(0.08, time + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.22);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start(time);
+    osc.stop(time + 0.24);
+    osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+  });
+}
+
+function stopSpeech() {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+}
+
+function say(text, lang = "th-TH") {
+  if (!$("soundToggle").checked || !("speechSynthesis" in window)) return;
+  stopSpeech();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  if (lang.startsWith("en") && englishVoice) utterance.voice = englishVoice;
+  else if (thaiVoice) utterance.voice = thaiVoice;
+  utterance.rate = 0.92;
+  utterance.pitch = 1.15;
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    // ข้ามหากเบราว์เซอร์ไม่อนุญาต
+  }
+}
+
+function renderCards() {
+  const grid = $("gameGrid");
+  grid.replaceChildren();
+  const list = GAMES.filter(g => currentFilter === "all" || g.lang === currentFilter);
+
+  list.forEach(game => {
+    const article = document.createElement("article");
+    article.className = "card";
+
+    const badges = [
+      `<span class="badge-skill">${game.skill}</span>`,
+      game.isNew ? `<span class="badge-new">✨ เกมใหม่</span>` : "",
+      game.lang === "en" ? `<span class="badge-lang">EN</span>` : `<span class="badge-lang">TH</span>`
+    ].filter(Boolean).join("");
+
+    article.innerHTML = `
+      <a class="card-link" href="${game.href}" aria-label="เข้าเล่นเกม ${game.title}">
+        <div class="card-art" style="background:${game.bg}">${game.svg}</div>
+        <div class="tag-row">${badges}</div>
+        <h2>${game.title}</h2>
+        <p>${game.description}</p>
+      </a>
+      <div class="card-actions">
+        <a class="play-btn" href="${game.href}" aria-label="เริ่มเล่นเกม ${game.title}">เริ่มเล่นเลย ▶</a>
+        <button class="speak-btn" type="button" aria-label="ฟังคำอธิบายเกม ${game.title}">🔊 ฟัง</button>
+      </div>
+    `;
+
+    article.querySelectorAll("a")?.forEach(link => {
+      link.addEventListener("click", stopSpeech);
+    });
+
+    article.querySelector(".speak-btn").addEventListener("click", () => {
+      unlockAudio();
+      chime();
+      say(game.speech, game.speechLang || "th-TH");
+    });
+
+    grid.appendChild(article);
+  });
+}
+
+$("welcomeBtn").addEventListener("click", () => {
+  unlockAudio();
+  chime();
+  say("ยินดีต้อนรับสู่ดินแดนเกมเจ้าหญิงแสนสนุกจ้ะ น้อง ๆ เลือกกดที่รูปเกมที่อยากเล่นได้เลย หรือกดปุ่มรูปลำโพงเพื่อฟังชื่อเกมก็ได้นะจ๊ะ");
+});
+
+$("soundToggle").addEventListener("change", () => {
+  if (!$("soundToggle").checked) {
+    stopSpeech();
+  } else {
+    unlockAudio();
+  }
+});
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll(".filter-btn").forEach(b => {
+      b.setAttribute("aria-pressed", String(b === btn));
+    });
+    renderCards();
+  });
+});
+
+window.addEventListener("pagehide", stopSpeech);
+
+renderCards();
+loadVoices();
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.addEventListener?.("voiceschanged", loadVoices);
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#7546ba">
+<title>เจ้าหญิงรวมเลขให้ได้ 10</title>
+<style>
+:root {
+  --purple: #7040ad;
+  --dark: #38234f;
+  --pink: #dc4087;
+  --paper: #ffffff;
+  --shadow: 0 12px 32px #68458b20;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Tahoma, "Noto Sans Thai", sans-serif;
+  color: var(--dark);
+  background:
+    radial-gradient(circle at 15% 8%, #fff7ba 0, transparent 30%),
+    radial-gradient(circle at 90% 20%, #ffcfec 0, transparent 35%),
+    linear-gradient(#e6d9ff, #fff0f7 65%, #d7f4ed);
+}
+button { font: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible {
+  outline: 4px solid #156fa9;
+  outline-offset: 5px;
+}
+button:disabled { cursor: default; }
+.scenery {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 52vh;
+  opacity: .26;
+  z-index: -1;
+  pointer-events: none;
+}
+.app { max-width: 1000px; margin: auto; padding: 20px 16px 35px; }
+header { text-align: center; }
+h1 {
+  font-size: clamp(1.65rem, 5vw, 2.7rem);
+  color: var(--purple);
+  margin: 5px 0 8px;
+}
+.subtitle { margin: 0 0 18px; line-height: 1.7; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.stat {
+  padding: 13px 8px;
+  border: 2px solid #fff;
+  border-radius: 20px;
+  text-align: center;
+  background: #ffffffd9;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: .85rem; }
+.stat-value {
+  display: block;
+  margin-top: 7px;
+  color: var(--purple);
+  font-size: clamp(1.1rem, 3.6vw, 1.65rem);
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.control {
+  border: 0;
+  border-radius: 99px;
+  padding: 12px 21px;
+  font-weight: bold;
+  min-height: 46px;
+}
+.primary { color: white; background: var(--purple); }
+.secondary { color: var(--purple); background: white; border: 2px solid #dbc4f0; }
+.control:disabled { opacity: .5; }
+.sound-setting {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  background: #ffffffc9;
+  padding: 11px 15px;
+  border-radius: 99px;
+}
+.sound-setting input { width: 20px; height: 20px; accent-color: var(--purple); }
+.sound-note { text-align: center; font-size: .8rem; min-height: 1.3em; }
+.game {
+  background: #fffffff0;
+  border: 3px solid white;
+  border-radius: 30px;
+  padding: clamp(16px, 4vw, 28px);
+  box-shadow: var(--shadow);
+}
+.layout { display: grid; grid-template-columns: 270px 1fr; gap: 26px; align-items: center; }
+.princess-card {
+  border-radius: 25px;
+  border: 4px solid #e8c663;
+  background: linear-gradient(150deg, #fff6ce, #fce0f2 60%, #e6e4ff);
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 8px 0 #d9b15d35;
+}
+.portrait { position: relative; }
+.portrait > svg { display: block; width: 100%; height: 245px; }
+.number-badge {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: white;
+  border: 4px solid #f3c94e;
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--purple);
+  box-shadow: 0 4px 12px #0001;
+}
+.princess-name {
+  margin: 0;
+  padding: 12px 8px;
+  font-size: 1.12rem;
+  background: #ffffffc7;
+  color: var(--purple);
+}
+.question-title { text-align: center; margin: 0 0 14px; font-size: 1.2rem; }
+.equation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vw, 17px);
+  font-size: clamp(2rem, 6vw, 3.3rem);
+  font-weight: bold;
+  margin: 10px 0 20px;
+}
+.missing {
+  display: grid;
+  place-items: center;
+  min-width: 65px;
+  min-height: 72px;
+  border: 3px dashed #bc8fe1;
+  border-radius: 18px;
+  background: #f7efff;
+  color: var(--pink);
+}
+.choices { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.choice {
+  position: relative;
+  min-height: 85px;
+  border: 3px solid #d7b7f0;
+  border-radius: 21px;
+  color: var(--purple);
+  background: linear-gradient(white, #f5eaff);
+  font-size: 2.6rem;
+  font-weight: bold;
+  box-shadow: 0 6px 0 #dac5e9;
+  transition: transform .15s, background .15s;
+}
+.choice:not(:disabled):hover { transform: translateY(-4px); background: #ffe8f3; }
+.choice:not(:disabled):active { transform: translateY(3px); box-shadow: none; }
+.choice.wrong {
+  background: #fff0e4;
+  border-color: #dfa465;
+  color: #865a35;
+  animation: wobble .3s;
+}
+.choice.right { background: #d8fae7; border-color: #3ea577; color: #176740; }
+.choice.right::after {
+  content: "✓";
+  position: absolute;
+  right: 5px;
+  top: 1px;
+  font-size: 1.1rem;
+}
+.message {
+  min-height: 76px;
+  margin: 20px 0 0;
+  padding: 15px;
+  border-radius: 18px;
+  background: #f6efff;
+  text-align: center;
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+.message.success { color: #16633e; background: #e1f8eb; }
+.hint {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 22px;
+  background: #fff9e9;
+  border: 2px dashed #e3bd58;
+}
+.hint h2 { margin: 0 0 12px; font-size: 1.05rem; text-align: center; }
+.hint-caption { margin: 9px 0; line-height: 1.7; text-align: center; }
+.ten-frame {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 410px;
+  margin: 12px auto;
+}
+.slot {
+  aspect-ratio: 1;
+  border: 2px solid #e4d6ac;
+  background: white;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+}
+.slot.empty { background: #ffffff80; border-style: dashed; }
+.slot svg { width: 75%; height: 75%; }
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  font-size: .9rem;
+}
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend svg { width: 25px; height: 25px; }
+.summary {
+  margin-top: 18px;
+  padding: 18px;
+  text-align: center;
+  border-radius: 18px;
+  background: #fff3ce;
+  line-height: 1.9;
+}
+.footnote { text-align: center; line-height: 1.7; font-size: .8rem; margin-top: 16px; }
+[hidden] { display: none !important; }
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.confetti {
+  position: absolute;
+  top: -25px;
+  width: 10px;
+  height: 17px;
+  border-radius: 3px;
+  animation: fall 1.5s ease-in forwards;
+}
+@keyframes fall {
+  to { transform: translate(var(--drift), 105vh) rotate(650deg); opacity: 0; }
+}
+@keyframes wobble {
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+@media (max-width: 680px) {
+  .layout { grid-template-columns: 1fr; gap: 20px; }
+  .princess-card { width: 210px; margin: auto; }
+  .portrait > svg { height: 175px; }
+  .number-badge { width: 63px; height: 63px; font-size: 2.5rem; }
+  .princess-name { padding: 8px; font-size: 1rem; }
+  .choice { min-height: 72px; font-size: 2.2rem; }
+  .choices { gap: 9px; }
+  .stat-label { font-size: .73rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ฉาก SVG อยู่ภายในไฟล์ ไม่ต้องดาวน์โหลดภาพ -->
+<svg class="scenery" viewBox="0 0 1200 450" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <path d="M0 360 Q180 220 380 350 Q600 250 800 350 Q1000 230 1200 330 V450 H0Z" fill="#8ed4b2"/>
+  <g fill="#b294d3" stroke="#9570b8" stroke-width="4">
+    <path d="M405 400V200H485V400M715 400V200H795V400"/>
+    <path d="M385 200L445 100L505 200ZM695 200L755 100L815 200Z" fill="#d97faa"/>
+    <path d="M485 400V270H715V400Z"/>
+    <path d="M550 270V140H650V270Z"/>
+    <path d="M530 140L600 35L670 140Z" fill="#d97faa"/>
+    <path d="M570 400V340Q600 305 630 340V400Z" fill="#fff0bd"/>
+  </g>
+  <g fill="#fff0bd">
+    <rect x="430" y="235" width="25" height="45" rx="12"/>
+    <rect x="742" y="235" width="25" height="45" rx="12"/>
+    <rect x="588" y="175" width="25" height="45" rx="12"/>
+  </g>
+  <path d="M600 35V5L665 20L600 30" fill="#ec8abb" stroke="#9a73bc" stroke-width="3"/>
+</svg>
+
+<div class="app">
+  <header>
+    <h1>เจ้าหญิงรวมเลขให้ได้ 10</h1>
+    <p class="subtitle">ช่วยเจ้าหญิงตามหาเลขที่หายไป เติมให้ครบสิบกันเถอะ!</p>
+  </header>
+
+  <section class="stats" aria-label="สถิติการเล่น">
+    <div class="stat">
+      <span class="stat-label">ตอบถูกแล้ว</span>
+      <strong class="stat-value" id="score">0 ข้อ</strong>
+    </div>
+    <div class="stat">
+      <span class="stat-label">เวลารวม</span>
+      <strong class="stat-value" id="elapsed">00:00</strong>
+    </div>
+    <div class="stat">
+      <span class="stat-label">เวลาเฉลี่ยต่อข้อ</span>
+      <strong class="stat-value" id="average">—</strong>
+    </div>
+  </section>
+
+  <div class="controls">
+    <button class="control primary" id="start">เริ่มเล่น</button>
+    <button class="control secondary" id="stop" disabled>หยุดเล่น</button>
+    <button class="control secondary" id="repeat" disabled>ฟังอีกครั้ง</button>
+    <label class="sound-setting">
+      <input type="checkbox" id="sound" checked>
+      เปิดเสียง
+    </label>
+  </div>
+  <p class="sound-note" id="soundNote"></p>
+
+  <main class="game">
+    <div class="layout">
+      <section class="princess-card" aria-label="การ์ดเจ้าหญิง">
+        <div class="portrait">
+          <div id="princessArt"></div>
+          <div class="number-badge" id="cardNumber" aria-label="เลขโจทย์">?</div>
+        </div>
+        <h2 class="princess-name" id="princessName">เจ้าหญิงรอเล่นด้วยอยู่นะ</h2>
+      </section>
+
+      <section aria-label="โจทย์และคำตอบ">
+        <h2 class="question-title" id="questionTitle">เลือกเลขมาบวกให้ได้ 10</h2>
+        <div class="equation" id="equation" aria-label="ยังไม่ได้เริ่มเกม">
+          <span id="questionNumber">?</span>
+          <span aria-hidden="true">+</span>
+          <span class="missing" id="missing">?</span>
+          <span aria-hidden="true">=</span>
+          <span>10</span>
+        </div>
+        <div class="choices" id="choices" role="group" aria-label="ตัวเลือกคำตอบ 4 ตัวเลือก"></div>
+        <p class="message" id="message" role="status" aria-live="polite" aria-atomic="true">
+          กด “เริ่มเล่น” แล้วออกเดินทางสู่ปราสาทเลขสิบกันเลย!
+        </p>
+      </section>
+    </div>
+
+    <section class="hint" id="hint" aria-labelledby="hintTitle" hidden>
+      <h2 id="hintTitle">มาลองนับด้วยกัน</h2>
+      <p class="hint-caption" id="hintCaption"></p>
+      <div class="ten-frame" id="tenFrame" role="img"></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="summary" id="summary" aria-live="polite" hidden></section>
+  </main>
+
+  <p class="footnote">
+    เล่นได้เรื่อย ๆ ไม่มีหักคะแนนเมื่อตอบผิด<br>
+    เวลาเฉลี่ย = เวลารวมตั้งแต่เริ่มเล่น ÷ จำนวนข้อที่ตอบถูก
+    โดยรวมเวลาฟังเสียงและดูคำใบ้
+  </p>
+</div>
+<div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+// ภาพเป็นงาน SVG แบบเรียบง่ายที่วาดด้วยโค้ด ไม่ได้ใช้ไฟล์ภาพจากภาพยนตร์
+const princesses = [
+  {
+    name: "แอเรียล",
+    dress: "#42baa4", light: "#a8f0d7", hair: "#c93f39",
+    skin: "#ffe0c9", style: "long"
+  },
+  {
+    name: "เบลล์",
+    dress: "#eebd37", light: "#fff0a4", hair: "#774628",
+    skin: "#f7d0ac", style: "half"
+  },
+  {
+    name: "ราพันเซล",
+    dress: "#a978d6", light: "#e9c7fa", hair: "#e6ba43",
+    skin: "#ffe0c8", style: "long"
+  },
+  {
+    name: "ซินเดอเรลล่า",
+    dress: "#68b8e7", light: "#d1efff", hair: "#e1b54b",
+    skin: "#ffe1ce", style: "bun"
+  },
+  {
+    name: "สโนว์ไวท์",
+    dress: "#f1ca49", light: "#fff1ad", hair: "#302638",
+    skin: "#ffe2d5", style: "short"
+  },
+  {
+    name: "เทียน่า",
+    dress: "#88b85b", light: "#e0efb7", hair: "#342b28",
+    skin: "#a96c45", style: "bun"
+  }
+];
+
+const state = {
+  running: false,
+  locked: false,
+  score: 0,
+  number: 0,
+  princess: null,
+  mistakes: 0,
+  startedAt: 0,
+  duration: 0,
+  round: 0,
+  nextTimer: null,
+  lastSpeech: ""
+};
+
+let audioContext = null;
+let speechToken = 0;
+let speechTimer = null;
+let thaiVoice = null;
+
+function shuffle(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function pick(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function princessSVG(p) {
+  const longHair = p.style === "long" || p.style === "half";
+  const hairBack = longHair
+    ? `<path d="M78 83 Q68 25 121 29 Q178 26 168 105 L188 220
+        Q158 241 135 208 L91 228 Q55 215 67 181Z" fill="${p.hair}"/>`
+    : `<path d="M75 99 Q61 28 121 29 Q183 30 168 116
+        Q161 145 148 139H88Q68 130 75 99Z" fill="${p.hair}"/>`;
+  const bun = p.style === "bun"
+    ? `<circle cx="122" cy="31" r="26" fill="${p.hair}"/>`
+    : "";
+  const bodice = p.name === "สโนว์ไวท์" ? "#426ab7" : p.dress;
+
+  return `<svg viewBox="0 0 240 270" xmlns="http://www.w3.org/2000/svg"
+      role="img" aria-label="ภาพวาดเจ้าหญิง${p.name}">
+    <ellipse cx="120" cy="251" rx="86" ry="10" fill="#8060a420"/>
+    <g fill="#fff9cf">
+      <path d="M35 45l3 9 9 3-9 3-3 9-3-9-9-3 9-3Z"/>
+      <path d="M198 116l3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/>
+      <circle cx="37" cy="147" r="3"/><circle cx="199" cy="36" r="4"/>
+    </g>
+    ${bun}${hairBack}
+    <path d="M98 145 Q72 159 49 245 Q119 271 192 245
+      Q169 160 143 145Z" fill="${p.dress}"/>
+    <path d="M111 156 Q96 193 82 250 Q123 262 159 250
+      Q145 192 131 156Z" fill="${p.light}"/>
+    <path d="M96 135 Q120 151 145 135 L147 173
+      Q120 183 94 173Z" fill="${bodice}"/>
+    <ellipse cx="87" cy="151" rx="17" ry="18" fill="${p.light}"/>
+    <ellipse cx="154" cy="151" rx="17" ry="18" fill="${p.light}"/>
+    <path d="M83 161Q74 180 65 189M158 162Q168 179 178 188"
+      fill="none" stroke="${p.skin}" stroke-width="12" stroke-linecap="round"/>
+    <path d="M109 116V137Q120 149 132 137V116" fill="${p.skin}"/>
+    <ellipse cx="120" cy="89" rx="39" ry="46" fill="${p.skin}"/>
+    <path d="M81 82 Q seventy 40 120 39" fill="none" visibility="hidden"/>
+    <path d="M81 83 Q seventy 40 120 39" fill="none" visibility="hidden"/>
+    <path d="M81 83Q72 36 118 37Q168 35 160 83
+      Q143 67 129 55Q109 77 81 83Z" fill="${p.hair}"/>
+    <path d="M95 88Q101 84 107 88M133 88Q139 84 145 88"
+      fill="none" stroke="#513543" stroke-width="2.4" stroke-linecap="round"/>
+    <ellipse cx="102" cy="95" rx="3.2" ry="4.5" fill="#372e40"/>
+    <ellipse cx="139" cy="95" rx="3.2" ry="4.5" fill="#372e40"/>
+    <circle cx="103" cy="94" r="1" fill="white"/>
+    <circle cx="140" cy="94" r="1" fill="white"/>
+    <ellipse cx="92" cy="106" rx="7" ry="4" fill="#ed8c9c" opacity=".5"/>
+    <ellipse cx="148" cy="106" rx="7" ry="4" fill="#ed8c9c" opacity=".5"/>
+    <path d="M111 115Q120 123 130 115" fill="none"
+      stroke="#b8586f" stroke-width="2.7" stroke-linecap="round"/>
+    <path d="M94 44L89 23L106 33L120 14L134 33L151 23L147 44Z"
+      fill="#ffdc66" stroke="#d4a63c" stroke-width="2"/>
+    <path d="M120 25L125 33L120 40L115 33Z" fill="${p.dress}"/>
+    <circle cx="120" cy="151" r="6" fill="#ffe69b"/>
+    <path d="M120 184L124 194L135 195L127 203L129 214
+      L120 208L110 214L112 203L104 195L115 194Z"
+      fill="white" opacity=".65"/>
+  </svg>`;
+}
+
+function objectSVG(type) {
+  if (type === "heart") {
+    return `<svg viewBox="0 0 60 60" aria-hidden="true">
+      <path d="M30 51L9 31C-7 12 15 0 30 17
+        C45 0 67 12 51 31Z" fill="#e6558e" stroke="#bc376b" stroke-width="2"/>
+      <path d="M13 20Q15 12 23 16" fill="none"
+        stroke="#ffbcd7" stroke-width="4" stroke-linecap="round"/>
+    </svg>`;
+  }
+  return `<svg viewBox="0 0 60 60" aria-hidden="true">
+    <path d="M30 4L38 21L56 23L43 36L46 55L30 46
+      L14 55L17 36L4 23L22 21Z"
+      fill="#f5ca43" stroke="#b7871f" stroke-width="2"/>
+    <circle cx="24" cy="31" r="2" fill="#815927"/>
+    <circle cx="36" cy="31" r="2" fill="#815927"/>
+    <path d="M25 38Q30 42 35 38" fill="none"
+      stroke="#815927" stroke-width="2" stroke-linecap="round"/>
+  </svg>`;
+}
+
+/* ---------- เสียงบรรยาย ---------- */
+
+function loadVoices() {
+  if (!("speechSynthesis" in window)) {
+    $("soundNote").textContent =
+      "เบราว์เซอร์นี้ไม่มีเสียงพูด แต่ยังเล่นเกมและอ่านข้อความได้";
+    return;
+  }
+  const voices = window.speechSynthesis.getVoices();
+  const thai = voices.filter(v => /^th(?:[-_]|$)/i.test(v.lang));
+  thaiVoice = thai.find(v => v.localService) || thai[0] || null;
+
+  $("soundNote").textContent = thaiVoice
+    ? "พร้อมใช้เสียงภาษาไทย • ปรับเสียงได้จากอุปกรณ์ของคุณ"
+    : "หากไม่ได้ยินคำบรรยาย โปรดติดตั้งเสียงภาษาไทยในอุปกรณ์";
+}
+
+function cancelSpeech() {
+  speechToken++;
+  clearTimeout(speechTimer);
+  speechTimer = null;
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+}
+
+function say(text, onComplete) {
+  state.lastSpeech = text;
+  cancelSpeech();
+  const token = speechToken;
+  let finished = false;
+
+  const finish = () => {
+    if (finished || token !== speechToken) return;
+    finished = true;
+    clearTimeout(speechTimer);
+    speechTimer = null;
+    if (onComplete) onComplete();
+  };
+
+  if (!$("sound").checked || !("speechSynthesis" in window)) {
+    speechTimer = setTimeout(finish, onComplete ? 1000 : 0);
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "th-TH";
+  if (thaiVoice) utterance.voice = thaiVoice;
+  utterance.rate = 0.92;
+  utterance.pitch = 1.16;
+  utterance.volume = 1;
+  utterance.onend = finish;
+  utterance.onerror = finish;
+
+  // ป้องกันเกมค้าง หากเบราว์เซอร์ไม่ส่งเหตุการณ์จบเสียง
+  speechTimer = setTimeout(() => {
+    if (token !== speechToken) return;
+    window.speechSynthesis.cancel();
+    finish();
+  }, Math.max(7000, Math.min(18000, text.length * 110)));
+
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    finish();
+  }
+}
+
+/* ---------- เสียงดนตรีสังเคราะห์ ไม่ใช้ไฟล์เสียง ---------- */
+
+function unlockAudio() {
+  if (!$("sound").checked) return;
+  try {
+    const AudioClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioClass) return;
+    if (!audioContext) audioContext = new AudioClass();
+    if (audioContext.state === "suspended") {
+      audioContext.resume().catch(() => {});
+    }
+  } catch {
+    // หากใช้งานไม่ได้ จะใช้ข้อความและเสียงพูดต่อไป
+  }
+}
+
+function chime() {
+  if (!$("sound").checked || !audioContext ||
+      audioContext.state !== "running") return;
+
+  const start = audioContext.currentTime;
+  [523.25, 659.25, 783.99, 1046.5].forEach((frequency, index) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const time = start + index * 0.12;
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(0.11, time + 0.018);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(time);
+    oscillator.stop(time + 0.32);
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      gain.disconnect();
+    };
+  });
+}
+
+/* ---------- เวลาและคะแนน ---------- */
+
+function elapsedMilliseconds() {
+  return state.running
+    ? performance.now() - state.startedAt
+    : state.duration;
+}
+
+function formatTime(milliseconds) {
+  const seconds = Math.floor(milliseconds / 1000);
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainder = seconds % 60;
+  const mmss = `${String(minutes).padStart(2, "0")}:${String(remainder).padStart(2, "0")}`;
+  return hours ? `${hours}:${mmss}` : mmss;
+}
+
+function updateStats() {
+  const elapsed = elapsedMilliseconds();
+  $("score").textContent = `${state.score} ข้อ`;
+  $("elapsed").textContent = formatTime(elapsed);
+  $("average").textContent = state.score
+    ? `${(elapsed / state.score / 1000).toFixed(1)} วินาที`
+    : "—";
+}
+
+setInterval(() => {
+  if (state.running) updateStats();
+}, 250);
+
+/* ---------- การแสดงผลและคำใบ้ ---------- */
+
+function showMessage(text, success = false) {
+  $("message").textContent = text;
+  $("message").classList.toggle("success", success);
+}
+
+function showHint(complete) {
+  $("hint").hidden = false;
+  $("hintTitle").textContent = complete
+    ? "นับดาวที่เติมเข้ามา แล้วเลือกคำตอบอีกครั้ง"
+    : "มีหัวใจเท่านี้ ต้องเติมอีกเท่าไรนะ?";
+
+  $("hintCaption").textContent = complete
+    ? `หัวใจ ${state.number} ดวงเป็นจำนวนเดิม ดาวสีเหลืองคือส่วนที่ขาด เมื่อนับรวมกันจะเต็ม 10 ช่องพอดี`
+    : `หัวใจ ${state.number} ดวงอยู่ในกรอบ 10 ช่อง ลองนับช่องว่างที่ยังเหลืออยู่`;
+
+  let cells = "";
+  for (let i = 0; i < 10; i++) {
+    if (i < state.number) {
+      cells += `<div class="slot">${objectSVG("heart")}</div>`;
+    } else if (complete) {
+      cells += `<div class="slot">${objectSVG("star")}</div>`;
+    } else {
+      cells += `<div class="slot empty"></div>`;
+    }
+  }
+
+  $("tenFrame").innerHTML = cells;
+  $("tenFrame").setAttribute("aria-label", complete
+    ? `กรอบสิบช่อง มีหัวใจ ${state.number} ดวง และดาว ${10 - state.number} ดวง รวมสิบชิ้น`
+    : `กรอบสิบช่อง มีหัวใจ ${state.number} ดวง ที่เหลือเป็นช่องว่าง`);
+
+  $("legend").innerHTML =
+    `<span>${objectSVG("heart")} จำนวนตามโจทย์</span>` +
+    (complete
+      ? `<span>${objectSVG("star")} จำนวนที่ต้องเติม ลองนับดูนะ</span>`
+      : `<span>ช่องว่าง = จำนวนที่ยังขาด</span>`);
+}
+
+function celebrate() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#e877ab", "#f3c34c", "#9d7ed8", "#6dc8b4", "#80bce5"];
+  for (let i = 0; i < 32; i++) {
+    const piece = document.createElement("i");
+    piece.className = "confetti";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = pick(colors);
+    piece.style.setProperty("--drift", `${Math.random() * 200 - 100}px`);
+    piece.style.animationDelay = `${Math.random() * 0.25}s`;
+    $("confetti").appendChild(piece);
+    setTimeout(() => piece.remove(), 2000);
+  }
+}
+
+function setAnswerButtonsDisabled(disabled) {
+  $("choices").querySelectorAll("button").forEach(button => {
+    button.disabled = disabled;
+  });
+}
+
+function nextQuestion() {
+  if (!state.running) return;
+  clearTimeout(state.nextTimer);
+  state.nextTimer = null;
+  state.round++;
+  state.locked = false;
+  state.mistakes = 0;
+
+  // สุ่มเลขโดยไม่ซ้ำกับข้อก่อนหน้าติดกัน
+  const possibleNumbers = Array.from({ length: 9 }, (_, i) => i + 1)
+    .filter(number => number !== state.number);
+  state.number = pick(possibleNumbers);
+
+  // ชื่อและรูปเจ้าหญิงสุ่มแยกจากตัวเลข
+  const possiblePrincesses = princesses.filter(p => p !== state.princess);
+  state.princess = pick(possiblePrincesses);
+
+  const answer = 10 - state.number;
+  const distractors = shuffle(
+    Array.from({ length: 9 }, (_, i) => i + 1)
+      .filter(number => number !== answer)
+  ).slice(0, 3);
+  const options = shuffle([answer, ...distractors]);
+
+  $("princessArt").innerHTML = princessSVG(state.princess);
+  $("princessName").textContent = `เจ้าหญิง${state.princess.name}`;
+  $("cardNumber").textContent = state.number;
+  $("cardNumber").setAttribute("aria-label", `เลขโจทย์ ${state.number}`);
+  $("questionNumber").textContent = state.number;
+  $("questionTitle").textContent = `ช่วยเจ้าหญิง${state.princess.name}เติมให้ครบสิบ`;
+  $("missing").textContent = "?";
+  $("equation").setAttribute("aria-label",
+    `${state.number} บวกจำนวนอะไร เท่ากับ 10`);
+  $("hint").hidden = true;
+  $("repeat").disabled = false;
+  $("choices").replaceChildren();
+
+  const currentRound = state.round;
+  options.forEach(number => {
+    const button = document.createElement("button");
+    button.className = "choice";
+    button.type = "button";
+    button.textContent = number;
+    button.setAttribute("aria-label", `ตอบ ${number}`);
+    button.addEventListener("click", () => choose(number, button, currentRound));
+    $("choices").appendChild(button);
+  });
+
+  const narration = pick([
+    `เจ้าหญิง${state.princess.name}มีเลข ${state.number} จ้ะ ต้องบวกกับเลขอะไร ถึงจะได้สิบพอดี ลองเลือกดูนะ`,
+    `มาช่วยเจ้าหญิง${state.princess.name}กันเถอะ เลข ${state.number} รวมกับเลขอะไร จะได้สิบเอ่ย`,
+    `ข้อนี้เจ้าหญิง${state.princess.name}นำเลข ${state.number} มาฝาก เติมอีกเท่าไร จึงจะครบสิบจ๊ะ`
+  ]);
+
+  showMessage(narration);
+  say(narration);
+
+  // หลังเปลี่ยนข้อ ย้ายโฟกัสให้เล่นต่อด้วยแป้นพิมพ์ได้
+  $("choices").querySelector("button").focus({ preventScroll: true });
+}
+
+function choose(number, button, round) {
+  if (!state.running || state.locked || round !== state.round) return;
+  unlockAudio();
+  const answer = 10 - state.number;
+
+  if (number === answer) {
+    state.locked = true;
+    state.score++;
+    setAnswerButtonsDisabled(true);
+    $("repeat").disabled = true;
+    button.classList.add("right");
+    $("missing").textContent = answer;
+    $("equation").setAttribute("aria-label",
+      `${state.number} บวก ${answer} เท่ากับ 10`);
+    updateStats();
+    chime();
+    celebrate();
+
+    const encouragement = pick([
+      "เก่งมากเลย!",
+      "ยอดเยี่ยมจ้ะ!",
+      "เย้ ทำได้แล้ว!",
+      "สุดยอดนักนับตัวน้อย!"
+    ]);
+    const text = `${encouragement} ${state.number} บวก ${answer} เท่ากับสิบ เจ้าหญิง${state.princess.name}ดีใจมาก ไปข้อต่อไปกันนะ`;
+    showMessage(text, true);
+
+    say(text, () => {
+      if (!state.running || round !== state.round) return;
+      state.nextTimer = setTimeout(nextQuestion, 650);
+    });
+    return;
+  }
+
+  state.mistakes++;
+  button.classList.remove("wrong");
+  void button.offsetWidth;
+  button.classList.add("wrong");
+
+  let text;
+  if (state.mistakes === 1) {
+    showHint(false);
+    text = `ยังไม่ใช่จ้ะ ไม่เป็นไรนะ ลองดูหัวใจ ${state.number} ดวงสิ ตัวเลข ${state.number} รวมกับตัวเลขอะไร จะได้สิบพอดี ลองใหม่ได้เลย`;
+  } else {
+    // ครั้งที่สอง ครั้งที่สาม และครั้งต่อไป ใช้ภาพสองชนิดช่วยนับ
+    showHint(true);
+    text = state.mistakes === 2
+      ? `ลองนับด้วยกันนะ หัวใจคือจำนวนเดิม ส่วนดาวสีเหลืองคือจำนวนที่ขาด ลองนับดาวอีกครั้ง แล้วเลือกเลขที่ทำให้รวมได้สิบจ้ะ`
+      : `ไม่ต้องรีบนะจ๊ะ เจ้าหญิง${state.princess.name}เป็นกำลังใจให้ ลองชี้นับดาวสีเหลืองทีละดวงอีกครั้ง มีดาวกี่ดวง ก็เลือกเลขนั้นเลยจ้ะ`;
+  }
+
+  showMessage(text);
+  say(text);
+}
+
+/* ---------- เริ่ม / หยุด ---------- */
+
+function startGame() {
+  if (state.running) return;
+  cancelSpeech();
+  clearTimeout(state.nextTimer);
+  unlockAudio();
+
+  state.running = true;
+  state.locked = false;
+  state.score = 0;
+  state.number = 0;
+  state.princess = null;
+  state.mistakes = 0;
+  state.duration = 0;
+  state.startedAt = performance.now();
+
+  $("summary").hidden = true;
+  $("confetti").replaceChildren();
+  $("start").disabled = true;
+  $("start").textContent = "กำลังเล่น";
+  $("stop").disabled = false;
+  updateStats();
+  nextQuestion();
+}
+
+function stopGame() {
+  if (!state.running) return;
+  state.duration = performance.now() - state.startedAt;
+  state.running = false;
+  state.locked = true;
+  state.round++;
+
+  clearTimeout(state.nextTimer);
+  state.nextTimer = null;
+  cancelSpeech();
+  setAnswerButtonsDisabled(true);
+
+  $("start").disabled = false;
+  $("start").textContent = "เริ่มเกมใหม่";
+  $("stop").disabled = true;
+  $("repeat").disabled = true;
+  $("confetti").replaceChildren();
+  updateStats();
+
+  const average = state.score
+    ? `${(state.duration / state.score / 1000).toFixed(1)} วินาทีต่อข้อ`
+    : "ยังไม่มีข้อที่ตอบถูก";
+
+  $("summary").hidden = false;
+  $("summary").textContent =
+    `จบการเล่นรอบนี้ • ตอบถูก ${state.score} ข้อ • เวลารวม ${formatTime(state.duration)} • เวลาเฉลี่ย: ${average}`;
+
+  const text = `ขอบคุณที่มาเล่นด้วยกันนะ วันนี้ตอบถูก ${state.score} ข้อแล้ว พักผ่อนแล้วกลับมาเล่นกับเจ้าหญิงได้อีกนะ`;
+  showMessage(text);
+  say(text);
+  $("start").focus({ preventScroll: true });
+}
+
+$("start").addEventListener("click", startGame);
+$("stop").addEventListener("click", stopGame);
+$("repeat").addEventListener("click", () => {
+  if (state.running && !state.locked) {
+    unlockAudio();
+    say(state.lastSpeech);
+  }
+});
+
+$("sound").addEventListener("change", () => {
+  if (!$("sound").checked) {
+    cancelSpeech();
+
+    // ปิดเสียงระหว่างฉลองก็ยังเปลี่ยนข้อได้ ไม่ค้าง
+    if (state.running && state.locked) {
+      clearTimeout(state.nextTimer);
+      state.nextTimer = setTimeout(nextQuestion, 900);
+    }
+  } else {
+    unlockAudio();
+    loadVoices();
+    if (state.running && !state.locked) say(state.lastSpeech);
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  cancelSpeech();
+  if (audioContext) audioContext.suspend().catch(() => {});
+});
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+}
+loadVoices();
+$("princessArt").innerHTML = princessSVG(princesses[1]);
+updateStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f8fa6">
+<title>สร้อยไข่มุกของแอเรียล — เกมแบบรูป</title>
+<style>
+:root {
+  --sea: #1f8fa6;
+  --deep: #134e6f;
+  --dark: #233b52;
+  --coral: #ef6f8e;
+  --gold: #f3c34c;
+  --shadow: 0 12px 32px #134e6f2a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Tahoma, "Noto Sans Thai", sans-serif;
+  color: var(--dark);
+  background: linear-gradient(#bff0f4, #8fd9e6 45%, #5fb9d2);
+  overflow-x: hidden;
+}
+button { font: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible {
+  outline: 4px solid #ffd54a;
+  outline-offset: 4px;
+}
+button:disabled { cursor: default; }
+[hidden] { display: none !important; }
+
+.scenery {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+}
+.bubble-rise { animation: rise 9s linear infinite; }
+.sway { animation: sway 4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: bottom center; }
+@keyframes rise {
+  from { transform: translateY(0); opacity: .8; }
+  to { transform: translateY(-900px); opacity: 0; }
+}
+@keyframes sway {
+  from { transform: rotate(-4deg); }
+  to { transform: rotate(4deg); }
+}
+
+.app { max-width: 1000px; margin: auto; padding: 18px 14px 36px; }
+header { text-align: center; color: var(--deep); }
+h1 { font-size: clamp(1.6rem, 5vw, 2.6rem); margin: 4px 0 6px; text-shadow: 0 2px 0 #ffffff99; }
+.subtitle { margin: 0 0 14px; line-height: 1.7; }
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 6px;
+}
+.control {
+  border: 0;
+  border-radius: 99px;
+  padding: 12px 22px;
+  min-height: 50px;
+  font-weight: bold;
+  box-shadow: 0 5px 0 #0e3e5a33;
+}
+.primary { background: var(--coral); color: #fff; }
+.secondary { background: #fff; color: var(--deep); border: 2px solid #bfe7ef; }
+.control:disabled { opacity: .5; }
+.sound-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #ffffffcc;
+  border-radius: 99px;
+  font-weight: bold;
+}
+.sound-setting input { width: 22px; height: 22px; accent-color: var(--sea); }
+.sound-note { text-align: center; font-size: .82rem; min-height: 1.3em; margin: 4px 0 12px; color: var(--deep); }
+
+.progress {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  flex-wrap: wrap;
+}
+.progress span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff70;
+  border: 2px dashed #ffffffcc;
+}
+.progress span.done { background: #fff; border: 2px solid var(--gold); }
+.progress span.current { border-color: var(--coral); border-style: solid; }
+.progress svg { width: 28px; height: 28px; }
+
+.game {
+  background: #ffffffeb;
+  border: 4px solid #fff;
+  border-radius: 30px;
+  padding: clamp(14px, 3.5vw, 26px);
+  box-shadow: var(--shadow);
+}
+.story { display: grid; grid-template-columns: 170px 1fr; gap: 18px; align-items: center; }
+.ariel {
+  background: linear-gradient(160deg, #d9f7f5, #cbe7ff);
+  border: 4px solid #a7e3e3;
+  border-radius: 26px;
+  overflow: hidden;
+}
+.ariel svg { display: block; width: 100%; height: 190px; }
+.ariel.happy svg { animation: bounce .6s ease 2; }
+@keyframes bounce {
+  50% { transform: translateY(-10px); }
+}
+.message {
+  position: relative;
+  margin: 0;
+  padding: 16px 18px;
+  min-height: 92px;
+  border-radius: 22px;
+  background: #eaf8fb;
+  font-size: clamp(1rem, 2.6vw, 1.2rem);
+  line-height: 1.75;
+}
+.message::before {
+  content: "";
+  position: absolute;
+  left: -14px;
+  top: 36px;
+  border: 10px solid transparent;
+  border-right: 14px solid #eaf8fb;
+  border-left: 0;
+}
+.message.success { background: #e2f8ea; color: #17643f; }
+.message.success::before { border-right-color: #e2f8ea; }
+.message.try { background: #fff4e3; color: #7c5223; }
+.message.try::before { border-right-color: #fff4e3; }
+
+.necklace-wrap { margin: 18px 0 8px; }
+.necklace { display: block; width: 100%; height: auto; }
+.bead { cursor: pointer; }
+.bead:hover .bead-art { transform: scale(1.08); }
+.bead-art { transition: transform .15s; transform-box: fill-box; transform-origin: center; }
+.slot-ring { animation: pulse 1.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes pulse {
+  50% { transform: scale(1.1); }
+}
+.drop-in { animation: drop .5s cubic-bezier(.3, 1.6, .5, 1); transform-box: fill-box; transform-origin: center; }
+@keyframes drop {
+  from { transform: translateY(-60px) scale(.4); opacity: 0; }
+}
+.necklace-caption { text-align: center; margin: 0; font-size: .9rem; color: #4b6b80; }
+
+.question { text-align: center; margin: 14px 0 12px; font-size: clamp(1.1rem, 3vw, 1.35rem); color: var(--deep); }
+.choices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(10px, 2.5vw, 20px);
+  max-width: 640px;
+  margin: auto;
+}
+.choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px 10px;
+  min-height: 150px;
+  border: 4px solid #bfe7ef;
+  border-radius: 26px;
+  background: linear-gradient(#fff, #e9f8fb);
+  color: var(--deep);
+  font-weight: bold;
+  font-size: clamp(.95rem, 2.6vw, 1.1rem);
+  box-shadow: 0 7px 0 #a8d9e3;
+  transition: transform .15s, background .15s;
+}
+.choice svg { width: clamp(70px, 16vw, 100px); height: clamp(70px, 16vw, 100px); }
+.choice:not(:disabled):hover { transform: translateY(-4px); background: #fff7fb; }
+.choice:not(:disabled):active { transform: translateY(3px); box-shadow: none; }
+.choice.wrong { background: #fff1e4; border-color: #e7ae70; animation: wobble .35s; opacity: .6; }
+.choice.glow { border-color: var(--gold); animation: glow 1s ease-in-out infinite; }
+.choice.right { background: #dcf9e7; border-color: #3ea577; }
+.choice.right::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  color: #1f8a55;
+  font-size: 1.5rem;
+}
+@keyframes wobble {
+  25% { transform: translateX(-7px); }
+  75% { transform: translateX(7px); }
+}
+@keyframes glow {
+  50% { box-shadow: 0 0 0 8px #f3c34c66, 0 7px 0 #a8d9e3; }
+}
+
+.summary {
+  text-align: center;
+  padding: 10px 6px;
+}
+.summary h2 { color: var(--coral); font-size: clamp(1.5rem, 4.5vw, 2.1rem); margin: 6px 0; }
+.summary .stars { font-size: 3rem; letter-spacing: 6px; color: var(--gold); }
+.summary .stars .off { color: #d6e4ea; }
+.summary p { line-height: 1.8; font-size: 1.1rem; }
+.summary-necklace svg { width: min(520px, 100%); height: auto; }
+
+.footnote { text-align: center; font-size: .82rem; line-height: 1.7; margin-top: 14px; color: var(--deep); }
+.back-link {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--deep);
+  font-weight: bold;
+  text-decoration: none;
+  background: #ffffffb3;
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+
+.confetti-layer { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.confetti {
+  position: absolute;
+  top: -30px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  animation: fall 1.6s ease-in forwards;
+}
+@keyframes fall {
+  to { transform: translate(var(--drift), 105vh) rotate(600deg); opacity: 0; }
+}
+
+@media (max-width: 680px) {
+  .story { grid-template-columns: 110px 1fr; gap: 12px; }
+  .ariel svg { height: 130px; }
+  .message { min-height: 80px; padding: 12px; }
+  .message::before { top: 26px; }
+  .choice { min-height: 120px; border-radius: 20px; }
+  .progress span { width: 32px; height: 32px; }
+  .progress svg { width: 22px; height: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ฉากใต้ทะเลวาดด้วย SVG ทั้งหมด ไม่ใช้ไฟล์ภาพ -->
+<svg class="scenery" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <g fill="#ffffff" opacity=".25">
+    <path d="M0 60 Q150 20 300 60 T600 60 T900 60 T1200 60 V0 H0Z"/>
+  </g>
+  <g fill="#ffffff" opacity=".35">
+    <circle class="bubble-rise" cx="120" cy="820" r="10"/>
+    <circle class="bubble-rise" cx="320" cy="860" r="6" style="animation-delay:-3s"/>
+    <circle class="bubble-rise" cx="610" cy="840" r="12" style="animation-delay:-6s"/>
+    <circle class="bubble-rise" cx="880" cy="880" r="8" style="animation-delay:-1.5s"/>
+    <circle class="bubble-rise" cx="1080" cy="830" r="11" style="animation-delay:-4.5s"/>
+  </g>
+  <path d="M0 690 Q200 640 400 690 Q650 740 850 680 Q1050 630 1200 680 V800 H0Z" fill="#f4dfa7"/>
+  <path d="M0 740 Q300 700 600 745 Q900 785 1200 735 V800 H0Z" fill="#ead08b"/>
+  <g fill="#3fae8c">
+    <path class="sway" d="M80 700 Q60 620 90 560 Q115 500 95 440 Q130 510 112 570 Q95 630 110 700Z"/>
+    <path class="sway" d="M130 705 Q120 650 140 610 Q160 570 150 520 Q180 580 165 625 Q152 665 160 705Z" style="animation-delay:-2s"/>
+    <path class="sway" d="M1060 690 Q1040 610 1070 550 Q1095 490 1075 430 Q1110 500 1092 560 Q1075 620 1090 690Z" style="animation-delay:-1s"/>
+  </g>
+  <g fill="#ef7f9c">
+    <path d="M980 700 V620 M980 650 L950 610 M980 640 L1010 600" stroke="#ef7f9c" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <path d="M260 712 V650 M260 670 L235 640 M260 662 L288 632" stroke="#f59a6b" stroke-width="12" stroke-linecap="round" fill="none"/>
+  </g>
+  <g transform="translate(560 640)">
+    <path d="M0 50 Q-50 30 -40 -10 Q0 -40 40 -10 Q50 30 0 50Z" fill="#ffb8cf" stroke="#e27aa0" stroke-width="5"/>
+    <circle cx="0" cy="18" r="12" fill="#fff"/>
+  </g>
+</svg>
+
+<div class="app">
+  <header>
+    <a class="back-link" href="index.html">← กลับหน้ารวมเกม</a>
+    <h1>สร้อยไข่มุกของแอเรียล</h1>
+    <p class="subtitle">ดูแบบรูปที่ซ้ำกัน แล้วช่วยแอเรียลเลือกชิ้นต่อไปมาร้อยสร้อยให้สวยงาม</p>
+  </header>
+
+  <div class="controls">
+    <button class="control primary" id="start" type="button">เริ่มเล่น</button>
+    <button class="control secondary" id="repeat" type="button" disabled>ฟังอีกครั้ง</button>
+    <label class="sound-setting">
+      <input type="checkbox" id="sound" checked>
+      เปิดเสียง
+    </label>
+  </div>
+  <p class="sound-note" id="soundNote"></p>
+
+  <div class="progress" id="progress" aria-label="ความคืบหน้า"></div>
+
+  <main class="game">
+    <div id="playArea">
+      <div class="story">
+        <div class="ariel" id="ariel"></div>
+        <p class="message" id="message" role="status" aria-live="polite" aria-atomic="true">
+          สวัสดีจ้ะ แอเรียลอยากร้อยสร้อยไข่มุกเส้นใหม่ กด “เริ่มเล่น” แล้วมาช่วยกันนะ!
+        </p>
+      </div>
+
+      <div class="necklace-wrap">
+        <div id="necklace"></div>
+        <p class="necklace-caption">แตะที่ชิ้นบนสร้อยเพื่อฟังชื่อได้นะ</p>
+      </div>
+
+      <h2 class="question" id="question">ชิ้นต่อไปคืออะไรเอ่ย?</h2>
+      <div class="choices" id="choices" role="group" aria-label="ตัวเลือก"></div>
+    </div>
+
+    <section class="summary" id="summary" aria-live="polite" hidden></section>
+  </main>
+
+  <p class="footnote">
+    เกมฝึก “แบบรูป” (AB, AAB, ABB, ABC, AABB) สำหรับเด็กอนุบาล • ตอบผิดไม่หักคะแนน มีคำใบ้ช่วย<br>
+    ภาพทั้งหมดวาดด้วย SVG ภายในไฟล์ • เสียงบรรยายใช้เสียงพูดภาษาไทยของอุปกรณ์
+  </p>
+</div>
+<div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+const TOTAL_QUESTIONS = 8;
+
+/* ---------- ภาพ SVG ของชิ้นสร้อย (viewBox 0 0 100 100) ---------- */
+
+const ITEMS = {
+  pearl: {
+    name: "ไข่มุก",
+    art: `<circle cx="50" cy="50" r="33" fill="#fbf8ff" stroke="#b9a6e0" stroke-width="5"/>
+      <ellipse cx="60" cy="63" rx="15" ry="9" fill="#e9defb"/>
+      <circle cx="39" cy="38" r="10" fill="#ffffff"/>
+      <circle cx="35" cy="35" r="4" fill="#fff"/>`
+  },
+  shell: {
+    name: "เปลือกหอย",
+    art: `<path d="M50 88 L40 80 H60Z" fill="#e2709f"/>
+      <path d="M50 82 C24 78 12 58 14 42 C17 22 34 12 50 12 C66 12 83 22 86 42 C88 58 76 78 50 82Z"
+        fill="#ffa3c7" stroke="#d9568f" stroke-width="5"/>
+      <path d="M50 80 V16 M50 80 L30 22 M50 80 L70 22 M50 80 L18 40 M50 80 L82 40"
+        stroke="#d9568f" stroke-width="3.5" stroke-linecap="round" fill="none"/>`
+  },
+  star: {
+    name: "ปลาดาว",
+    art: `<path d="M50 8 L61 36 L92 38 L68 57 L76 88 L50 71 L24 88 L32 57 L8 38 L39 36Z"
+        fill="#ffb347" stroke="#e07b1a" stroke-width="5" stroke-linejoin="round"/>
+      <g fill="#fff3c9"><circle cx="50" cy="30" r="3.5"/><circle cx="31" cy="45" r="3.5"/>
+      <circle cx="69" cy="45" r="3.5"/><circle cx="40" cy="66" r="3.5"/><circle cx="60" cy="66" r="3.5"/></g>
+      <circle cx="44" cy="49" r="3" fill="#7a4210"/><circle cx="56" cy="49" r="3" fill="#7a4210"/>
+      <path d="M44 57 Q50 62 56 57" stroke="#7a4210" stroke-width="3" fill="none" stroke-linecap="round"/>`
+  },
+  fish: {
+    name: "ปลาน้อย",
+    art: `<path d="M70 50 L94 30 L90 50 L94 70Z" fill="#3a8fe0" stroke="#1f62a8" stroke-width="4" stroke-linejoin="round"/>
+      <ellipse cx="45" cy="50" rx="33" ry="24" fill="#5fb2ff" stroke="#1f62a8" stroke-width="5"/>
+      <path d="M40 30 Q48 18 60 28" fill="#ffd85a" stroke="#1f62a8" stroke-width="3"/>
+      <path d="M48 36 Q56 50 48 64" stroke="#ffd85a" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <circle cx="28" cy="45" r="6" fill="#fff"/><circle cx="27" cy="45" r="3" fill="#1b2b44"/>`
+  },
+  heart: {
+    name: "หัวใจสีม่วง",
+    art: `<path d="M50 86 L16 52 C0 34 18 8 40 20 Q47 24 50 31 Q53 24 60 20 C82 8 100 34 84 52Z"
+        fill="#a873e8" stroke="#6f3fb4" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M26 36 Q30 26 40 28" stroke="#e5d2ff" stroke-width="6" fill="none" stroke-linecap="round"/>`
+  }
+};
+const ITEM_KEYS = Object.keys(ITEMS);
+
+function itemSVG(key, label = true) {
+  const aria = label
+    ? `role="img" aria-label="${ITEMS[key].name}"`
+    : `aria-hidden="true"`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" ${aria}>${ITEMS[key].art}</svg>`;
+}
+
+/* ภาพแอเรียลแบบนางเงือกเรียบง่าย วาดเองด้วย SVG */
+function arielSVG() {
+  return `<svg viewBox="0 0 240 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ภาพวาดเจ้าหญิงแอเรียล นางเงือกผมแดง">
+    <g fill="#ffffff" opacity=".7">
+      <circle cx="30" cy="60" r="7"/><circle cx="44" cy="34" r="4"/><circle cx="205" cy="80" r="6"/>
+    </g>
+    <path d="M70 92 Q58 22 122 26 Q190 26 176 110 Q196 170 168 196 Q160 150 150 128 L92 128 Q78 160 62 190 Q44 150 70 92Z" fill="#d8352f"/>
+    <path d="M96 168 Q88 205 108 232 Q120 248 104 262 L150 262 Q134 246 144 228 Q160 200 148 168Z" fill="#33b48f"/>
+    <path d="M104 262 Q80 250 64 262 Q92 276 122 266 Q150 276 178 262 Q160 250 140 262Z" fill="#2a9a7a" stroke="#1f7b61" stroke-width="3"/>
+    <path d="M102 190 Q122 198 144 190 M100 212 Q122 220 146 212 M106 234 Q122 240 140 234" stroke="#7fe0c0" stroke-width="3" fill="none"/>
+    <path d="M98 132 Q122 120 146 132 L148 170 Q122 180 96 170Z" fill="#ffe0c9"/>
+    <ellipse cx="108" cy="140" rx="13" ry="10" fill="#8f5fd1"/>
+    <ellipse cx="136" cy="140" rx="13" ry="10" fill="#8f5fd1"/>
+    <path d="M95 136 Q78 150 74 170 M149 136 Q168 148 176 132" stroke="#ffe0c9" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <circle cx="176" cy="128" r="10" fill="#fbf8ff" stroke="#b9a6e0" stroke-width="3"/>
+    <path d="M110 108 V128 Q122 138 134 128 V108" fill="#ffe0c9"/>
+    <ellipse cx="122" cy="82" rx="38" ry="44" fill="#ffe0c9"/>
+    <path d="M83 82 Q74 34 120 32 Q170 30 162 84 Q150 58 128 50 Q112 72 83 82Z" fill="#d8352f"/>
+    <path d="M97 84 Q103 80 109 84 M135 84 Q141 80 147 84" stroke="#4b2f3b" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="103" cy="92" rx="4" ry="5.5" fill="#2b5aa8"/>
+    <ellipse cx="141" cy="92" rx="4" ry="5.5" fill="#2b5aa8"/>
+    <circle cx="104" cy="90" r="1.4" fill="#fff"/><circle cx="142" cy="90" r="1.4" fill="#fff"/>
+    <ellipse cx="94" cy="104" rx="7" ry="4" fill="#f08c9c" opacity=".5"/>
+    <ellipse cx="150" cy="104" rx="7" ry="4" fill="#f08c9c" opacity=".5"/>
+    <path d="M112 110 Q122 119 132 110" stroke="#c0546b" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+    <path d="M150 48 Q160 38 168 48 Q160 56 150 48Z" fill="#ffa3c7" stroke="#d9568f" stroke-width="2"/>
+  </svg>`;
+}
+
+/* ---------- ข้อมูลเกม ---------- */
+
+// ระดับความยากเพิ่มขึ้นทีละขั้น: AB → AAB/ABB → ABC → AABB
+const LEVELS = ["AB", "AB", "AAB", "ABB", "ABC", "AB", "AABB", "ABC"];
+
+const state = {
+  running: false,
+  locked: false,
+  index: 0,
+  firstTry: 0,
+  mistakes: 0,
+  unit: [],
+  shown: [],
+  answer: "",
+  round: 0,
+  lastSpeech: "",
+  completed: []
+};
+
+let audioContext = null;
+let speechToken = 0;
+let speechTimer = null;
+let speechFinish = null;
+let advanceTimer = null;
+let thaiVoice = null;
+
+function shuffle(items) {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+function randInt(min, max) {
+  return min + Math.floor(Math.random() * (max - min + 1));
+}
+function pick(items) {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+/* ---------- เสียงบรรยาย ---------- */
+
+function loadVoices() {
+  if (!("speechSynthesis" in window)) {
+    $("soundNote").textContent = "เบราว์เซอร์นี้ไม่มีเสียงพูด แต่ยังเล่นและอ่านข้อความได้";
+    return;
+  }
+  const voices = window.speechSynthesis.getVoices();
+  const thai = voices.filter(v => /^th(?:[-_]|$)/i.test(v.lang));
+  thaiVoice = thai.find(v => v.localService) || thai[0] || null;
+  $("soundNote").textContent = thaiVoice
+    ? "พร้อมใช้เสียงภาษาไทย"
+    : "หากไม่ได้ยินคำบรรยาย โปรดติดตั้งเสียงภาษาไทยในอุปกรณ์";
+}
+
+function cancelSpeech() {
+  speechToken++;
+  speechFinish = null;
+  clearTimeout(speechTimer);
+  speechTimer = null;
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+}
+
+function muteSpeech() {
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  if (speechFinish) speechFinish();
+}
+
+function say(text, onComplete) {
+  state.lastSpeech = text;
+  cancelSpeech();
+  const token = speechToken;
+  const startedAt = Date.now();
+  let finished = false;
+  const finish = () => {
+    if (finished || token !== speechToken) return;
+    finished = true;
+    speechFinish = null;
+    clearTimeout(speechTimer);
+    speechTimer = null;
+    if (!onComplete) return;
+    const wait = Math.max(0, 1200 - (Date.now() - startedAt));
+    if (wait > 0) {
+      speechTimer = setTimeout(() => {
+        speechTimer = null;
+        if (token === speechToken) onComplete();
+      }, wait);
+    } else {
+      onComplete();
+    }
+  };
+  speechFinish = finish;
+
+  if (!$("sound").checked || !("speechSynthesis" in window)) {
+    speechTimer = setTimeout(finish, onComplete ? 1400 : 0);
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "th-TH";
+  if (thaiVoice) utterance.voice = thaiVoice;
+  utterance.rate = 0.9;
+  utterance.pitch = 1.18;
+  utterance.onend = finish;
+  utterance.onerror = finish;
+
+  // กันเกมค้าง หากเบราว์เซอร์ไม่ส่งเหตุการณ์จบเสียง
+  speechTimer = setTimeout(() => {
+    if (token !== speechToken) return;
+    window.speechSynthesis.cancel();
+    finish();
+  }, Math.max(6000, Math.min(20000, text.length * 120)));
+
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch {
+    finish();
+  }
+}
+
+/* ---------- เสียงเอฟเฟกต์สังเคราะห์ ---------- */
+
+function unlockAudio() {
+  if (!$("sound").checked) return;
+  try {
+    const AudioClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioClass) return;
+    if (!audioContext) audioContext = new AudioClass();
+    if (audioContext.state === "suspended") audioContext.resume().catch(() => {});
+  } catch {
+    // ใช้ข้อความและเสียงพูดต่อไปได้
+  }
+}
+
+function tone(frequency, delay, duration, type = "sine", volume = 0.1) {
+  if (!$("sound").checked || !audioContext || audioContext.state === "closed") return;
+  const time = audioContext.currentTime + delay;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = type;
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0, time);
+  gain.gain.linearRampToValueAtTime(volume, time + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.001, time + duration);
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start(time);
+  oscillator.stop(time + duration + 0.02);
+  oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+}
+
+function sfx(kind) {
+  if (kind === "right") {
+    [659.25, 783.99, 987.77, 1318.5].forEach((f, i) => tone(f, i * 0.1, 0.3));
+  } else if (kind === "wrong") {
+    tone(330, 0, 0.18, "triangle", 0.07);
+    tone(262, 0.15, 0.25, "triangle", 0.07);
+  } else if (kind === "bead") {
+    tone(880, 0, 0.15, "sine", 0.06);
+  } else if (kind === "win") {
+    [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, i) => tone(f, i * 0.13, 0.35));
+  }
+}
+
+/* ---------- การสร้างโจทย์ ---------- */
+
+function makeQuestion(level) {
+  const letters = [...new Set(level.split(""))];
+  const chosen = shuffle(ITEM_KEYS).slice(0, letters.length);
+  const map = Object.fromEntries(letters.map((letter, i) => [letter, chosen[i]]));
+  const unit = level.split("").map(letter => map[letter]);
+  const length = unit.length;
+  // แสดงอย่างน้อย 2 ชุดเต็ม และไม่เกิน 8 ชิ้น
+  const shownCount = Math.min(8, length * 2 + randInt(0, length - 1));
+  const shown = Array.from({ length: shownCount }, (_, i) => unit[i % length]);
+  const answer = unit[shownCount % length];
+
+  // ตัวเลือกหลอก: ใช้ชิ้นอื่นในแบบรูปก่อน แล้วเติมด้วยชิ้นนอกแบบรูป
+  const inPattern = shuffle([...new Set(unit)].filter(k => k !== answer));
+  const outside = shuffle(ITEM_KEYS.filter(k => !unit.includes(k)));
+  const distractors = [...inPattern, ...outside].slice(0, 2);
+  return { unit, shown, answer, choices: shuffle([answer, ...distractors]) };
+}
+
+/* ---------- การวาดสร้อย ---------- */
+
+function beadPositions(count) {
+  const left = 60;
+  const right = 840;
+  return Array.from({ length: count }, (_, i) => {
+    const t = count === 1 ? 0.5 : i / (count - 1);
+    return { x: left + (right - left) * t, y: 70 + Math.sin(Math.PI * t) * 70 };
+  });
+}
+
+function renderNecklace({ filled = false, hint = 0 } = {}) {
+  const count = state.shown.length + 1;
+  const points = beadPositions(count);
+  const size = Math.min(92, 760 / count);
+  const half = size / 2;
+  const unitLength = state.unit.length;
+
+  let path = `M10 40 Q${points[0].x - 30} ${points[0].y - 10} ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < count; i++) {
+    const a = points[i - 1];
+    const b = points[i];
+    path += ` Q${(a.x + b.x) / 2} ${(a.y + b.y) / 2 + 12} ${b.x} ${b.y}`;
+  }
+  path += ` Q${points[count - 1].x + 30} ${points[count - 1].y - 10} 890 40`;
+
+  // คำใบ้: กรอบสีอ่อนรอบแต่ละชุดที่ซ้ำกัน
+  let groups = "";
+  if (hint > 0) {
+    const colors = ["#ffe58f", "#c9f2e5", "#ffd6e6", "#d9e6ff"];
+    for (let start = 0, g = 0; start < count; start += unitLength, g++) {
+      const end = Math.min(count, start + unitLength) - 1;
+      const xs = points.slice(start, end + 1).map(p => p.x);
+      const ys = points.slice(start, end + 1).map(p => p.y);
+      const x = Math.min(...xs) - half - 6;
+      const y = Math.min(...ys) - half - 8;
+      const w = Math.max(...xs) - Math.min(...xs) + size + 12;
+      const h = Math.max(...ys) - Math.min(...ys) + size + 16;
+      groups += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${half}"
+        fill="${colors[g % colors.length]}" opacity=".8"/>`;
+    }
+  }
+
+  let beads = "";
+  state.shown.forEach((key, i) => {
+    const p = points[i];
+    beads += `<g class="bead" data-key="${key}" tabindex="0" role="button" aria-label="${ITEMS[key].name}">
+      <g class="bead-art"><svg x="${p.x - half}" y="${p.y - half}" width="${size}" height="${size}" viewBox="0 0 100 100">${ITEMS[key].art}</svg></g>
+    </g>`;
+  });
+
+  const last = points[count - 1];
+  if (filled) {
+    beads += `<g class="bead drop-in" data-key="${state.answer}" tabindex="0" role="button" aria-label="${ITEMS[state.answer].name}">
+      <g class="bead-art"><svg x="${last.x - half}" y="${last.y - half}" width="${size}" height="${size}" viewBox="0 0 100 100">${ITEMS[state.answer].art}</svg></g>
+    </g>`;
+  } else {
+    beads += `<g class="slot-ring" aria-hidden="true">
+      <circle cx="${last.x}" cy="${last.y}" r="${half - 4}" fill="#ffffffcc" stroke="#ef6f8e" stroke-width="4" stroke-dasharray="10 7"/>
+      <text x="${last.x}" y="${last.y + 13}" text-anchor="middle" font-size="38" font-weight="bold" fill="#ef6f8e" font-family="Tahoma, sans-serif">?</text>
+    </g>`;
+  }
+
+  const description = state.shown.map(k => ITEMS[k].name).join(" ") + (filled ? ` ${ITEMS[state.answer].name}` : " แล้วช่องว่าง");
+  $("necklace").innerHTML = `<svg class="necklace" viewBox="0 0 900 ${200 + size / 2}" xmlns="http://www.w3.org/2000/svg" role="group" aria-label="สร้อย: ${description}">
+    ${groups}
+    <path d="${path}" fill="none" stroke="#f3c34c" stroke-width="5" stroke-linecap="round"/>
+    <path d="${path}" fill="none" stroke="#fff4c4" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
+    ${beads}
+  </svg>`;
+}
+
+function renderProgress() {
+  let html = "";
+  for (let i = 0; i < TOTAL_QUESTIONS; i++) {
+    const done = i < state.completed.length;
+    const cls = done ? "done" : (state.running && i === state.index ? "current" : "");
+    html += `<span class="${cls}" aria-label="ข้อ ${i + 1}${done ? " เสร็จแล้ว" : ""}">${done ? itemSVG(state.completed[i], false) : ""}</span>`;
+  }
+  $("progress").innerHTML = html;
+}
+
+function showMessage(text, type = "") {
+  $("message").textContent = text;
+  $("message").className = `message ${type}`;
+}
+
+function patternWords(items) {
+  return items.map(k => ITEMS[k].name).join(" ");
+}
+
+function celebrate(amount = 30) {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors = ["#fbf8ff", "#ffa3c7", "#ffb347", "#5fb2ff", "#a873e8", "#f3c34c"];
+  for (let i = 0; i < amount; i++) {
+    const piece = document.createElement("i");
+    piece.className = "confetti";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.background = pick(colors);
+    piece.style.setProperty("--drift", `${Math.random() * 200 - 100}px`);
+    piece.style.animationDelay = `${Math.random() * 0.3}s`;
+    $("confetti").appendChild(piece);
+    setTimeout(() => piece.remove(), 2200);
+  }
+}
+
+/* ---------- ลำดับการเล่น ---------- */
+
+function startGame() {
+  unlockAudio();
+  cancelSpeech();
+  clearTimeout(advanceTimer);
+  advanceTimer = null;
+  Object.assign(state, { running: true, locked: false, index: 0, firstTry: 0, completed: [] });
+  $("summary").hidden = true;
+  $("playArea").hidden = false;
+  $("start").textContent = "เริ่มใหม่";
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (!state.running) return;
+  state.round++;
+  state.locked = false;
+  state.mistakes = 0;
+  const q = makeQuestion(LEVELS[state.index]);
+  Object.assign(state, { unit: q.unit, shown: q.shown, answer: q.answer });
+
+  renderProgress();
+  renderNecklace();
+  $("ariel").classList.remove("happy");
+  $("question").textContent = `ข้อ ${state.index + 1} จาก ${TOTAL_QUESTIONS}: ชิ้นต่อไปคืออะไรเอ่ย?`;
+  $("repeat").disabled = false;
+
+  const round = state.round;
+  $("choices").replaceChildren();
+  q.choices.forEach(key => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "choice";
+    button.dataset.key = key;
+    button.innerHTML = `${itemSVG(key, false)}<span>${ITEMS[key].name}</span>`;
+    button.setAttribute("aria-label", `เลือก ${ITEMS[key].name}`);
+    button.addEventListener("click", () => choose(key, button, round));
+    $("choices").appendChild(button);
+  });
+
+  const intro = pick([
+    "แอเรียลร้อยสร้อยแบบนี้จ้ะ",
+    "มาดูสร้อยของแอเรียลกันนะ",
+    "ฟังแอเรียลอ่านสร้อยนะจ๊ะ"
+  ]);
+  const text = `${intro} ${patternWords(state.shown)} ชิ้นต่อไปคืออะไรเอ่ย`;
+  showMessage(`${intro} 🐚 ชิ้นต่อไปคืออะไรเอ่ย? ลองดูชิ้นที่ซ้ำกันนะ`);
+  say(text);
+}
+
+function choose(key, button, round) {
+  if (!state.running || state.locked || round !== state.round) return;
+  unlockAudio();
+
+  if (key === state.answer) {
+    state.locked = true;
+    if (state.mistakes === 0) state.firstTry++;
+    state.completed.push(state.answer);
+    button.classList.remove("glow");
+    button.classList.add("right");
+    $("choices").querySelectorAll("button").forEach(b => { b.disabled = true; });
+    $("repeat").disabled = true;
+    renderNecklace({ filled: true, hint: state.mistakes > 0 ? 1 : 0 });
+    renderProgress();
+    $("ariel").classList.add("happy");
+    sfx("right");
+    celebrate();
+
+    const praise = pick(["เก่งมากเลย", "ถูกต้องจ้ะ", "เยี่ยมไปเลย", "สร้อยสวยมาก"]);
+    showMessage(`${praise}! ต่อด้วย${ITEMS[state.answer].name} สร้อยของแอเรียลสวยขึ้นอีกแล้ว ✨`, "success");
+    say(`${praise} ${patternWords([...state.shown, state.answer])}`, () => {
+      clearTimeout(advanceTimer);
+      advanceTimer = setTimeout(() => {
+        advanceTimer = null;
+        if (!state.running || round !== state.round) return;
+        state.index++;
+        if (state.index >= TOTAL_QUESTIONS) finishGame();
+        else nextQuestion();
+      }, 500);
+    });
+    return;
+  }
+
+  state.mistakes++;
+  sfx("wrong");
+  button.classList.add("wrong");
+  button.disabled = true;
+  renderNecklace({ hint: 1 });
+
+  const unitText = patternWords(state.unit);
+  if (state.mistakes === 1) {
+    showMessage(`ยังไม่ใช่นะ ไม่เป็นไรจ้ะ ดูกรอบสีที่แอเรียลวาดให้ ชุดที่ซ้ำกันคือ “${unitText}”`, "try");
+    say(`ยังไม่ใช่นะ ไม่เป็นไรจ้ะ ชุดที่ซ้ำกันคือ ${unitText} ลองอีกครั้งนะ`);
+  } else {
+    const correct = $("choices").querySelector(`[data-key="${state.answer}"]`);
+    if (correct) correct.classList.add("glow");
+    showMessage(`เกือบแล้ว! ลองเลือกชิ้นที่กำลังเปล่งแสงดูนะจ๊ะ`, "try");
+    say(`เกือบแล้ว ${unitText} ชิ้นต่อไปคือ ${ITEMS[state.answer].name} ลองเลือกชิ้นที่เปล่งแสงนะ`);
+  }
+}
+
+function finishGame() {
+  state.running = false;
+  state.locked = false;
+  clearTimeout(advanceTimer);
+  advanceTimer = null;
+  $("repeat").disabled = false;
+  $("start").textContent = "เล่นอีกครั้ง";
+  renderProgress();
+
+  const stars = state.firstTry >= 7 ? 3 : state.firstTry >= 4 ? 2 : 1;
+  const starHtml = [0, 1, 2].map(i => i < stars ? "★" : `<span class="off">★</span>`).join("");
+  const count = state.completed.length;
+  const size = 520 / count;
+  let beads = "";
+  state.completed.forEach((key, i) => {
+    const t = i / (count - 1);
+    const x = 20 + t * (520 - size) ;
+    const y = 10 + Math.sin(Math.PI * t) * 50;
+    beads += `<svg x="${x}" y="${y}" width="${size}" height="${size}" viewBox="0 0 100 100">${ITEMS[key].art}</svg>`;
+  });
+
+  $("playArea").hidden = true;
+  $("summary").hidden = false;
+  $("summary").innerHTML = `
+    ${arielSVG().replace("<svg ", `<svg width="150" height="170" `)}
+    <h2>สร้อยไข่มุกเสร็จแล้ว!</h2>
+    <div class="stars" aria-label="ได้ ${stars} ดาว">${starHtml}</div>
+    <div class="summary-necklace">
+      <svg viewBox="0 0 560 ${80 + size}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="สร้อยที่ร้อยเสร็จ">
+        <path d="M10 20 Q280 ${120 + size} 550 20" fill="none" stroke="#f3c34c" stroke-width="4"/>
+        ${beads}
+      </svg>
+    </div>
+    <p>ตอบถูกตั้งแต่ครั้งแรก <strong>${state.firstTry}</strong> จาก ${TOTAL_QUESTIONS} ข้อ<br>
+    หนูช่วยแอเรียลหาแบบรูปได้เก่งมาก!</p>
+    <button class="control primary" type="button" id="again">เล่นอีกครั้ง</button>`;
+  $("again").addEventListener("click", startGame);
+  $("again").focus({ preventScroll: true });
+
+  sfx("win");
+  celebrate(60);
+  say(`เย้ สร้อยไข่มุกของแอเรียลเสร็จแล้ว หนูได้ ${stars} ดาว ตอบถูกตั้งแต่ครั้งแรก ${state.firstTry} ข้อ เก่งมากเลยจ้ะ`);
+}
+
+/* ---------- เหตุการณ์ ---------- */
+
+function speakBead(target) {
+  if (state.locked) return;
+  const bead = target.closest(".bead");
+  if (!bead) return;
+  unlockAudio();
+  sfx("bead");
+  say(ITEMS[bead.dataset.key].name);
+}
+
+$("necklace").addEventListener("click", event => speakBead(event.target));
+$("necklace").addEventListener("keydown", event => {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    speakBead(event.target);
+  }
+});
+$("start").addEventListener("click", startGame);
+$("repeat").addEventListener("click", () => {
+  if (state.locked) return;
+  unlockAudio();
+  if (state.lastSpeech) say(state.lastSpeech);
+});
+$("sound").addEventListener("change", () => {
+  if (!$("sound").checked) muteSpeech();
+  else unlockAudio();
+});
+
+window.addEventListener("pagehide", cancelSpeech);
+
+$("ariel").innerHTML = arielSVG();
+renderProgress();
+// แสดงตัวอย่างสร้อยก่อนเริ่มเกม
+(() => {
+  const preview = makeQuestion("AB");
+  Object.assign(state, { unit: preview.unit, shown: preview.shown, answer: preview.answer });
+  renderNecklace();
+})();
+
+loadVoices();
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.addEventListener?.("voiceschanged", loadVoices);
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+}
+</script>
+</body>
+</html>

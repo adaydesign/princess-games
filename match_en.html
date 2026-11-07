@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#784ac4">
+<title>Princess Castle Detectives</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #39264f;
+  --muted: #756582;
+  --purple: #7543bc;
+  --pink: #e84e98;
+  --green: #167653;
+  --shadow: 0 12px 35px #64327c16;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 5% 5%, #ffe0ef, transparent 35%),
+    radial-gradient(circle at 95% 15%, #dcecff, transparent 32%),
+    linear-gradient(135deg, #fff7ef, #f4efff);
+}
+button {
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+button:focus-visible {
+  outline: 4px solid #235da5;
+  outline-offset: 4px;
+}
+button:disabled { cursor: default; }
+[hidden] { display: none !important; }
+.app {
+  width: min(1440px, 100%);
+  margin: auto;
+  padding: 22px;
+}
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2.35rem);
+  margin: 0 0 5px;
+}
+.subtitle { margin: 0; color: var(--muted); }
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pill, .primary, .secondary {
+  border: 0;
+  border-radius: 16px;
+  cursor: pointer;
+  min-height: 46px;
+  padding: 11px 17px;
+  font-weight: 750;
+  transition: transform .18s, background .18s;
+}
+.pill, .secondary {
+  background: white;
+  color: var(--purple);
+  box-shadow: 0 3px 12px #40205f10;
+  border: 1px solid #e8dbf3;
+}
+.primary {
+  color: white;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  box-shadow: 0 7px 20px #ab4c9d30;
+}
+.primary:hover, .secondary:hover, .pill:hover {
+  transform: translateY(-2px);
+}
+.pill[aria-pressed="false"] {
+  color: var(--muted);
+  background: #f1ebf5;
+}
+.welcome {
+  text-align: center;
+  max-width: 720px;
+  margin: 35px auto;
+  padding: clamp(24px, 6vw, 52px);
+  border: 2px solid white;
+  border-radius: 32px;
+  background: #ffffffcc;
+  box-shadow: var(--shadow);
+}
+.welcome-icon { font-size: 76px; }
+.welcome h2 { font-size: 1.8rem; }
+.welcome p { line-height: 1.85; }
+.welcome .primary { font-size: 1.15rem; padding: 15px 30px; }
+.badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 20px 0 25px;
+}
+.badges span {
+  border-radius: 100px;
+  padding: 8px 12px;
+  background: #f0e7fb;
+  font-size: .88rem;
+}
+.quest {
+  position: relative;
+  padding: 20px;
+  border-radius: 26px;
+  background: #ffffffed;
+  border: 2px solid white;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+}
+.quest-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.quest h2 { margin: 0; font-size: 1.18rem; }
+.stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-weight: 750;
+}
+.stat {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f4edfb;
+  white-space: nowrap;
+}
+#hearts { color: #b42b73; }
+.targets {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 17px 0 10px;
+}
+.target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff7e8;
+  border: 2px solid #f2d7a3;
+  padding: 10px 18px;
+  border-radius: 18px;
+  font-weight: 800;
+}
+.target-icon { font-size: 34px; line-height: 1.2; }
+.hint {
+  text-align: center;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.6;
+}
+.message {
+  text-align: center;
+  min-height: 32px;
+  margin-top: 11px;
+  font-weight: 750;
+}
+.message.error { color: #a12e51; }
+.message.success { color: var(--green); }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 15px;
+}
+.card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  color: var(--ink);
+  background: white;
+  border: 3px solid white;
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  text-align: left;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+  animation: arrive .45s both;
+}
+.card:not(:disabled):not([aria-disabled="true"]):hover {
+  transform: translateY(-5px);
+  border-color: #c79bea;
+  box-shadow: 0 16px 30px #61377a25;
+}
+.card svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  min-height: 63px;
+}
+.number {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  background: #eee1fa;
+  color: #703fa9;
+  border-radius: 11px;
+  font-weight: 850;
+}
+.card-name { font-size: .87rem; font-weight: 800; }
+.card-place {
+  font-size: .74rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.card.wrong {
+  border-color: #e59cac;
+  opacity: .62;
+  animation: shake .42s;
+}
+.card.correct {
+  opacity: 1;
+  border-color: #29aa77;
+  box-shadow: 0 0 0 4px #95e6be88, var(--shadow);
+  animation: celebrate .65s;
+}
+.stamp {
+  display: none;
+  position: absolute;
+  inset: 9px 9px auto auto;
+  background: white;
+  border-radius: 100px;
+  padding: 6px 10px;
+  color: #a12e51;
+  font-size: .75rem;
+  font-weight: 850;
+  box-shadow: 0 3px 12px #0002;
+}
+.wrong .stamp, .correct .stamp { display: block; }
+.correct .stamp { color: var(--green); }
+.footer {
+  text-align: center;
+  color: var(--muted);
+  font-size: .8rem;
+  margin: 24px 0 8px;
+  line-height: 1.7;
+}
+dialog {
+  width: min(490px, calc(100% - 32px));
+  border: 0;
+  border-radius: 30px;
+  padding: 30px;
+  text-align: center;
+  color: var(--ink);
+  box-shadow: 0 30px 100px #35234450;
+  background: #fffaf7;
+}
+dialog::backdrop {
+  background: #27173588;
+  backdrop-filter: blur(5px);
+}
+.result-icon { font-size: 65px; }
+dialog h2 { font-size: 1.8rem; margin: 10px 0; }
+dialog p { line-height: 1.7; }
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 22px 0;
+}
+.result-stat {
+  padding: 18px 10px;
+  background: #f0e6fa;
+  border-radius: 17px;
+}
+.result-stat strong {
+  display: block;
+  font-size: 1.6rem;
+  margin-top: 8px;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  overflow: hidden;
+}
+.confetti {
+  position: absolute;
+  top: -30px;
+  width: 11px;
+  height: 17px;
+  animation: fall linear forwards;
+}
+.ripple {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffffbb;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: ripple .6s forwards;
+}
+@keyframes arrive {
+  from { opacity: 0; transform: translateY(15px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%, 75% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+}
+@keyframes celebrate {
+  30% { transform: scale(1.04) rotate(-1deg); }
+  65% { transform: scale(1.02) rotate(1deg); }
+}
+@keyframes fall {
+  to { transform: translate(var(--drift), 110vh) rotate(740deg); }
+}
+@keyframes ripple {
+  to { width: 450px; height: 450px; opacity: 0; }
+}
+@media (max-width: 1120px) {
+  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 650px) {
+  .app { padding: 12px; }
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .quest { padding: 15px 11px; }
+  .quest-head { justify-content: center; text-align: center; }
+  .stats { justify-content: center; }
+  .targets { gap: 6px; }
+  .target {
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    padding: 9px 5px;
+    font-size: .83rem;
+    min-width: 80px;
+    text-align: center;
+  }
+  .target-icon { font-size: 30px; }
+  .card { border-radius: 17px; }
+  .card-meta { padding: 7px; gap: 6px; }
+  .card-name { font-size: .78rem; }
+  .card-place { font-size: .67rem; }
+  .number { width: 26px; height: 28px; flex-basis: 26px; }
+  .tools { width: 100%; }
+  .tools button {
+    flex: 1;
+    font-size: .85rem;
+    padding: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .confetti-layer { display: none; }
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header class="top">
+    <div>
+      <h1>🏰 Princess Castle Detectives</h1>
+      <p class="subtitle">Look closely! Which card has all three objects?</p>
+    </div>
+    <div class="tools">
+      <button id="soundBtn" class="pill" aria-pressed="true">
+        🔊 Sound On
+      </button>
+      <button id="voiceBtn" class="pill" aria-pressed="true">
+        🗣️ Narration On
+      </button>
+      <button id="restartBtn" class="secondary" hidden>
+        ↻ New Game
+      </button>
+    </div>
+  </header>
+
+  <section id="welcome" class="welcome">
+    <div class="welcome-icon" aria-hidden="true">👑 🔎</div>
+    <h2>Ready to be a little detective?</h2>
+    <p>
+      Explore <strong>10 magical cards</strong>.<br>
+      Find the card with <strong>all three objects together</strong>.<br>
+      You have <strong>3 guesses</strong>. Take your time!
+    </p>
+    <div class="badges">
+      <span>👗 28 Princess Looks</span>
+      <span>🏞️ 24 Settings</span>
+      <span>🎁 64 Objects</span>
+    </div>
+    <button id="startBtn" class="primary">✨ Start the Adventure</button>
+  </section>
+
+  <section id="game" hidden aria-label="Find the hidden objects game">
+    <div class="quest">
+      <div class="quest-head">
+        <h2 id="questTitle" tabindex="-1">🔎 Find all three on one card</h2>
+        <div class="stats">
+          <span class="stat" id="hearts" aria-label="3 guesses left">
+            ♥ ♥ ♥
+          </span>
+          <span class="stat">
+            ⏱️ <span id="timer" aria-label="Elapsed time">00:00</span>
+          </span>
+          <button id="readBtn" class="secondary">Read the Clue</button>
+        </div>
+      </div>
+      <div id="targets" class="targets"></div>
+      <p class="hint">
+        Only count objects inside the cream-colored circles.
+        The princess and background do not count.
+      </p>
+      <div id="message" class="message" role="status" aria-live="polite">
+        Look carefully, then choose the matching card.
+      </div>
+    </div>
+    <div id="grid" class="grid" aria-label="10 answer cards"></div>
+  </section>
+
+  <footer class="footer">
+    Princesses are simplified, code-drawn SVG illustrations.
+    This fan game is not an official Disney product.<br>
+    No personal data collected • No external files • Play offline
+  </footer>
+</main>
+
+<dialog id="resultDialog"
+  aria-labelledby="resultTitle"
+  aria-describedby="resultText">
+  <div id="resultIcon" class="result-icon" aria-hidden="true">🏆</div>
+  <h2 id="resultTitle">Wonderful!</h2>
+  <p id="resultText"></p>
+  <div class="result-stats">
+    <div class="result-stat">
+      Guesses Used
+      <strong id="resultAttempts"></strong>
+    </div>
+    <div class="result-stat">
+      Time Taken
+      <strong id="resultTime"></strong>
+    </div>
+  </div>
+  <div class="dialog-actions">
+    <button id="againBtn" class="primary" autofocus>✨ Play Again</button>
+    <button id="reviewBtn" class="secondary">View the Answer</button>
+  </div>
+</dialog>
+
+<div id="confettiLayer" class="confetti-layer" aria-hidden="true"></div>
+
+<script>
+"use strict";
+
+/* ---------------------------------------------------------
+   Objects: 64 English names
+   --------------------------------------------------------- */
+
+const ITEMS = [
+  ["apple", "Apple", "🍎"],
+  ["banana", "Banana", "🍌"],
+  ["grapes", "Grapes", "🍇"],
+  ["strawberry", "Strawberry", "🍓"],
+  ["watermelon", "Watermelon", "🍉"],
+  ["cherries", "Cherries", "🍒"],
+  ["peach", "Peach", "🍑"],
+  ["pear", "Pear", "🍐"],
+  ["carrot", "Carrot", "🥕"],
+  ["corn", "Corn", "🌽"],
+  ["mushroom", "Mushroom", "🍄"],
+  ["bread", "Bread", "🍞"],
+  ["croissant", "Croissant", "🥐"],
+  ["cheese", "Cheese", "🧀"],
+  ["cake", "Cake", "🍰"],
+  ["cookie", "Cookie", "🍪"],
+  ["toolbox", "Toolbox", "🧰"],
+  ["ring", "Ring", "💍"],
+  ["gem", "Gem", "💎"],
+  ["key", "Key", "🔑"],
+  ["bell", "Bell", "🔔"],
+  ["gift", "Gift Box", "🎁"],
+  ["ribbon", "Bow", "🎀"],
+  ["balloon", "Balloon", "🎈"],
+  ["book", "Book", "📘"],
+  ["pencil", "Pencil", "✏️"],
+  ["brush", "Paintbrush", "🖌️"],
+  ["palette", "Paint Palette", "🎨"],
+  ["camera", "Camera", "📷"],
+  ["clock", "Alarm Clock", "⏰"],
+  ["magnifier", "Magnifying Glass", "🔍"],
+  ["compass", "Compass", "🧭"],
+  ["teddy", "Teddy Bear", "🧸"],
+  ["doll", "Nesting Dolls", "🪆"],
+  ["kite", "Kite", "🪁"],
+  ["ball", "Soccer Ball", "⚽"],
+  ["drum", "Drum", "🥁"],
+  ["trumpet", "Trumpet", "🎺"],
+  ["violin", "Violin", "🎻"],
+  ["guitar", "Guitar", "🎸"],
+  ["umbrella", "Umbrella", "☂️"],
+  ["hat", "Hat", "👒"],
+  ["shoe", "Sneaker", "👟"],
+  ["glove", "Gloves", "🧤"],
+  ["bag", "Handbag", "👜"],
+  ["glasses", "Glasses", "👓"],
+  ["yarn", "Yarn", "🧶"],
+  ["candle", "Candle", "🕯️"],
+  ["flower", "Hibiscus", "🌺"],
+  ["sunflower", "Sunflower", "🌻"],
+  ["rose", "Rose", "🌹"],
+  ["leaf", "Maple Leaf", "🍁"],
+  ["clover", "Four-Leaf Clover", "🍀"],
+  ["shell", "Seashell", "🐚"],
+  ["feather", "Feather", "🪶"],
+  ["butterfly", "Butterfly", "🦋"],
+  ["fish", "Fish", "🐟"],
+  ["turtle", "Turtle", "🐢"],
+  ["ladybug", "Ladybug", "🐞"],
+  ["bee", "Bee", "🐝"],
+  ["teapot", "Teapot", "🫖"],
+  ["cup", "Teacup", "☕"],
+  ["spoon", "Spoon", "🥄"],
+  ["bottle", "Baby Bottle", "🍼"]
+].map(([id, name, emoji]) => ({ id, name, emoji }));
+
+const ITEM_MAP = new Map(ITEMS.map(item => [item.id, item]));
+
+/* 14 characters, each with two outfit color variations. */
+
+const PRINCESSES = [
+  { name: "Cinderella", hair: "#dfbc58", skin: "#ffdfc7",
+    dresses: ["#76bceb", "#d2eafa"], style: "bun", accent: "#effaff" },
+  { name: "Snow White", hair: "#262333", skin: "#ffe2d1",
+    dresses: ["#f4d44f", "#ffd76c"], style: "bob", accent: "#31569e" },
+  { name: "Aurora", hair: "#eec968", skin: "#ffe1ce",
+    dresses: ["#ef89bc", "#86b9ec"], style: "long", accent: "#fff0fa" },
+  { name: "Ariel", hair: "#c74442", skin: "#ffddc4",
+    dresses: ["#5ab9a5", "#f1a6c5"], style: "long", accent: "#a276c9" },
+  { name: "Belle", hair: "#765039", skin: "#f8d5b6",
+    dresses: ["#edc346", "#82b9e0"], style: "half", accent: "#fff0a5" },
+  { name: "Jasmine", hair: "#222837", skin: "#c98b62",
+    dresses: ["#4ec8c2", "#a987d8"], style: "pony", accent: "#f6df85" },
+  { name: "Mulan", hair: "#222532", skin: "#edbf98",
+    dresses: ["#8fc482", "#dc889e"], style: "bun", accent: "#f7e7b5" },
+  { name: "Pocahontas", hair: "#29232b", skin: "#b87a52",
+    dresses: ["#d9b177", "#c79767"], style: "long", accent: "#5dbbb8" },
+  { name: "Tiana", hair: "#332728", skin: "#985c40",
+    dresses: ["#a9cc77", "#98cddd"], style: "bun", accent: "#f0edb7" },
+  { name: "Rapunzel", hair: "#edca64", skin: "#ffe0c4",
+    dresses: ["#b18cdb", "#eea7d1"], style: "braid", accent: "#f9e0f4" },
+  { name: "Merida", hair: "#b95329", skin: "#ffdcc5",
+    dresses: ["#367d79", "#477ba4"], style: "curly", accent: "#d7b575" },
+  { name: "Moana", hair: "#40302a", skin: "#bd805a",
+    dresses: ["#e98468", "#e9bc83"], style: "wavy", accent: "#fff0d5" },
+  { name: "Elsa", hair: "#f2e4b4", skin: "#ffe5d8",
+    dresses: ["#92d8ea", "#d6c8ef"], style: "braid", accent: "#effdff" },
+  { name: "Anna", hair: "#a96236", skin: "#ffdac3",
+    dresses: ["#6096c5", "#9377ad"], style: "double", accent: "#d576a7" }
+];
+
+const LOOKS = PRINCESSES.flatMap((princess, princessIndex) =>
+  princess.dresses.map((dress, variant) => ({
+    ...princess,
+    dress,
+    princessIndex,
+    variant,
+    lookId: `${princessIndex}-${variant}`
+  }))
+);
+
+/* 24 settings. */
+
+const ENVIRONMENTS = [
+  ["castle", "Castle Courtyard", "#cce9ff", "#acd6aa", "#d4b8e6"],
+  ["ballroom", "Royal Ballroom", "#f7dfec", "#d6b9dc", "#e7be69"],
+  ["garden", "Flower Garden", "#d4f0ff", "#a9d49b", "#dc90bb"],
+  ["forest", "Peaceful Forest", "#c7e5db", "#8cbb92", "#4f8e73"],
+  ["lake", "Lakeside", "#d8efff", "#b0d6a5", "#84c6df"],
+  ["beach", "Sunny Beach", "#bbebff", "#f4d99f", "#63c4db"],
+  ["undersea", "Underwater World", "#8bd8ec", "#e9d3ac", "#d694c0"],
+  ["snow", "Snowy Village", "#d5e5f5", "#f7fbff", "#91afcc"],
+  ["ice", "Ice Castle", "#c7dcf3", "#edfaff", "#80c1dc"],
+  ["mountain", "Misty Mountains", "#e0edfa", "#a7c6a0", "#8eabc0"],
+  ["desert", "Desert Oasis", "#f9e7ce", "#e6bf87", "#8ec5b2"],
+  ["market", "Colorful Market", "#ffe9d9", "#ddc2a0", "#cf8ca9"],
+  ["library", "Royal Library", "#f1decf", "#c8a888", "#8e6b60"],
+  ["kitchen", "Sweet Treat Kitchen", "#ffeddd", "#e2c7ae", "#d69b9b"],
+  ["lantern", "Lantern Festival", "#8078ad", "#b3a0be", "#f6d482"],
+  ["meadow", "Sunny Meadow", "#d2edff", "#aed993", "#81b76e"],
+  ["waterfall", "Magic Waterfall", "#c9e6eb", "#9ac39d", "#91d6eb"],
+  ["bridge", "Garden Bridge", "#e6e7ff", "#b1d1a5", "#b9967e"],
+  ["village", "Cozy Village", "#fae4d5", "#b5c999", "#cb997e"],
+  ["orchard", "Fruit Orchard", "#ddf1d7", "#a2c37c", "#799b58"],
+  ["music", "Music Room", "#eddef6", "#c5aad0", "#a88aba"],
+  ["cloud", "Palace in the Clouds", "#b6ddf9", "#f1f5ff", "#d3bee9"],
+  ["night", "Moonlit Garden", "#494f82", "#828caf", "#c2c8eb"],
+  ["tower", "Forest Tower", "#d8e5f9", "#a8c7a0", "#bba3be"]
+].map(([id, name, sky, ground, accent]) =>
+  ({ id, name, sky, ground, accent })
+);
+
+/* ---------------------------------------------------------
+   Utilities
+   --------------------------------------------------------- */
+
+const $ = id => document.getElementById(id);
+const reducedMotion =
+  window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function shuffle(array) {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function sample(array, count) {
+  return shuffle(array).slice(0, count);
+}
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function escapeXML(value) {
+  return String(value).replace(/[<>&"']/g, character => ({
+    "<": "&lt;", ">": "&gt;", "&": "&amp;",
+    '"': "&quot;", "'": "&apos;"
+  }[character]));
+}
+
+function formatTime(milliseconds) {
+  const seconds = Math.floor(milliseconds / 1000);
+  return `${String(Math.floor(seconds / 60)).padStart(2, "0")}:` +
+    String(seconds % 60).padStart(2, "0");
+}
+
+function plural(count, singular, pluralForm = `${singular}s`) {
+  return `${count} ${count === 1 ? singular : pluralForm}`;
+}
+
+function spokenTime(milliseconds) {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return minutes
+    ? `${plural(minutes, "minute")} and ${plural(seconds, "second")}`
+    : plural(seconds, "second");
+}
+
+function englishList(names) {
+  if (names.length < 2) return names[0] || "";
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+}
+
+/* ---------------------------------------------------------
+   SVG scenery
+   --------------------------------------------------------- */
+
+function tree(x, y, scale = 1, color = "#639973") {
+  return `<g transform="translate(${x} ${y}) scale(${scale})">
+    <rect x="-5" y="0" width="10" height="58" rx="4" fill="#967459"/>
+    <circle cx="0" cy="-15" r="30" fill="${color}"/>
+    <circle cx="-18" cy="0" r="24" fill="${color}"/>
+    <circle cx="18" cy="0" r="24" fill="${color}"/>
+  </g>`;
+}
+
+function castle(x, y, color, scale = 1) {
+  return `<g transform="translate(${x} ${y}) scale(${scale})">
+    <rect x="-47" y="-55" width="94" height="88" rx="5" fill="${color}"/>
+    <rect x="-62" y="-84" width="30" height="118" rx="3" fill="${color}"/>
+    <rect x="32" y="-84" width="30" height="118" rx="3" fill="${color}"/>
+    <path d="M-67-84 L-47-112 L-27-84Z M27-84 L47-112 L67-84Z"
+      fill="#917ab4"/>
+    <path d="M-18 33 V1 A18 18 0 0 1 18 1 V33" fill="#867493"/>
+    <g fill="#fff0ba">
+      <rect x="-53" y="-62" width="12" height="23" rx="6"/>
+      <rect x="41" y="-62" width="12" height="23" rx="6"/>
+      <rect x="-6" y="-40" width="12" height="20" rx="6"/>
+    </g>
+  </g>`;
+}
+
+function house(x, y, color, scale = 1) {
+  return `<g transform="translate(${x} ${y}) scale(${scale})">
+    <rect x="-34" y="-30" width="68" height="58" rx="4" fill="${color}"/>
+    <path d="M-42-28 L0-65 L42-28Z" fill="#a77782"/>
+    <rect x="-9" y="0" width="18" height="28" rx="5" fill="#8d6c73"/>
+    <rect x="-26" y="-18" width="13" height="14" rx="3" fill="#fff1bb"/>
+    <rect x="13" y="-18" width="13" height="14" rx="3" fill="#fff1bb"/>
+  </g>`;
+}
+
+function scenery(env) {
+  const a = env.accent;
+  let detail = "";
+
+  switch (env.id) {
+    case "castle":
+      detail = castle(160, 126, a, .95);
+      break;
+
+    case "ballroom":
+      detail = `
+        <path d="M0 0H320V28Q250 66 160 25Q70 66 0 28Z" fill="${a}"/>
+        <g fill="#fff7e9" stroke="#d0a8bf" stroke-width="5">
+          <path d="M42 160V76a30 30 0 0 1 60 0v84Z"/>
+          <path d="M218 160V76a30 30 0 0 1 60 0v84Z"/>
+        </g>
+        <path d="M0 228H320 M0 202H320 M70 170L40 270
+          M250 170L280 270" stroke="#ffffff70" stroke-width="3"/>`;
+      break;
+
+    case "garden":
+      detail = `
+        <path d="M91 160V74a69 69 0 0 1 138 0v86"
+          fill="none" stroke="#7caa85" stroke-width="15"/>
+        ${[100, 125, 160, 195, 220].map((x, i) =>
+          `<circle cx="${x}" cy="${65 - Math.sin(i / 4 * Math.PI) * 30}"
+            r="10" fill="${a}"/>`).join("")}
+        <path d="M140 170L90 270H230L180 170Z" fill="#ead9bd"/>`;
+      break;
+
+    case "forest":
+      detail = tree(42, 96, 1.35, a) +
+        tree(265, 94, 1.4, "#62967e") +
+        tree(93, 104, .9, "#80ac8a");
+      break;
+
+    case "lake":
+      detail = `
+        <ellipse cx="166" cy="187" rx="155" ry="49" fill="${a}"/>
+        <path d="M25 184Q80 174 125 184M210 197h68M62 204h47"
+          fill="none" stroke="#eafaff" stroke-width="4"/>
+        ${tree(37, 104, .75)}`;
+      break;
+
+    case "beach":
+      detail = `
+        <path d="M0 115Q80 101 160 119T320 110V189Q170 158 0 192Z"
+          fill="${a}"/>
+        <path d="M0 183Q120 151 230 179T340 174"
+          fill="none" stroke="#fff9e9" stroke-width="8"/>
+        <path d="M268 166Q259 103 278 61" fill="none"
+          stroke="#a78758" stroke-width="12"/>
+        <path d="M278 65Q232 29 216 70Q245 55 278 65
+          Q311 24 320 65Q296 52 278 65Q250 76 248 97"
+          fill="#76ad85"/>`;
+      break;
+
+    case "undersea":
+      detail = `
+        <g fill="#ffffff30" stroke="#ffffff90" stroke-width="2">
+          <circle cx="47" cy="58" r="14"/>
+          <circle cx="259" cy="47" r="20"/>
+          <circle cx="287" cy="85" r="9"/>
+          <circle cx="98" cy="32" r="8"/>
+        </g>
+        <path d="M22 251Q5 200 30 163M45 251Q73 215 47 179
+          M278 254Q296 206 276 169"
+          fill="none" stroke="#63ac9c" stroke-width="12"
+          stroke-linecap="round"/>
+        <path d="M73 259V216M73 238L56 224M73 229L89 213"
+          stroke="${a}" stroke-width="10" stroke-linecap="round"/>`;
+      break;
+
+    case "snow":
+      detail = house(75, 142, a, .95) +
+        house(249, 134, "#b9bfd5", .8) + `
+        <path d="M36 113L75 78L114 113M218 110L249 79L280 110"
+          fill="none" stroke="white" stroke-width="9"
+          stroke-linejoin="round"/>
+        <g fill="white">
+          ${[24, 65, 110, 191, 238, 290].map((x, i) =>
+            `<circle cx="${x}" cy="${28 + i % 3 * 21}" r="3"/>`
+          ).join("")}
+        </g>`;
+      break;
+
+    case "ice":
+      detail = castle(162, 137, a, 1.05) + `
+        <path d="M18 177L37 100L54 177M260 181L284 93L305 181"
+          fill="#b5e4ed" stroke="#efffff" stroke-width="3"/>`;
+      break;
+
+    case "mountain":
+      detail = `
+        <path d="M-20 177L77 38L174 177Z" fill="${a}"/>
+        <path d="M115 177L234 23L343 177Z" fill="#9bb7c9"/>
+        <path d="M47 81L77 38L109 83L80 71Z
+          M204 62L234 23L262 64L234 51Z" fill="#fff8ef"/>
+        <path d="M0 155Q90 132 167 158T320 150V193H0Z"
+          fill="#dbe6e6" opacity=".7"/>`;
+      break;
+
+    case "desert":
+      detail = `
+        <path d="M0 143Q73 83 164 142T320 131V208H0Z" fill="#e0b67e"/>
+        <ellipse cx="157" cy="205" rx="91" ry="25" fill="${a}"/>
+        <path d="M58 170L68 81" stroke="#a98758" stroke-width="10"/>
+        <path d="M68 83Q29 48 20 85Q45 70 68 83
+          Q93 45 120 82Q87 68 68 83" fill="#82a773"/>`;
+      break;
+
+    case "market":
+      detail = [27, 199].map(x => `
+        <rect x="${x}" y="99" width="92" height="72" fill="#f2d3ad"/>
+        <path d="M${x - 8} 99l17-36h74l17 36Z" fill="${a}"/>
+        <path d="M${x + 21} 64l-5 35M${x + 52} 64l5 35"
+          stroke="#fff0de" stroke-width="14"/>
+        <rect x="${x + 12}" y="120" width="69" height="37"
+          fill="#a77d74"/>`).join("");
+      break;
+
+    case "library":
+      detail = [20, 220].map(x => `
+        <rect x="${x}" y="29" width="80" height="146" rx="6" fill="${a}"/>
+        ${[56, 96, 136].map((y, row) => `
+          <path d="M${x + 7} ${y + 22}h66"
+            stroke="#e6c8aa" stroke-width="5"/>
+          ${[0, 1, 2, 3, 4].map(n => `
+            <rect x="${x + 10 + n * 12}" y="${y - 3 - n % 2 * 6}"
+              width="9" height="${24 + n % 2 * 6}" rx="2"
+              fill="${["#b6cda2", "#d5a1a9", "#99bdd5"][(n + row) % 3]}"/>
+          `).join("")}
+        `).join("")}
+      `).join("");
+      break;
+
+    case "kitchen":
+      detail = `
+        <rect x="22" y="39" width="82" height="66" rx="6" fill="#b8d8d9"/>
+        <path d="M63 39V105M22 72H104" stroke="#fff9ed" stroke-width="6"/>
+        <rect x="221" y="42" width="77" height="74" rx="8" fill="${a}"/>
+        <path d="M259 42V116" stroke="#fff2dc" stroke-width="3"/>
+        <path d="M0 161H320" stroke="#ad8d81" stroke-width="17"/>
+        <rect x="22" y="172" width="75" height="61" rx="8" fill="#dcb4a3"/>
+        <rect x="230" y="171" width="69" height="59" rx="8" fill="#dcb4a3"/>`;
+      break;
+
+    case "lantern":
+      detail = `
+        <path d="M0 37Q160 100 320 37"
+          fill="none" stroke="#efe1c6" stroke-width="2"/>
+        ${[32, 88, 145, 204, 267].map((x, i) => `
+          <g transform="translate(${x} ${49 + Math.sin(i / 4 * Math.PI) * 29})">
+            <rect x="-11" y="0" width="22" height="29" rx="7" fill="${a}"/>
+            <path d="M-6 5V24M6 5V24" stroke="#e7ae72" stroke-width="2"/>
+          </g>`).join("")}`;
+      break;
+
+    case "meadow":
+      detail = `
+        <path d="M0 160Q70 91 165 158Q246 112 320 151V222H0Z" fill="${a}"/>
+        <path d="M0 200Q101 150 205 208T320 190V270H0Z" fill="#b9dd98"/>
+        <path d="M151 171Q118 211 191 270H237Q149 211 175 172"
+          fill="#e9d8a4"/>`;
+      break;
+
+    case "waterfall":
+      detail = `
+        <path d="M38 176L66 40H246L282 177Z" fill="#91a8a3"/>
+        <path d="M119 46H202L214 208H109Z" fill="${a}"/>
+        <path d="M136 50L128 183M178 49L187 184"
+          stroke="#e6ffff" stroke-width="8" opacity=".8"/>
+        <ellipse cx="161" cy="208" rx="99" ry="26" fill="#a8ddec"/>`;
+      break;
+
+    case "bridge":
+      detail = `
+        <path d="M-10 210Q127 147 330 235" fill="none"
+          stroke="#9ccfdf" stroke-width="43"/>
+        <path d="M46 191Q158 99 276 192" fill="none"
+          stroke="${a}" stroke-width="15"/>
+        <path d="M46 170Q158 76 276 170" fill="none"
+          stroke="#dfc4a6" stroke-width="7"/>
+        <path d="M65 179V154M102 152V127M218 152V126M257 181V153"
+          stroke="#dfc4a6" stroke-width="6"/>`;
+      break;
+
+    case "village":
+      detail = house(60, 143, a, .9) +
+        house(245, 146, "#e1be94", 1) + `
+        <path d="M142 166L105 270H220L177 166Z" fill="#d9c7ae"/>`;
+      break;
+
+    case "orchard":
+      detail = [48, 268].map(x => tree(x, 101, 1.15, a) + `
+        <g fill="#d99a73">
+          <circle cx="${x - 15}" cy="85" r="6"/>
+          <circle cx="${x + 11}" cy="75" r="6"/>
+          <circle cx="${x + 20}" cy="104" r="6"/>
+        </g>`).join("");
+      break;
+
+    case "music":
+      detail = `
+        <path d="M0 0H320V39Q240 78 160 27Q80 78 0 39Z" fill="${a}"/>
+        <path d="M28 53V169M292 53V169" stroke="#c6a26e" stroke-width="10"/>
+        <path d="M218 133V93Q254 67 292 96V150H218Z" fill="#685678"/>
+        <path d="M216 142H294" stroke="#fff8ee" stroke-width="13"/>
+        <path d="M225 150V190M282 150V190" stroke="#685678" stroke-width="8"/>`;
+      break;
+
+    case "cloud":
+      detail = castle(160, 126, a, .85) + `
+        <g fill="#ffffffd9">
+          <ellipse cx="50" cy="163" rx="73" ry="25"/>
+          <ellipse cx="154" cy="176" rx="92" ry="27"/>
+          <ellipse cx="282" cy="160" rx="75" ry="24"/>
+        </g>`;
+      break;
+
+    case "night":
+      detail = `
+        <circle cx="257" cy="49" r="26" fill="#fff0bd"/>
+        <circle cx="270" cy="41" r="24" fill="${env.sky}"/>
+        <g fill="#fff3c6">
+          ${[28, 67, 111, 184, 211, 295].map((x, i) =>
+            `<circle cx="${x}" cy="${22 + i % 3 * 22}" r="2"/>`
+          ).join("")}
+        </g>
+        ${tree(40, 126, .95, "#677c8d")}
+        ${tree(283, 151, .8, "#6c8599")}`;
+      break;
+
+    case "tower":
+      detail = `
+        <rect x="127" y="37" width="67" height="151" rx="9" fill="${a}"/>
+        <path d="M116 42L160 1L204 42Z" fill="#937ba9"/>
+        <rect x="147" y="63" width="27" height="44" rx="13" fill="#fff1bf"/>
+        <path d="M137 41V181M184 43V180" stroke="#cfbdd3" stroke-width="3"/>
+        ${tree(37, 131, .9)}${tree(288, 130, .9)}`;
+      break;
+  }
+
+  return `
+    <rect width="320" height="270" fill="${env.sky}"/>
+    <path d="M0 168Q80 151 160 169T320 166V270H0Z" fill="${env.ground}"/>
+    <g opacity=".9">${detail}</g>
+    <ellipse cx="160" cy="245" rx="48" ry="9" fill="#40304b18"/>
+  `;
+}
+
+/* ---------------------------------------------------------
+   SVG princess illustrations
+   --------------------------------------------------------- */
+
+function princessSVG(p) {
+  const h = p.hair;
+  const s = p.skin;
+  const d = p.dress;
+  let backHair = "";
+  let frontHair = "";
+
+  switch (p.style) {
+    case "bun":
+      backHair = `
+        <circle cx="0" cy="-31" r="14" fill="${h}"/>
+        <ellipse cx="0" cy="-5" rx="27" ry="29" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-24-12Q-5-37 25-12Q9-14 0-24Q-9-10-24-12"
+          fill="${h}"/>`;
+      break;
+
+    case "bob":
+      backHair = `
+        <rect x="-29" y="-32" width="58" height="72" rx="25" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-25-11Q-26-37 0-31Q27-35 26-8Q9-17 0-23Q-9-10-25-11"
+          fill="${h}"/>
+        <path d="M-9-34L-23-44L-25-26L-9-31L5-43L11-27Z"
+          fill="#d94d64"/>`;
+      break;
+
+    case "curly":
+      backHair = `<g fill="${h}">
+        ${[-29, -15, 0, 15, 29].map((x, i) => `
+          <circle cx="${x}" cy="${-20 + Math.abs(i - 2) * 8}" r="18"/>
+          <circle cx="${x}" cy="20" r="19"/>
+          <circle cx="${x}" cy="42" r="16"/>
+        `).join("")}
+      </g>`;
+      frontHair = `
+        <path d="M-25-12Q-7-39 23-16Q4-17-1-25Q-9-10-25-12"
+          fill="${h}"/>`;
+      break;
+
+    case "pony":
+      backHair = `
+        <ellipse cx="0" cy="-4" rx="29" ry="32" fill="${h}"/>
+        <path d="M20 1Q51 37 34 84" fill="none" stroke="${h}"
+          stroke-width="29" stroke-linecap="round"/>
+        <path d="M29 39L48 43M25 63L43 68"
+          stroke="${p.accent}" stroke-width="5"/>`;
+      frontHair = `
+        <path d="M-25-10Q-12-35 0-24Q15-35 26-10L0-17Z" fill="${h}"/>
+        <path d="M-22-23Q0-30 22-23"
+          fill="none" stroke="${d}" stroke-width="6"/>
+        <ellipse cy="-26" rx="6" ry="5" fill="${p.accent}"/>`;
+      break;
+
+    case "braid":
+      backHair = `
+        <path d="M-27 37V-9Q-27-38 0-36Q29-34 28-7V36Z" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-24-11Q-14-39 21-22Q5-6-24-11" fill="${h}"/>
+        <g fill="${h}">
+          ${[0, 1, 2, 3, 4, 5].map(i => `
+            <ellipse cx="${25 + i % 2 * 4}" cy="${24 + i * 12}"
+              rx="${11 - i * .8}" ry="10"/>
+          `).join("")}
+        </g>
+        <path d="M25 88L19 101L33 98Z" fill="${p.accent}"/>`;
+      break;
+
+    case "double":
+      backHair = `
+        <ellipse cx="0" cy="-5" rx="27" ry="30" fill="${h}"/>
+        <g fill="${h}">
+          ${[-1, 1].map(side =>
+            [0, 1, 2, 3].map(i => `
+              <ellipse cx="${side * (25 + i % 2 * 2)}"
+                cy="${24 + i * 13}" rx="9" ry="11"/>
+            `).join("")
+          ).join("")}
+        </g>`;
+      frontHair = `
+        <path d="M-24-12Q-11-33 2-29Q24-29 25-10L1-21Z" fill="${h}"/>`;
+      break;
+
+    case "half":
+      backHair = `
+        <rect x="-28" y="-29" width="56" height="95" rx="26" fill="${h}"/>
+        <circle cx="0" cy="-31" r="12" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-24-9Q-27-30 0-29Q26-31 25-9Q10-11 0-21Q-11-9-24-9"
+          fill="${h}"/>`;
+      break;
+
+    case "wavy":
+      backHair = `
+        <path d="M-32 67Q-44 38-31 9Q-40-35 0-36
+          Q40-35 33 10Q45 41 32 71Z" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-25-10Q-20-38 8-29Q32-28 26-5Q10-9 3-24Q-11-8-25-10"
+          fill="${h}"/>`;
+      break;
+
+    default:
+      backHair = `
+        <path d="M-30 66V-8Q-31-37 0-37Q33-37 31-8L35 70Z" fill="${h}"/>`;
+      frontHair = `
+        <path d="M-25-11Q-19-36 4-29Q30-29 25-8Q6-12 0-24Q-9-11-25-11"
+          fill="${h}"/>`;
+  }
+
+  return `<g transform="translate(160 113)">
+    ${backHair}
+    <path d="M-19 44Q-26 77-52 126Q0 143 52 126Q26 76 19 44Z"
+      fill="${d}" stroke="#49314d25" stroke-width="2"/>
+    <path d="M-4 48Q-17 86-22 129Q-2 133 14 130L8 49Z"
+      fill="#ffffff28"/>
+    <path d="M-17 40L-29 67Q0 78 29 67L17 40Z" fill="${p.accent}"/>
+    <path d="M-18 32L-18 57Q0 68 18 57V32Z" fill="${d}"/>
+    <path d="M-18 38Q-32 53-39 70M18 38Q33 52 39 67"
+      fill="none" stroke="${s}" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="-39" cy="71" r="6" fill="${s}"/>
+    <circle cx="39" cy="68" r="6" fill="${s}"/>
+    <rect x="-7" y="17" width="14" height="18" rx="5" fill="${s}"/>
+    <circle cx="-24" cy="1" r="5" fill="${s}"/>
+    <circle cx="24" cy="1" r="5" fill="${s}"/>
+    <ellipse cy="-2" rx="24" ry="29" fill="${s}"/>
+    <ellipse cx="-9" cy="0" rx="2.6" ry="3.6" fill="#443442"/>
+    <ellipse cx="9" cy="0" rx="2.6" ry="3.6" fill="#443442"/>
+    <circle cx="-8" cy="-1" r=".8" fill="white"/>
+    <circle cx="10" cy="-1" r=".8" fill="white"/>
+    <path d="M-6 12Q0 18 6 12" fill="none"
+      stroke="#a95c63" stroke-width="2" stroke-linecap="round"/>
+    <ellipse cx="-15" cy="9" rx="5" ry="3" fill="#e98b8b" opacity=".4"/>
+    <ellipse cx="15" cy="9" rx="5" ry="3" fill="#e98b8b" opacity=".4"/>
+    ${frontHair}
+    <path d="M-12 31Q0 39 12 31"
+      fill="none" stroke="${p.accent}" stroke-width="3"/>
+    <circle cx="0" cy="35" r="3" fill="#fff6cf"/>
+    ${p.variant === 1 ? `
+      <path d="M-17 62Q0 79 18 62M-29 93Q0 115 32 93"
+        fill="none" stroke="#ffffff77" stroke-width="3"/>
+    ` : `
+      <path d="M-24 91L-19 102L-25 111L-30 101Z
+        M25 91L30 102L24 111L19 101Z" fill="#ffffff55"/>
+    `}
+  </g>`;
+}
+
+const PROP_POSITIONS = [
+  [31, 46], [91, 43], [229, 43], [289, 47],
+  [35, 112], [283, 113],
+  [70, 170], [249, 172],
+  [33, 230], [105, 236], [216, 237], [287, 230]
+];
+
+function propsSVG(itemIds) {
+  const positions = sample(PROP_POSITIONS, itemIds.length);
+
+  return itemIds.map((id, index) => {
+    const item = ITEM_MAP.get(id);
+    const [baseX, baseY] = positions[index];
+    const x = baseX + randomInt(-3, 3);
+    const y = baseY + randomInt(-3, 3);
+
+    return `<g transform="translate(${x} ${y})">
+      <circle cy="2" r="22" fill="#49314b18"/>
+      <circle r="21" fill="#fff9e9" stroke="#e3cda4" stroke-width="1.5"/>
+      <text x="0" y="1" dy=".32em" text-anchor="middle" font-size="28"
+        font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif"
+        style="font-variant-emoji:emoji">${escapeXML(item.emoji)}</text>
+    </g>`;
+  }).join("");
+}
+
+function cardSVG(card) {
+  return `<svg xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 320 270" aria-hidden="true" focusable="false">
+    ${scenery(card.environment)}
+    ${princessSVG(card.princess)}
+    ${propsSVG(card.items)}
+  </svg>`;
+}
+
+/* ---------------------------------------------------------
+   Audio effects and English narration
+   --------------------------------------------------------- */
+
+let audioContext = null;
+let soundEnabled = true;
+let voiceEnabled = true;
+let voices = [];
+let currentUtterance = null;
+
+const speechSupported =
+  "speechSynthesis" in window &&
+  "SpeechSynthesisUtterance" in window;
+
+function refreshVoices() {
+  if (speechSupported) {
+    voices = window.speechSynthesis.getVoices();
+  }
+}
+
+function selectEnglishVoice() {
+  const englishVoices = voices.filter(voice =>
+    /^en(?:[-_]|$)/i.test(voice.lang)
+  );
+
+  // Prefer an installed voice for offline narration.
+  return englishVoices.find(voice =>
+    /^en[-_]US$/i.test(voice.lang) && voice.localService
+  ) || englishVoices.find(voice => voice.localService)
+    || englishVoices.find(voice => /^en[-_]US$/i.test(voice.lang))
+    || englishVoices[0]
+    || null;
+}
+
+if (speechSupported) {
+  refreshVoices();
+  window.speechSynthesis.addEventListener("voiceschanged", refreshVoices);
+} else {
+  voiceEnabled = false;
+  $("voiceBtn").textContent = "Narration Unavailable";
+  $("voiceBtn").disabled = true;
+  $("voiceBtn").setAttribute("aria-pressed", "false");
+  $("readBtn").disabled = true;
+  $("readBtn").title = "Speech synthesis is not supported on this device.";
+}
+
+async function unlockAudio() {
+  if (!soundEnabled) return;
+
+  const AudioClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioClass) return;
+
+  try {
+    if (!audioContext) audioContext = new AudioClass();
+    if (audioContext.state === "suspended") {
+      await audioContext.resume();
+    }
+  } catch (_) {
+    // Audio is optional. The game continues if unavailable.
+  }
+}
+
+function tone(frequency, duration, delay = 0, volume = .085) {
+  if (!soundEnabled || !audioContext ||
+      audioContext.state !== "running") return;
+
+  try {
+    const start = audioContext.currentTime + delay;
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(frequency, start);
+
+    gain.gain.setValueAtTime(.0001, start);
+    gain.gain.exponentialRampToValueAtTime(volume, start + .015);
+    gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + .025);
+
+    oscillator.onended = () => {
+      oscillator.disconnect();
+      gain.disconnect();
+    };
+  } catch (_) {}
+}
+
+const MELODIES = {
+  click: [[660, .09, 0], [880, .1, .055]],
+  start: [[523, .15, 0], [659, .15, .12], [784, .23, .24]],
+  wrong: [[330, .15, 0], [277, .2, .13]],
+  lose: [[392, .2, 0], [349, .2, .18], [294, .32, .36]],
+  win: [
+    [523, .17, 0], [659, .17, .13], [784, .17, .26],
+    [1047, .32, .4], [784, .16, .73], [1047, .4, .87]
+  ]
+};
+
+async function playEffect(kind) {
+  if (!soundEnabled) return;
+  const serial = gameSerial;
+  await unlockAudio();
+
+  if (!soundEnabled || serial !== gameSerial) return;
+
+  (MELODIES[kind] || []).forEach(([frequency, duration, delay]) =>
+    tone(frequency, duration, delay)
+  );
+}
+
+function stopSpeech() {
+  if (speechSupported) window.speechSynthesis.cancel();
+  currentUtterance = null;
+}
+
+function speak(text, force = false) {
+  if (!speechSupported || (!voiceEnabled && !force)) return;
+
+  stopSpeech();
+  refreshVoices();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const englishVoice = selectEnglishVoice();
+
+  utterance.lang = englishVoice ? englishVoice.lang : "en-US";
+  if (englishVoice) utterance.voice = englishVoice;
+
+  utterance.rate = .88;
+  utterance.pitch = 1.08;
+  utterance.volume = .85;
+
+  currentUtterance = utterance;
+
+  const release = () => {
+    if (currentUtterance === utterance) currentUtterance = null;
+  };
+
+  utterance.onend = release;
+  utterance.onerror = release;
+
+  try {
+    window.speechSynthesis.speak(utterance);
+  } catch (_) {
+    release();
+  }
+}
+
+/* ---------------------------------------------------------
+   Game state and unique-answer generation
+   --------------------------------------------------------- */
+
+const MAX_ATTEMPTS = 3;
+const CARD_COUNT = 10;
+const ITEMS_PER_CARD = 7;
+
+let state = null;
+let timerHandle = null;
+let resultHandle = null;
+let effectCleanupHandle = null;
+let gameSerial = 0;
+
+function generateRound() {
+  const targets = sample(ITEMS, 3);
+  const targetIds = targets.map(item => item.id);
+  const targetSet = new Set(targetIds);
+  const otherIds = ITEMS
+    .filter(item => !targetSet.has(item.id))
+    .map(item => item.id);
+
+  const answerIndex = randomInt(0, CARD_COUNT - 1);
+  const looks = sample(LOOKS, CARD_COUNT);
+  const environments = sample(ENVIRONMENTS, CARD_COUNT);
+  const distractorCounts = shuffle([0, 1, 1, 1, 2, 2, 2, 2, 2]);
+
+  const cards = Array.from({ length: CARD_COUNT }, (_, index) => {
+    let ids;
+
+    if (index === answerIndex) {
+      ids = [
+        ...targetIds,
+        ...sample(otherIds, ITEMS_PER_CARD - targetIds.length)
+      ];
+    } else {
+      const count = distractorCounts.pop();
+      ids = [
+        ...sample(targetIds, count),
+        ...sample(otherIds, ITEMS_PER_CARD - count)
+      ];
+    }
+
+    return {
+      index,
+      princess: looks[index],
+      environment: environments[index],
+      items: shuffle(ids)
+    };
+  });
+
+  const validAnswers = cards.filter(card =>
+    targetIds.every(id => card.items.includes(id))
+  );
+
+  if (validAnswers.length !== 1 ||
+      validAnswers[0].index !== answerIndex) {
+    throw new Error("Invalid round: exactly one correct answer is required.");
+  }
+
+  return {
+    serial: ++gameSerial,
+    targets,
+    cards,
+    answerIndex,
+    attempts: 0,
+    selected: new Set(),
+    active: false,
+    startedAt: 0,
+    elapsed: 0,
+    won: false
+  };
+}
+
+function setMessage(text, type = "") {
+  $("message").textContent = text;
+  $("message").className = `message ${type}`;
+}
+
+function updateHearts() {
+  const remaining = MAX_ATTEMPTS - state.attempts;
+
+  $("hearts").textContent =
+    Array.from({ length: MAX_ATTEMPTS }, (_, index) =>
+      index < remaining ? "♥" : "♡"
+    ).join(" ");
+
+  $("hearts").setAttribute(
+    "aria-label",
+    `${plural(remaining, "guess", "guesses")} left`
+  );
+}
+
+function readQuestion(force = false) {
+  if (!state) return;
+
+  const names = englishList(
+    state.targets.map(item => item.name.toLowerCase())
+  );
+
+  speak(
+    `Find the card with these three objects: ${names}. ` +
+    "All three must be on the same card. " +
+    "Only count objects inside the cream-colored circles.",
+    force
+  );
+}
+
+function renderRound() {
+  $("targets").innerHTML = state.targets.map(item => `
+    <div class="target">
+      <span class="target-icon" aria-hidden="true">${item.emoji}</span>
+      <span>${escapeXML(item.name)}</span>
+    </div>
+  `).join("");
+
+  const fragment = document.createDocumentFragment();
+
+  state.cards.forEach((card, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "card";
+    button.dataset.index = String(index);
+    button.style.animationDelay = `${index * .035}s`;
+
+    button.setAttribute(
+      "aria-label",
+      `Card ${index + 1}. ${card.princess.name}. ` +
+      `${card.environment.name}. Objects: ` +
+      englishList(card.items.map(id => ITEM_MAP.get(id).name)) + "."
+    );
+
+    button.innerHTML = `
+      ${cardSVG(card)}
+      <span class="stamp" aria-hidden="true"></span>
+      <div class="card-meta">
+        <span class="number" aria-hidden="true">${index + 1}</span>
+        <div>
+          <div class="card-name">${escapeXML(card.princess.name)}</div>
+          <div class="card-place">${escapeXML(card.environment.name)}</div>
+        </div>
+      </div>
+    `;
+
+    button.addEventListener("click", event => chooseCard(index, event));
+    fragment.appendChild(button);
+  });
+
+  $("grid").replaceChildren(fragment);
+}
+
+function clearEffects() {
+  clearTimeout(effectCleanupHandle);
+  $("confettiLayer").replaceChildren();
+}
+
+function startGame() {
+  clearInterval(timerHandle);
+  clearTimeout(resultHandle);
+  clearEffects();
+  stopSpeech();
+
+  if ($("resultDialog").open) $("resultDialog").close();
+
+  state = generateRound();
+
+  $("welcome").hidden = true;
+  $("game").hidden = false;
+  $("restartBtn").hidden = false;
+  $("timer").textContent = "00:00";
+
+  setMessage("Look carefully, then choose the matching card.");
+  updateHearts();
+  renderRound();
+
+  state.startedAt = performance.now();
+  state.active = true;
+
+  timerHandle = setInterval(() => {
+    if (!state || !state.active) return;
+
+    $("timer").textContent =
+      formatTime(performance.now() - state.startedAt);
+  }, 250);
+
+  playEffect("start");
+  readQuestion();
+
+  $("questTitle").focus({ preventScroll: true });
+  window.scrollTo({
+    top: 0,
+    behavior: reducedMotion.matches ? "auto" : "smooth"
+  });
+}
+
+/* ---------------------------------------------------------
+   Answer checking and visual effects
+   --------------------------------------------------------- */
+
+function ripple(button, event) {
+  if (reducedMotion.matches) return;
+
+  const rect = button.getBoundingClientRect();
+  const element = document.createElement("span");
+  const keyboardClick = event.detail === 0;
+
+  element.className = "ripple";
+  element.style.left =
+    `${keyboardClick ? rect.width / 2 : event.clientX - rect.left}px`;
+  element.style.top =
+    `${keyboardClick ? rect.height / 2 : event.clientY - rect.top}px`;
+
+  button.appendChild(element);
+  setTimeout(() => element.remove(), 650);
+}
+
+function chooseCard(index, event) {
+  if (!state || !state.active || state.selected.has(index)) return;
+
+  stopSpeech();
+
+  const button = $("grid").children[index];
+  ripple(button, event);
+
+  state.selected.add(index);
+  state.attempts++;
+  updateHearts();
+
+  if (index === state.answerIndex) {
+    button.classList.add("correct");
+    button.querySelector(".stamp").textContent = "✓ Found it!";
+    finishGame(true);
+    return;
+  }
+
+  button.classList.add("wrong");
+  button.querySelector(".stamp").textContent = "Not this one";
+  button.disabled = true;
+
+  const remaining = MAX_ATTEMPTS - state.attempts;
+
+  if (remaining === 0) {
+    finishGame(false);
+    return;
+  }
+
+  playEffect("wrong");
+
+  const text =
+    `Not this one! You have ${plural(remaining, "guess", "guesses")} left. ` +
+    "Take another look. You can do it!";
+
+  setMessage(text, "error");
+  speak(text);
+
+  if (event.detail === 0) {
+    const next = [...$("grid").children].find(card => !card.disabled);
+    if (next) next.focus({ preventScroll: true });
+  }
+}
+
+function throwConfetti() {
+  if (reducedMotion.matches) return;
+
+  clearEffects();
+
+  const colors = ["#ed77ad", "#a685e4", "#79c8e1", "#f1cb60", "#87cfa3"];
+  const fragment = document.createDocumentFragment();
+
+  for (let i = 0; i < 85; i++) {
+    const bit = document.createElement("i");
+    bit.className = "confetti";
+    bit.style.left = `${Math.random() * 100}%`;
+    bit.style.background = colors[i % colors.length];
+    bit.style.borderRadius = i % 3 ? "3px" : "50%";
+    bit.style.animationDuration = `${2 + Math.random() * 1.8}s`;
+    bit.style.animationDelay = `${Math.random() * .7}s`;
+    bit.style.setProperty("--drift", `${randomInt(-180, 180)}px`);
+    fragment.appendChild(bit);
+  }
+
+  $("confettiLayer").appendChild(fragment);
+  effectCleanupHandle = setTimeout(clearEffects, 4700);
+}
+
+function finishGame(won) {
+  state.active = false;
+  state.won = won;
+  state.elapsed = performance.now() - state.startedAt;
+
+  clearInterval(timerHandle);
+  $("timer").textContent = formatTime(state.elapsed);
+
+  for (const card of $("grid").children) card.disabled = true;
+
+  const answerButton = $("grid").children[state.answerIndex];
+  answerButton.classList.add("correct");
+  answerButton.querySelector(".stamp").textContent =
+    won ? "✓ Found it!" : "✓ Correct Answer";
+
+  const answerNumber = state.answerIndex + 1;
+  const elapsedText = spokenTime(state.elapsed);
+
+  if (won) {
+    setMessage(
+      `Correct! Card ${answerNumber} has all three objects. Wonderful work!`,
+      "success"
+    );
+    playEffect("win");
+    throwConfetti();
+  } else {
+    setMessage(
+      `You have used all 3 guesses. The answer is card ${answerNumber}. ` +
+      "Let's try again!",
+      "error"
+    );
+    playEffect("lose");
+  }
+
+  $("resultIcon").textContent = won ? "🏆" : "🌷";
+  $("resultTitle").textContent = won
+    ? "Amazing Detective!"
+    : "Let's Try Again!";
+
+  $("resultText").textContent = won
+    ? `Card ${answerNumber} has all three objects. ` +
+      "Thank you for helping the princess find them!"
+    : `The answer is card ${answerNumber}. We marked it in green. ` +
+      "Every new game is another chance to practice!";
+
+  $("resultAttempts").textContent = `${state.attempts} / ${MAX_ATTEMPTS}`;
+  $("resultAttempts").setAttribute(
+    "aria-label",
+    `${plural(state.attempts, "guess", "guesses")} used out of ${MAX_ATTEMPTS}`
+  );
+  $("resultTime").textContent = formatTime(state.elapsed);
+  $("resultTime").setAttribute("aria-label", elapsedText);
+
+  const serial = state.serial;
+
+  resultHandle = setTimeout(() => {
+    if (!state || state.serial !== serial) return;
+
+    $("resultDialog").showModal();
+
+    speak(won
+      ? `Congratulations! You found the right card! ` +
+        `You used ${plural(state.attempts, "guess", "guesses")} ` +
+        `and took ${elapsedText}. Amazing work, little detective!`
+      : `You have used all three guesses. ` +
+        `The answer is card ${answerNumber}. ` +
+        `You took ${elapsedText}. That's okay! Let's play again!`
+    );
+  }, won ? 1050 : 700);
+}
+
+function reviewAnswer() {
+  if ($("resultDialog").open) $("resultDialog").close();
+  if (!state) return;
+
+  stopSpeech();
+
+  const answer = $("grid").children[state.answerIndex];
+  answer.disabled = false;
+  answer.setAttribute("aria-disabled", "true");
+  answer.focus({ preventScroll: true });
+
+  answer.scrollIntoView({
+    behavior: reducedMotion.matches ? "auto" : "smooth",
+    block: "center"
+  });
+
+  const names = englishList(state.targets.map(item => item.name));
+
+  setMessage(
+    `Answer: Card ${state.answerIndex + 1} has ${names}. ` +
+    'Select "New Game" to play again.',
+    "success"
+  );
+
+  speak(
+    `The answer is card ${state.answerIndex + 1}. ` +
+    `It has ${names}. Select New Game to play again.`
+  );
+}
+
+/* ---------------------------------------------------------
+   Event handlers
+   --------------------------------------------------------- */
+
+$("startBtn").addEventListener("click", startGame);
+$("restartBtn").addEventListener("click", startGame);
+$("againBtn").addEventListener("click", startGame);
+$("reviewBtn").addEventListener("click", reviewAnswer);
+
+$("readBtn").addEventListener("click", () => {
+  // An explicit request can read the clue even with automatic narration off.
+  readQuestion(true);
+});
+
+$("soundBtn").addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+  $("soundBtn").setAttribute("aria-pressed", String(soundEnabled));
+  $("soundBtn").textContent =
+    soundEnabled ? "🔊 Sound On" : "🔇 Sound Off";
+
+  if (soundEnabled) {
+    playEffect("click");
+  } else if (audioContext && audioContext.state === "running") {
+    audioContext.suspend().catch(() => {});
+  }
+});
+
+$("voiceBtn").addEventListener("click", () => {
+  voiceEnabled = !voiceEnabled;
+  $("voiceBtn").setAttribute("aria-pressed", String(voiceEnabled));
+  $("voiceBtn").textContent =
+    voiceEnabled ? "🗣️ Narration On" : "🤫 Narration Off";
+
+  if (!voiceEnabled) stopSpeech();
+  else if (state && state.active) readQuestion();
+});
+
+$("resultDialog").addEventListener("cancel", event => {
+  event.preventDefault();
+  reviewAnswer();
+});
+
+window.addEventListener("pagehide", () => {
+  stopSpeech();
+  if (audioContext && audioContext.state === "running") {
+    audioContext.suspend().catch(() => {});
+  }
+});
+
+console.assert(ITEMS.length === 64, "Expected 64 objects.");
+console.assert(LOOKS.length === 28, "Expected 28 princess looks.");
+console.assert(ENVIRONMENTS.length === 24, "Expected 24 settings.");
+</script>
+</body>
+</html>

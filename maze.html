@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Princess Maze — เขาวงกตเจ้าหญิง</title>
+<style>
+:root{
+  --ink:#342347;
+  --primary:#854bc7;
+  --paper:#fff9ff;
+  --line:#e5d5ed;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;width:100%;height:100%;
+  overflow:hidden;overscroll-behavior:none;
+}
+body{
+  font-family:Tahoma,system-ui,sans-serif;
+  color:var(--ink);
+  background:radial-gradient(circle at 20% 0%,#ffe8f5,#e8e8ff 70%);
+}
+button,select{font:inherit}
+button,select{
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:white;color:var(--ink);
+  min-height:36px;padding:7px 10px;
+}
+button{
+  cursor:pointer;
+  box-shadow:0 3px 0 #dac9e6;
+  touch-action:manipulation;
+}
+button:hover{filter:brightness(.97)}
+button:active{transform:translateY(2px);box-shadow:none}
+button:focus-visible,select:focus-visible{
+  outline:3px solid #ffb92e;outline-offset:2px;
+}
+button.primary{
+  background:linear-gradient(135deg,#9259d5,#d34e9c);
+  color:white;border-color:transparent;
+}
+button:disabled{opacity:.55;cursor:default}
+[hidden]{display:none!important}
+.app{
+  height:100vh;height:100dvh;
+  max-width:1250px;margin:auto;
+  display:flex;flex-direction:column;gap:7px;
+  padding:8px;
+  padding-bottom:max(8px,env(safe-area-inset-bottom));
+}
+header{
+  display:flex;align-items:center;
+  justify-content:space-between;gap:8px;flex-shrink:0;
+}
+h1{font-size:clamp(16px,2.3vw,25px);margin:0}
+.audio{display:flex;gap:5px}
+.audio button{font-size:12px}
+.toolbar{
+  display:grid;grid-template-columns:1fr 1.2fr 1fr 1fr;
+  gap:6px;flex-shrink:0;
+}
+.toolbar label{
+  display:flex;align-items:center;gap:5px;
+  font-size:12px;font-weight:bold;
+}
+.toolbar select{width:100%;min-width:0}
+.toolbar button{font-size:12px}
+.stats{
+  display:grid;grid-template-columns:1fr 1fr 1.5fr 1fr;
+  gap:6px;flex-shrink:0;
+}
+.stat{
+  background:#ffffffd9;border:1px solid white;
+  border-radius:12px;padding:6px 8px;
+  text-align:center;font-size:12px;
+}
+.stat strong{font-size:15px}
+#hp{color:#cf387a;letter-spacing:1px}
+#clock.urgent{color:#d1214a;animation:pulse .65s infinite alternate}
+.stage{
+  min-height:0;flex:1;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  border-radius:18px;
+  background:#ffffff60;
+  border:1px solid #ffffffb0;
+  overflow:hidden;
+}
+.board{
+  position:relative;flex-shrink:0;
+  overflow-x:auto;overflow-y:hidden;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+  border-radius:12px;
+  box-shadow:0 5px 20px #43345b28;
+  touch-action:pan-x;
+}
+.board::-webkit-scrollbar{display:none}
+#world{
+  display:block;height:100%;
+  max-width:none;user-select:none;
+}
+#world text{font-family:Tahoma,system-ui,sans-serif}
+.foot{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;flex-shrink:0;
+}
+.hints{
+  font-size:11px;line-height:1.55;
+  flex:1;min-width:0;
+}
+#toast{font-weight:bold;color:#8541a2;min-height:18px}
+#sceneLabel{color:#716179}
+.pad{
+  width:138px;flex-shrink:0;
+  display:grid;grid-template-columns:repeat(3,42px);
+  grid-template-rows:repeat(2,35px);gap:4px;
+}
+.pad button{padding:0;min-height:0;font-size:20px}
+.pad [data-dir="up"]{grid-column:2}
+.pad [data-dir="left"]{grid-column:1;grid-row:2}
+.pad [data-dir="down"]{grid-column:2;grid-row:2}
+.pad [data-dir="right"]{grid-column:3;grid-row:2}
+.overlay{
+  position:fixed;inset:0;z-index:20;
+  display:flex;align-items:center;justify-content:center;
+  padding:16px;background:#29173878;
+  backdrop-filter:blur(5px);
+}
+.card{
+  width:min(520px,100%);max-height:92dvh;
+  overflow:auto;padding:23px;
+  border-radius:25px;border:3px solid white;
+  background:linear-gradient(145deg,#fffaff,#f3edff);
+  box-shadow:0 20px 80px #28133155;
+  text-align:center;
+}
+.card h2{margin:8px 0 12px;font-size:25px}
+.card p{line-height:1.65;margin:10px 0}
+.card .big{font-size:45px}
+.card .actions{
+  display:flex;justify-content:center;gap:8px;flex-wrap:wrap;
+  margin-top:18px;
+}
+.summary{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin:15px 0;text-align:left;
+}
+.summary div{background:white;border-radius:12px;padding:10px}
+.small{font-size:12px;color:#76667d}
+.shake{animation:shake .28s}
+@keyframes shake{
+  20%{transform:translateX(-5px)}
+  40%{transform:translateX(5px)}
+  60%{transform:translateX(-3px)}
+  80%{transform:translateX(3px)}
+}
+@keyframes pulse{to{opacity:.45}}
+@media(max-width:600px){
+  .toolbar{grid-template-columns:1fr 1fr}
+  .toolbar label{font-size:11px}
+  .stats{gap:4px}
+  .stat{padding:5px 3px;font-size:10px}
+  .stat strong{font-size:13px}
+  .audio button{padding:6px;font-size:10px}
+  .hints{font-size:10px}
+  .card{padding:17px}
+}
+@media(max-height:520px){
+  .app{gap:4px;padding:4px}
+  header h1{font-size:16px}
+  .toolbar{grid-template-columns:1fr 1.2fr 1fr 1fr}
+  button,select{min-height:29px;padding:4px 6px}
+  .stat{padding:3px}
+  .pad{grid-template-rows:repeat(2,27px);width:114px;
+       grid-template-columns:repeat(3,34px)}
+  .hints{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation:none!important;
+    scroll-behavior:auto!important;
+  }
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <h1>👑 เขาวงกตเจ้าหญิง</h1>
+    <div class="audio">
+      <button id="soundButton" aria-pressed="true">เสียง: เปิด</button>
+      <button id="voiceButton" aria-pressed="false">เสียงพูด: ปิด</button>
+      <button id="helpButton" aria-label="วิธีเล่น">?</button>
+    </div>
+  </header>
+
+  <section class="toolbar" aria-label="ตั้งค่าเกม">
+    <label>ระดับ
+      <select id="level">
+        <option value="1">1 · ง่าย</option>
+        <option value="2">2 · ปานกลาง</option>
+        <option value="3">3 · ยาก</option>
+      </select>
+    </label>
+    <label>เจ้าหญิง
+      <select id="princess"></select>
+    </label>
+    <button id="sameTheme">สุ่มผังธีมเดิม</button>
+    <button id="newGame" class="primary">สุ่มด่านใหม่</button>
+  </section>
+
+  <section class="stats" aria-label="สถานะเกม">
+    <div class="stat">ระดับ <strong id="levelLabel">1</strong></div>
+    <div class="stat">เวลา <strong id="clock">00:00</strong></div>
+    <div class="stat">พลัง <strong id="hp">ไม่จำกัด</strong></div>
+    <div class="stat">ก้าว <strong id="steps">0</strong></div>
+  </section>
+
+  <section class="stage" id="stage">
+    <div class="board" id="board" tabindex="0"
+         role="region" aria-label="เขาวงกต ใช้ปุ่มลูกศรเดิน">
+      <svg id="world" xmlns="http://www.w3.org/2000/svg"
+           role="img" aria-label="แผนที่เขาวงกต">
+      </svg>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="hints">
+      <div id="toast" role="status" aria-live="polite"></div>
+      <div id="sceneLabel"></div>
+      <div id="hintText">ลูกศร / WASD · เดินทีละช่อง · ไปยังประตูดาว</div>
+    </div>
+    <div class="pad" aria-label="ปุ่มควบคุม">
+      <button data-dir="up" aria-label="ขึ้น">▲</button>
+      <button data-dir="left" aria-label="ซ้าย">◀</button>
+      <button data-dir="down" aria-label="ลง">▼</button>
+      <button data-dir="right" aria-label="ขวา">▶</button>
+    </div>
+  </footer>
+</main>
+
+<div id="overlay" class="overlay" role="dialog"
+     aria-modal="true" aria-labelledby="dialogTitle">
+  <div class="card" id="dialog"></div>
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================
+   64 รูปแบบ:
+   เจ้าหญิง 12 + ฉาก 10 + ผนัง 12 + ประตู 8
+   + ศัตรู 8 + อุปสรรค 8 + ยา 6
+   ทุกภาพเป็น SVG ในไฟล์ ไม่โหลดไฟล์หรือไลบรารีภายนอก
+   ========================================================= */
+
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const CELL = 48;
+const LIMIT = 240000;
+const DIR = {
+  up:[0,-1], down:[0,1], left:[-1,0], right:[1,0]
+};
+const reducedMotion =
+  matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const PRINCESSES = [
+  {name:"เอลซ่า",dress:"#80dcf0",hair:"#fff1b3",skin:"#ffe0ce",style:0},
+  {name:"อันนา",dress:"#7342a5",hair:"#a44c29",skin:"#ffe1cc",style:1},
+  {name:"แอเรียล",dress:"#55c9b3",hair:"#db3152",skin:"#ffddc5",style:2},
+  {name:"เบลล์",dress:"#ffd150",hair:"#744624",skin:"#ffe0bc",style:3},
+  {name:"ซินเดอเรลล่า",dress:"#7aaef4",hair:"#f3cc69",skin:"#ffe2ca",style:4},
+  {name:"สโนว์ไวท์",dress:"#ffce40",hair:"#292039",skin:"#ffe4d8",style:5},
+  {name:"ออโรร่า",dress:"#f07dbd",hair:"#f8d772",skin:"#ffe1cd",style:6},
+  {name:"ราพันเซล",dress:"#bc7ee0",hair:"#f8d65d",skin:"#ffdfc3",style:7},
+  {name:"จัสมิน",dress:"#41cbbd",hair:"#262039",skin:"#cb915f",style:8},
+  {name:"เทียน่า",dress:"#a9cd5f",hair:"#30202c",skin:"#995e3c",style:9},
+  {name:"เมอริด้า",dress:"#397e77",hair:"#dc672f",skin:"#ffdcc3",style:10},
+  {name:"โมอาน่า",dress:"#ec8366",hair:"#342326",skin:"#bb7e52",style:11}
+];
+
+const THEMES = [
+  {name:"ปราสาทน้ำแข็ง",floor:"#e7f8ff",wall:"#83b8dd",edge:"#487caa",accent:"#52aee0",motif:"❄"},
+  {name:"สวนกุหลาบ",floor:"#fff0f3",wall:"#bd739d",edge:"#814568",accent:"#e46499",motif:"✿"},
+  {name:"อาณาจักรใต้ทะเล",floor:"#dcfbf5",wall:"#54b9ba",edge:"#277a8b",accent:"#dd87c9",motif:"○"},
+  {name:"ห้องสมุดทองคำ",floor:"#fff4db",wall:"#c69b5d",edge:"#855734",accent:"#dfb249",motif:"✦"},
+  {name:"วังแสงจันทร์",floor:"#eeeaff",wall:"#9994d5",edge:"#625b9d",accent:"#b6a0f4",motif:"☾"},
+  {name:"ป่าแอปเปิล",floor:"#ecf7df",wall:"#83a96a",edge:"#526f42",accent:"#e57477",motif:"●"},
+  {name:"หอคอยดอกไม้",floor:"#f6eaff",wall:"#b391d4",edge:"#795899",accent:"#d897e8",motif:"✿"},
+  {name:"วังทะเลทราย",floor:"#fff0d6",wall:"#d4a174",edge:"#96613f",accent:"#4cbabd",motif:"◇"},
+  {name:"สวนบัว",floor:"#e7f5df",wall:"#7fba91",edge:"#4c8468",accent:"#e995bd",motif:"✧"},
+  {name:"เกาะสายรุ้ง",floor:"#e5fbef",wall:"#89b9a7",edge:"#537f7c",accent:"#eeaf6c",motif:"~"}
+];
+
+const WALL_NAMES = [
+  "อิฐปราสาท","ผลึกน้ำแข็ง","พุ่มกุหลาบ","เปลือกหอย",
+  "ชั้นหนังสือ","หินอ่อน","เถาวัลย์","หมอนเมฆ",
+  "กระเบื้องเพชร","ดอกบัว","ปะการัง","โมเสกดาว"
+];
+const EXIT_NAMES = [
+  "ซุ้มดาว","ปราสาทปลายทาง","ประตูสายรุ้ง","ประตูเปลือกหอย",
+  "ซุ้มโคมไฟ","ต้นไม้แสง","ประตูคริสตัล","ประตูเมฆ"
+];
+const ENEMY_NAMES = [
+  "ภูตขี้เล่น","ค้างคาวจิ๋ว","สไลม์องุ่น","แมงมุมปุย",
+  "อีกาน้อย","เห็ดเดินได้","เมฆฝน","ก้อนหินมีชีวิต"
+];
+const HAZARD_NAMES = [
+  "หลุมเวทมนตร์","เปลวไฟ","หนามยืดหด","เถาวัลย์หนาม",
+  "วงเวทหมุน","น้ำแข็งเย็นจัด","ฟองเวทมนตร์","ประกายสายฟ้า"
+];
+const POTION_NAMES = [
+  "ขวดยาหัวใจ","น้ำค้างดอกไม้","แก้วพลังดาว",
+  "ไข่มุกฟื้นพลัง","ผลไม้หัวใจ","น้ำยาใบไม้"
+];
+
+PRINCESSES.forEach((p,i)=>{
+  const option=document.createElement("option");
+  option.value=i;option.textContent=p.name;
+  $("princess").appendChild(option);
+});
+
+let game=null, config=null, staticLayer=null, actorLayer=null, fxLayer=null;
+let particles=[], lastFrame=0, lastDraw=0, nextMoveAt=0;
+let cameraCell=0, toastUntil=0;
+let soundEnabled=true, voiceEnabled=false, audioContext=null;
+let dialogReturnFocus=null;
+
+function freshSeed(){
+  if(window.crypto && crypto.getRandomValues){
+    return crypto.getRandomValues(new Uint32Array(1))[0];
+  }
+  return (Date.now() ^ Math.floor(Math.random()*0xffffffff))>>>0;
+}
+function rngFrom(seed){
+  let a=seed>>>0;
+  return function(){
+    a+=0x6D2B79F5;
+    let t=a;
+    t=Math.imul(t^(t>>>15),t|1);
+    t^=t+Math.imul(t^(t>>>7),t|61);
+    return ((t^(t>>>14))>>>0)/4294967296;
+  };
+}
+function integer(rng,a,b){return a+Math.floor(rng()*(b-a+1))}
+function pick(rng,arr){return arr[Math.floor(rng()*arr.length)]}
+function shuffle(rng,arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=integer(rng,0,i);
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function key(x,y){return x+","+y}
+function same(a,b){return a.x===b.x && a.y===b.y}
+function copy(p){return {x:p.x,y:p.y}}
+function formatTime(ms){
+  const s=Math.max(0,Math.floor(ms/1000));
+  return String(Math.floor(s/60)).padStart(2,"0")+":"+
+    String(s%60).padStart(2,"0");
+}
+function pathCell(x,y){
+  return !!game && x>=0 && y>=0 && x<game.cols && y<game.rows &&
+    game.grid[y][x]===0;
+}
+function neighbors(grid,p){
+  const out=[];
+  for(const [dx,dy] of Object.values(DIR)){
+    const x=p.x+dx,y=p.y+dy;
+    if(y>=0 && y<grid.length && x>=0 && x<grid[0].length &&
+       grid[y][x]===0) out.push({x,y});
+  }
+  return out;
+}
+function routeBetween(grid,start,exit){
+  const queue=[copy(start)],prev=new Map([[key(start.x,start.y),null]]);
+  for(let i=0;i<queue.length;i++){
+    const p=queue[i];
+    if(same(p,exit))break;
+    for(const n of neighbors(grid,p)){
+      const k=key(n.x,n.y);
+      if(!prev.has(k)){prev.set(k,p);queue.push(n)}
+    }
+  }
+  const result=[];
+  let p=copy(exit);
+  while(p){result.push(p);p=prev.get(key(p.x,p.y))}
+  return result.reverse();
+}
+
+/* ---------- เสียงสังเคราะห์ ---------- */
+
+function unlockAudio(){
+  if(!soundEnabled)return;
+  try{
+    const AudioClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioClass)return;
+    if(!audioContext)audioContext=new AudioClass();
+    if(audioContext.state==="suspended")audioContext.resume().catch(()=>{});
+  }catch(e){}
+}
+function tone(freq,start,duration,type="sine",volume=.07){
+  if(!soundEnabled || !audioContext || audioContext.state!=="running")return;
+  try{
+    const osc=audioContext.createOscillator();
+    const gain=audioContext.createGain();
+    const t=audioContext.currentTime+start;
+    osc.type=type;osc.frequency.setValueAtTime(freq,t);
+    gain.gain.setValueAtTime(.0001,t);
+    gain.gain.exponentialRampToValueAtTime(volume,t+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,t+duration);
+    osc.connect(gain);gain.connect(audioContext.destination);
+    osc.start(t);osc.stop(t+duration+.025);
+  }catch(e){}
+}
+function sfx(kind){
+  if(kind==="step")tone(380,0,.055,"sine",.025);
+  if(kind==="wall")tone(150,0,.055,"triangle",.025);
+  if(kind==="hit"){
+    tone(180,0,.16,"sawtooth",.055);
+    tone(110,.08,.22,"triangle",.055);
+  }
+  if(kind==="potion"){
+    [523,659,784].forEach((f,i)=>tone(f,i*.085,.18,"sine",.07));
+  }
+  if(kind==="start"){
+    [392,523,659].forEach((f,i)=>tone(f,i*.10,.20,"triangle",.06));
+  }
+  if(kind==="win"){
+    [523,659,784,1047,784,1047].forEach((f,i)=>
+      tone(f,i*.14,.30,"triangle",.075));
+  }
+  if(kind==="lose"){
+    [392,330,262,196].forEach((f,i)=>tone(f,i*.18,.32,"sine",.065));
+  }
+  if(kind==="tick")tone(760,0,.07,"sine",.03);
+}
+function speak(text){
+  if(!voiceEnabled || !("speechSynthesis" in window))return;
+  speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.lang="th-TH";
+  utterance.rate=.92;
+  const thaiVoice=speechSynthesis.getVoices().find(v=>v.lang.startsWith("th"));
+  if(thaiVoice)utterance.voice=thaiVoice;
+  speechSynthesis.speak(utterance);
+}
+
+/* ---------- SVG: ตัวละครและอุปกรณ์ ---------- */
+
+function star(cx,cy,r,color){
+  const pts=[];
+  for(let i=0;i<10;i++){
+    const a=-Math.PI/2+i*Math.PI/5;
+    const rr=i%2?r*.45:r;
+    pts.push((cx+Math.cos(a)*rr)+","+(cy+Math.sin(a)*rr));
+  }
+  return `<polygon points="${pts.join(" ")}" fill="${color}"/>`;
+}
+function princessSVG(index){
+  const p=PRINCESSES[index],s=p.style;
+  const hairBack=[
+    `<path d="M15 15Q10 24 17 34L22 31L20 16Z" fill="${p.hair}"/>`,
+    `<path d="M15 16L11 34L16 36L21 17M29 17L32 36L37 33L32 15" fill="${p.hair}"/>`,
+    `<path d="M12 15Q4 30 13 39Q22 41 26 34L34 37Q43 24 33 13Z" fill="${p.hair}"/>`,
+    `<circle cx="24" cy="11" r="8" fill="${p.hair}"/>`,
+    `<circle cx="24" cy="8" r="7" fill="${p.hair}"/>`,
+    `<path d="M12 15Q7 30 15 30H34Q40 23 34 13Z" fill="${p.hair}"/>`,
+    `<path d="M13 15L10 35L19 39L24 27L32 39L39 34L34 14Z" fill="${p.hair}"/>`,
+    `<path d="M17 16Q7 27 13 38Q24 49 37 39L31 34Q19 40 21 17Z" fill="${p.hair}"/>`,
+    `<path d="M16 17Q10 27 24 38Q36 31 32 17Z" fill="${p.hair}"/>`,
+    `<circle cx="24" cy="8" r="7" fill="${p.hair}"/>`,
+    `<g fill="${p.hair}">
+       <circle cx="13" cy="17" r="7"/><circle cx="35" cy="17" r="7"/>
+       <circle cx="12" cy="27" r="7"/><circle cx="36" cy="27" r="7"/>
+       <circle cx="16" cy="34" r="6"/><circle cx="32" cy="34" r="6"/>
+     </g>`,
+    `<path d="M13 14Q5 26 11 38L19 36L24 29L31 37L39 35Q42 23 33 13Z" fill="${p.hair}"/>`
+  ][s];
+  let costume=`<path d="M19 26L29 26L39 43Q24 48 9 43Z"
+      fill="${p.dress}" stroke="#ffffffaa" stroke-width="1.2"/>
+    <path d="M24 29L19 43H29Z" fill="#ffffff30"/>`;
+  if(s===8)costume=`<path d="M17 26H31L33 33L31 43H25L24 35L22 43H16L15 33Z"
+      fill="${p.dress}"/><path d="M17 31H31" stroke="#f8df8b" stroke-width="2"/>`;
+  if(s===11)costume=`<path d="M18 26H30L31 33H17Z" fill="#d66c57"/>
+    <path d="M17 33H31L36 44H12Z" fill="#eed3a0"/>
+    <path d="M16 37L32 40M14 41L34 43" stroke="#d1845e" stroke-width="2"/>`;
+  if(s===5)costume+=`<path d="M18 26H30L31 32H17Z" fill="#3d65af"/>`;
+  if(s===9)costume+=`<path d="M24 30L14 41L24 37L34 41Z" fill="#def1a4"/>`;
+  return `
+    <ellipse cx="24" cy="44" rx="15" ry="3" fill="#30213925"/>
+    ${hairBack}
+    <path d="M17 27L12 33M31 27L36 33"
+      stroke="${p.skin}" stroke-width="5" stroke-linecap="round"/>
+    ${costume}
+    <rect x="21" y="22" width="6" height="7" rx="2" fill="${p.skin}"/>
+    <circle cx="24" cy="17" r="10" fill="${p.hair}"/>
+    <ellipse cx="24" cy="19" rx="8" ry="8.5" fill="${p.skin}"/>
+    <path d="M15 17Q18 7 25 11Q29 10 33 17L30 13L24 15L19 13Z"
+      fill="${p.hair}"/>
+    <g fill="#3d2b37"><circle cx="21" cy="19" r="1"/>
+      <circle cx="27" cy="19" r="1"/></g>
+    <path d="M22 23Q24 25 26 23" fill="none" stroke="#b55667"
+      stroke-width="1.2" stroke-linecap="round"/>
+    <path d="M18 9L17 4L22 6L24 2L27 6L31 4L30 9Z"
+      fill="#ffd566" stroke="#d8a53b" stroke-width=".6"/>
+    ${star(24,7,2.1,"#fff9d0")}
+    ${s===5?'<path d="M26 10L33 7L32 13Z" fill="#e54665"/>':""}
+    ${s===0?'<path d="M31 17Q40 27 30 35" stroke="#fff1b3" stroke-width="4" fill="none"/>':""}
+    ${s===7?'<circle cx="15" cy="31" r="2" fill="#df8ed8"/>':""}
+    ${s===8?'<path d="M15 14H33" stroke="#52d5d1" stroke-width="2"/>':""}
+  `;
+}
+function enemySVG(type){
+  const eyes=`<circle cx="19" cy="21" r="2.4" fill="white"/>
+    <circle cx="29" cy="21" r="2.4" fill="white"/>
+    <circle cx="19.5" cy="21.5" r="1.1" fill="#3d304a"/>
+    <circle cx="28.5" cy="21.5" r="1.1" fill="#3d304a"/>
+    <path d="M21 28Q24 30 27 28" fill="none" stroke="#563756" stroke-width="1.6"/>`;
+  const bodies=[
+    `<path d="M11 37V21Q11 7 24 8Q37 7 37 21V37L30 33L24 38L18 33Z"
+      fill="#d6b9ff" stroke="#9774c1"/>`,
+    `<path d="M16 19L4 11L5 30L15 26M32 19L44 11L43 30L33 26" fill="#a484c9"/>
+      <ellipse cx="24" cy="24" rx="12" ry="13" fill="#8665b2"/>
+      <path d="M15 17L16 7L22 14M26 14L33 7L33 19" fill="#8665b2"/>`,
+    `<path d="M7 34Q9 10 24 13Q40 10 41 34Q24 43 7 34"
+      fill="#c397e6" stroke="#9464b3"/>`,
+    `<g stroke="#9679c2" stroke-width="3" fill="none">
+       <path d="M15 20L7 15L3 21M14 26L5 27L3 34M33 20L41 15L45 21M34 26L43 27L45 34"/>
+     </g><ellipse cx="24" cy="24" rx="13" ry="12" fill="#ae94d0"/>`,
+    `<ellipse cx="24" cy="25" rx="13" ry="14" fill="#6b7da6"/>
+      <path d="M12 25L4 33L15 32M35 25L44 33L33 33" fill="#8191b7"/>
+      <path d="M22 25L26 25L24 29Z" fill="#f3c762"/>
+      <path d="M19 38L16 42M29 38L32 42" stroke="#c7a366" stroke-width="3"/>`,
+    `<rect x="15" y="19" width="18" height="21" rx="7" fill="#ffe1c5"/>
+      <path d="M5 22Q8 3 24 5Q41 3 44 22Z" fill="#e992b2"/>
+      <g fill="#fff3ef"><circle cx="16" cy="14" r="3"/><circle cx="29" cy="11" r="3"/>
+      <circle cx="37" cy="18" r="2"/></g>`,
+    `<path d="M8 32Q0 19 12 17Q12 5 24 9Q34 4 38 17Q50 21 41 33Z" fill="#9aaed0"/>
+      <path d="M15 37L13 41M25 37L23 42M35 37L33 41"
+      stroke="#73bdec" stroke-width="3" stroke-linecap="round"/>`,
+    `<path d="M9 14L22 7L37 12L42 29L33 40L14 39L6 28Z"
+      fill="#b5a9bd" stroke="#8d8296" stroke-width="2"/>
+      <path d="M10 15L19 13M32 32L38 28" stroke="#d6cddb" stroke-width="3"/>`
+  ];
+  return `<ellipse cx="24" cy="41" rx="15" ry="3" fill="#40334822"/>
+    ${bodies[type]}${eyes}`;
+}
+function hazardSVG(type,active,phase){
+  const opacity=active?1:.30;
+  const visuals=[
+    `<ellipse cx="24" cy="27" rx="18" ry="12" fill="#8d759f"/>
+      <ellipse cx="24" cy="26" rx="14" ry="8" fill="#3f355c"/>
+      <ellipse cx="24" cy="25" rx="8" ry="4" fill="#27253e"/>`,
+    `<ellipse cx="24" cy="37" rx="15" ry="4" fill="#b49c93"/>
+      <path d="M24 5Q30 18 34 16Q45 34 27 39Q9 40 11 27L19 13L19 26Q27 22 24 5"
+        fill="#ff8a65"/><path d="M24 22Q35 36 24 38Q15 35 24 22" fill="#ffe088"/>`,
+    `<rect x="7" y="33" width="34" height="7" rx="3" fill="#a99aba"/>
+      <path d="M9 33L15 13L21 33L26 8L31 33L37 15L42 33Z"
+        fill="#b7bfdb" stroke="#808aaa" stroke-width="1.2"/>`,
+    `<path d="M8 37Q37 39 19 18Q5 4 37 11M9 24Q34 14 39 34"
+        fill="none" stroke="#698a59" stroke-width="6"/>
+      <path d="M12 32L7 26L18 28M24 22L32 20L27 29M26 10L30 4L32 12"
+        fill="#b08cad"/>`,
+    `<g transform="rotate(${phase*120} 24 24)">
+      <circle cx="24" cy="24" r="17" fill="#ccaff333" stroke="#a674d1" stroke-width="2"/>
+      <path d="M13 22Q17 9 29 15Q41 26 26 32Q15 36 16 25Q21 18 26 24"
+        fill="none" stroke="#9a68d2" stroke-width="5"/>
+      ${star(24,24,5,"#f7df91")}</g>`,
+    `<path d="M8 34L11 17L20 21L25 5L33 20L38 14L42 35Z"
+       fill="#a5dcf3" stroke="#64afd5" stroke-width="1.5"/>
+      <path d="M25 11V36M12 22L25 36L37 22" stroke="#e8ffff" stroke-width="2"/>`,
+    `<g fill="#e9a4d37a" stroke="#bb78bd" stroke-width="2">
+      <circle cx="18" cy="29" r="12"/><circle cx="31" cy="19" r="11"/>
+      <circle cx="34" cy="36" r="6"/></g>
+      <path d="M13 23L17 20M26 13L30 11" stroke="white" stroke-width="3"
+        stroke-linecap="round"/>`,
+    `<circle cx="24" cy="25" r="16" fill="#efe7ff" stroke="#ae8ad9" stroke-width="2"/>
+      <path d="M26 6L14 26H23L20 42L36 20H26L31 6Z"
+        fill="#ffd966" stroke="#d7a934" stroke-width="1"/>`
+  ];
+  return `<g opacity="${opacity}">${visuals[type]}</g>
+    ${type!==0 && type!==3?
+      `<circle cx="39" cy="8" r="4.5" fill="${active?"#ea5e8c":"#65c394"}"
+        stroke="white" stroke-width="1.5"/>`:""}`;
+}
+function potionSVG(type){
+  const colors=["#f481af","#c885eb","#ffd469","#87d9e1","#ef8a83","#8fd08c"];
+  const c=colors[type];
+  const bodies=[
+    `<rect x="18" y="9" width="12" height="9" rx="3" fill="#e9d8eb"/>
+      <path d="M18 17Q9 22 12 34Q24 43 36 34Q39 22 30 17Z" fill="${c}"/>
+      <rect x="19" y="7" width="10" height="4" rx="1" fill="#b99666"/>`,
+    `<path d="M24 7Q9 24 13 33Q24 45 35 33Q39 24 24 7" fill="${c}"/>
+      <path d="M24 9Q15 7 14 13Q20 17 24 9Q33 5 35 12Q29 17 24 9" fill="#9ecb85"/>`,
+    `<path d="M13 14H35L32 32H16Z" fill="${c}"/>
+      <path d="M24 32V39M16 40H32" stroke="#c0a477" stroke-width="3"/>
+      ${star(24,23,8,"#fff5cb")}`,
+    `<path d="M7 31Q9 42 24 42Q40 42 41 31L24 35Z" fill="#dcacde"/>
+      <circle cx="24" cy="24" r="12" fill="${c}" stroke="#efffff" stroke-width="2"/>`,
+    `<path d="M24 18Q10 7 9 24Q9 36 24 41Q39 36 39 24Q38 7 24 18" fill="${c}"/>
+      <path d="M24 16Q22 4 33 7Q33 15 24 16" fill="#74b87c"/>`,
+    `<path d="M19 10H29V19Q42 28 33 38H15Q6 28 19 19Z" fill="${c}"/>
+      <rect x="18" y="7" width="12" height="5" rx="2" fill="#baa075"/>
+      <path d="M16 31Q18 19 32 24Q31 36 16 31" fill="#e4ffc6"/>`
+  ];
+  return `<ellipse cx="24" cy="42" rx="12" ry="2.5" fill="#654b7622"/>
+    ${bodies[type]}
+    <path d="M24 22V32M19 27H29" stroke="white" stroke-width="3.2"
+      stroke-linecap="round"/>`;
+}
+function exitSVG(type,accent){
+  const door=`<path d="M16 42V24Q16 13 24 13Q32 13 32 24V42Z"
+      fill="#fff8c9" stroke="${accent}" stroke-width="2"/>
+      ${star(24,27,7,"#efbd45")}`;
+  const bodies=[
+    `<path d="M9 43V22Q9 5 24 5Q39 5 39 22V43" fill="#ead7ff"
+      stroke="${accent}" stroke-width="5"/>`,
+    `<path d="M7 43V15H15V8H21V15H28V8H34V15H41V43Z"
+      fill="#ddd0f4" stroke="${accent}" stroke-width="2"/>
+      <path d="M4 15L11 5L18 15M30 15L37 5L44 15" fill="${accent}"/>`,
+    `<path d="M5 42V24A19 19 0 0 1 38 0V42" fill="none" stroke="#e8a4cc" stroke-width="5"/>
+      <path d="M10 42V24A14 14 0 0 1 28 0V42" fill="none" stroke="#a9cde9" stroke-width="5"/>`,
+    `<path d="M24 43Q-2 27 6 15Q13 5 20 12Q24 0 28 12Q38 5 43 16Q50 29 24 43"
+      fill="#f4c9df" stroke="${accent}" stroke-width="2"/>
+      <path d="M8 17L24 41L40 17M16 13L24 41L32 13"
+      stroke="#ffffff88" stroke-width="2"/>`,
+    `<path d="M9 43V13H39V43" fill="none" stroke="#c3a176" stroke-width="5"/>
+      <path d="M5 12L24 3L43 12Z" fill="${accent}"/>
+      <g fill="#ffe88e"><rect x="5" y="19" width="8" height="12" rx="3"/>
+      <rect x="35" y="19" width="8" height="12" rx="3"/></g>`,
+    `<path d="M10 44L15 17H33L39 44" fill="#b99a76"/>
+      <g fill="#a8d2a2"><circle cx="12" cy="15" r="10"/>
+      <circle cx="25" cy="11" r="12"/><circle cx="37" cy="16" r="10"/></g>`,
+    `<path d="M6 43L8 13L14 4L20 15L15 43M32 43L28 15L34 4L40 14L43 43"
+      fill="#bae8f8" stroke="${accent}" stroke-width="2"/>
+      <path d="M15 12L24 2L34 12" fill="#ded1ff" stroke="${accent}" stroke-width="2"/>`,
+    `<g fill="#fff" stroke="#c8bce7" stroke-width="1.3">
+      <circle cx="11" cy="31" r="10"/><circle cx="11" cy="18" r="9"/>
+      <circle cx="21" cy="10" r="10"/><circle cx="34" cy="14" r="10"/>
+      <circle cx="38" cy="28" r="10"/><circle cx="35" cy="39" r="8"/></g>`
+  ];
+  return `${bodies[type]}${door}
+    <path d="M6 45H42" stroke="#f3c65c" stroke-width="3"/>`;
+}
+function wallPattern(type,t){
+  const base=`<rect width="48" height="48" fill="${t.wall}"/>
+    <path d="M0 47H48M47 0V48" stroke="${t.edge}" stroke-width="2" opacity=".55"/>`;
+  const designs=[
+    `<path d="M0 16H48M0 32H48M24 0V16M12 16V32M36 16V32M24 32V48"
+      stroke="${t.edge}" stroke-width="2"/>
+      <path d="M2 2H45M2 18H10M26 34H45" stroke="#fff5" stroke-width="2"/>`,
+    `<path d="M5 35L13 7L25 19L34 4L43 35L26 45Z" fill="#fff4"
+      stroke="#fff8" stroke-width="2"/>
+      <path d="M13 7L26 45L34 4M5 35L43 35" fill="none" stroke="#fff7"/>`,
+    `<g fill="${t.edge}" opacity=".45"><circle cx="12" cy="13" r="12"/>
+      <circle cx="35" cy="12" r="12"/><circle cx="23" cy="33" r="16"/></g>
+      <g fill="#f3a3c7"><circle cx="13" cy="14" r="4"/>
+      <circle cx="32" cy="32" r="5"/></g>`,
+    `<path d="M7 34Q2 14 14 14Q19 2 25 13Q39 2 41 20Q49 32 25 41Z"
+      fill="#fff4" stroke="#fff7"/>
+      <path d="M12 16L25 40L37 14M24 13L25 40" stroke="${t.edge}" opacity=".5"/>`,
+    `<path d="M0 23H48M0 46H48" stroke="${t.edge}" stroke-width="4"/>
+      <g stroke="#fff5" stroke-width="6">
+      <path d="M7 3V20M16 5V20M27 3V20M38 6V20M9 27V43M21 26V43M33 27L39 42"/></g>`,
+    `<path d="M-5 10Q14 26 24 7T52 18M-3 38Q12 24 28 37T54 31"
+      stroke="#fff5" stroke-width="4" fill="none"/>
+      <path d="M5 0L10 48M36 0L29 48" stroke="${t.edge}" opacity=".25"/>`,
+    `<path d="M9 48Q41 25 12 0M41 48Q11 28 39 0" fill="none"
+      stroke="${t.edge}" stroke-width="3"/>
+      <g fill="#c0dfa8"><ellipse cx="14" cy="17" rx="8" ry="4" transform="rotate(35 14 17)"/>
+      <ellipse cx="34" cy="31" rx="8" ry="4" transform="rotate(-35 34 31)"/></g>`,
+    `<g fill="#ffffff4d"><circle cx="12" cy="26" r="12"/>
+      <circle cx="23" cy="17" r="13"/><circle cx="36" cy="27" r="12"/>
+      <rect x="11" y="25" width="27" height="13" rx="7"/></g>`,
+    `<path d="M24 3L45 24L24 45L3 24Z" fill="#fff3" stroke="${t.edge}"/>
+      <path d="M24 9L39 24L24 39L9 24Z" fill="none" stroke="#fff8"/>`,
+    `<path d="M24 39Q2 34 8 18Q19 17 24 39Q15 7 24 5Q34 13 24 39Q29 16 42 18Q45 34 24 39"
+      fill="#f6c9e7" opacity=".75"/>
+      <ellipse cx="24" cy="40" rx="18" ry="4" fill="${t.edge}" opacity=".45"/>`,
+    `<path d="M24 44V11M24 29L11 19V10M24 35L38 23V14M24 19L32 11"
+      stroke="#ffcabd" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+    `${star(24,24,18,"#fff6")}
+      ${star(24,24,9,t.accent)}
+      <circle cx="5" cy="5" r="2" fill="#fff7"/>
+      <circle cx="43" cy="43" r="2" fill="#fff7"/>`
+  ];
+  return base+designs[type];
+}
+
+/* ---------- สร้างเขาวงกต ---------- */
+
+function makeMaze(cols,rows,rng){
+  const grid=Array.from({length:rows},()=>Array(cols).fill(1));
+  const stack=[{x:1,y:1}];
+  grid[1][1]=0;
+  while(stack.length){
+    const p=stack[stack.length-1];
+    const options=[];
+    for(const [dx,dy] of [[2,0],[-2,0],[0,2],[0,-2]]){
+      const x=p.x+dx,y=p.y+dy;
+      if(x>0&&x<cols-1&&y>0&&y<rows-1&&grid[y][x]===1){
+        options.push({x,y,dx,dy});
+      }
+    }
+    if(!options.length){stack.pop();continue}
+    const n=pick(rng,options);
+    grid[p.y+n.dy/2][p.x+n.dx/2]=0;
+    grid[n.y][n.x]=0;
+    stack.push({x:n.x,y:n.y});
+  }
+
+  // เปิดวงทางเลือกบางส่วน ลดทางตันที่ต้องรอนาน
+  const candidates=[];
+  for(let y=1;y<rows-1;y++){
+    for(let x=1;x<cols-1;x++){
+      if(grid[y][x]!==1)continue;
+      const h=grid[y][x-1]===0&&grid[y][x+1]===0;
+      const v=grid[y-1][x]===0&&grid[y+1][x]===0;
+      if(h!==v)candidates.push({x,y});
+    }
+  }
+  shuffle(rng,candidates);
+  const holes=Math.floor(cols*rows*.025);
+  candidates.slice(0,holes).forEach(p=>grid[p.y][p.x]=0);
+  return grid;
+}
+function createGame(c){
+  const rng=rngFrom(c.seed),level=c.level;
+  const cols=level===3?c.baseCols*2-1:c.baseCols;
+  const rows=c.rows;
+  const grid=makeMaze(cols,rows,rng);
+  const reverse=level===3 && rng()<.5;
+  const start={
+    x:reverse?cols-2:1,
+    y:1+2*integer(rng,0,(rows-3)/2)
+  };
+  const exit={
+    x:reverse?1:cols-2,
+    y:1+2*integer(rng,0,(rows-3)/2)
+  };
+  const mainRoute=routeBetween(grid,start,exit);
+  const protectedRoute=new Set(mainRoute.map(p=>key(p.x,p.y)));
+  const cells=[];
+  for(let y=1;y<rows-1;y++){
+    for(let x=1;x<cols-1;x++){
+      if(grid[y][x]===0)cells.push({x,y});
+    }
+  }
+
+  const g={
+    cols,rows,grid,start,exit,reverse,mainRoute,
+    player:copy(start),previous:copy(start),
+    level,theme:c.theme,wall:integer(rng,0,11),exitType:integer(rng,0,7),
+    mode:"ready",hp:level===2?5:level===3?3:Infinity,
+    maxHP:level===2?5:level===3?3:Infinity,
+    steps:0,hits:0,collected:0,elapsed:0,
+    startAt:0,deadline:0,lastTick:-1,
+    enemyAt:0,invulnerableUntil:0,
+    enemies:[],hazards:[],potions:[],
+    enemyPeriod:level===3?590:760
+  };
+  if(level===1)return g;
+
+  const forbidden=new Set();
+  for(const p of cells){
+    if(Math.abs(p.x-start.x)+Math.abs(p.y-start.y)<=3 ||
+       Math.abs(p.x-exit.x)+Math.abs(p.y-exit.y)<=2){
+      forbidden.add(key(p.x,p.y));
+    }
+  }
+  const reserved=new Set(forbidden);
+
+  // เส้นลาดตระเวนมีช่องนอกเส้นทางหลักเสมอ
+  // และแตะเส้นทางหลักได้ไม่เกิน 1 ช่องต่อศัตรู
+  // จึงรอให้ศัตรูเดินพ้น แล้วค่อยเดินผ่านได้
+  const enemyCount=integer(rng,level===2?2:3,level===2?3:5);
+  for(let i=0;i<enemyCount;i++){
+    const roots=shuffle(rng,cells.filter(p=>
+      !reserved.has(key(p.x,p.y))&&!protectedRoute.has(key(p.x,p.y))));
+    let patrol=null;
+    for(const root of roots){
+      const route=[copy(root)];
+      const seen=new Set([key(root.x,root.y)]);
+      let mainCount=0;
+      const length=integer(rng,3,6);
+      while(route.length<length){
+        const options=neighbors(grid,route[route.length-1]).filter(n=>{
+          const k=key(n.x,n.y);
+          return !reserved.has(k)&&!seen.has(k)&&
+            (!protectedRoute.has(k)||mainCount===0);
+        });
+        if(!options.length)break;
+        const n=pick(rng,options),k=key(n.x,n.y);
+        if(protectedRoute.has(k))mainCount++;
+        route.push(n);seen.add(k);
+      }
+      if(route.length>=2){patrol=route;break}
+    }
+    if(!patrol)return null; // ให้ระบบสร้าง seed ใหม่ถ้าพื้นที่ไม่พอ
+    patrol.forEach(p=>reserved.add(key(p.x,p.y)));
+    const idx=integer(rng,0,patrol.length-1);
+    g.enemies.push({
+      type:integer(rng,0,7),route:patrol,index:idx,
+      dir:idx===patrol.length-1?-1:1,
+      x:patrol[idx].x,y:patrol[idx].y
+    });
+  }
+
+  // หลุมและเถาวัลย์ถาวรอยู่ข้างทาง ไม่ปิดเส้นทางออก
+  const staticCandidates=shuffle(rng,cells.filter(p=>{
+    const k=key(p.x,p.y);
+    return !reserved.has(k)&&!protectedRoute.has(k);
+  }));
+  const fixedCount=level===2?3:6;
+  staticCandidates.slice(0,fixedCount).forEach((p,i)=>{
+    reserved.add(key(p.x,p.y));
+    g.hazards.push({
+      ...p,type:i%2?3:0,period:0,offset:0
+    });
+  });
+
+  // อุปสรรคบนเส้นทางหลักเปิด-ปิด และไม่วางติดกัน
+  const dynamicCandidates=shuffle(rng,cells.filter(p=>
+    !reserved.has(key(p.x,p.y))));
+  const dynamicTypes=shuffle(rng,[1,2,4,5,6,7]);
+  const dynamicCount=level===2?6:11;
+  let placed=0;
+  for(const p of dynamicCandidates){
+    if(placed>=dynamicCount)break;
+    if(g.hazards.some(h=>Math.abs(h.x-p.x)+Math.abs(h.y-p.y)<3))continue;
+    reserved.add(key(p.x,p.y));
+    g.hazards.push({
+      ...p,type:dynamicTypes[placed%dynamicTypes.length],
+      period:integer(rng,3000,4200),offset:integer(rng,0,3000)
+    });
+    placed++;
+  }
+
+  const potionCandidates=shuffle(rng,cells.filter(p=>
+    !reserved.has(key(p.x,p.y))));
+  potionCandidates.slice(0,level===2?4:6).forEach((p,i)=>{
+    g.potions.push({...p,type:(integer(rng,0,5)+i)%6,collected:false});
+  });
+  return g;
+}
+function hazardActive(h,elapsed=game.elapsed){
+  if(h.period===0)return true;
+  return ((elapsed+h.offset)%h.period)<h.period*.48;
+}
+function hazardAt(p,activeOnly=true){
+  return game.hazards.find(h=>same(h,p)&&(!activeOnly||hazardActive(h)));
+}
+function enemyAt(p){
+  return game.enemies.some(e=>same(e,p));
+}
+function safeCell(p){
+  return pathCell(p.x,p.y)&&!enemyAt(p)&&!hazardAt(p);
+}
+function nearestSafe(origin){
+  const queue=[copy(origin)],seen=new Set([key(origin.x,origin.y)]);
+  for(let i=0;i<queue.length;i++){
+    const p=queue[i];
+    if(safeCell(p))return p;
+    for(const n of neighbors(game.grid,p)){
+      const k=key(n.x,n.y);
+      if(!seen.has(k)){seen.add(k);queue.push(n)}
+    }
+  }
+  return copy(game.start);
+}
+
+/* ---------- วาดฉาก ---------- */
+
+function buildWorld(){
+  const g=game,t=THEMES[g.theme];
+  const width=g.cols*CELL,height=g.rows*CELL;
+  $("world").setAttribute("viewBox",`0 0 ${width} ${height}`);
+  $("world").style.width=g.level===3?"200%":"100%";
+
+  let html=`
+    <defs>
+      <pattern id="wallPattern" width="48" height="48" patternUnits="userSpaceOnUse">
+        ${wallPattern(g.wall,t)}
+      </pattern>
+      <pattern id="floorPattern" width="48" height="48" patternUnits="userSpaceOnUse">
+        <rect width="48" height="48" fill="${t.floor}"/>
+        <path d="M48 0H0V48" fill="none" stroke="${t.edge}" opacity=".09"/>
+        <circle cx="8" cy="8" r="1.5" fill="${t.accent}" opacity=".16"/>
+      </pattern>
+      <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="2"/>
+      </filter>
+    </defs>
+    <rect width="${width}" height="${height}" fill="url(#floorPattern)"/>
+    <g id="staticLayer">`;
+
+  for(let y=0;y<g.rows;y++){
+    for(let x=0;x<g.cols;x++){
+      if(g.grid[y][x]===1){
+        html+=`<rect x="${x*CELL}" y="${y*CELL}" width="48" height="48"
+          fill="url(#wallPattern)"/>`;
+      }else if((x*7+y*11)%19===0){
+        html+=`<text x="${x*CELL+24}" y="${y*CELL+29}" text-anchor="middle"
+          font-size="19" fill="${t.accent}" opacity=".17">${t.motif}</text>`;
+      }
+    }
+  }
+
+  html+=`<g transform="translate(${g.start.x*CELL} ${g.start.y*CELL})">
+      <rect x="4" y="4" width="40" height="40" rx="12"
+        fill="#fff7" stroke="#a4c798" stroke-dasharray="4 3"/>
+      <text x="24" y="31" text-anchor="middle" font-size="22" fill="#8bbb81">♡</text>
+    </g>
+    <g transform="translate(${g.exit.x*CELL} ${g.exit.y*CELL})">
+      ${exitSVG(g.exitType,t.accent)}
+    </g></g><g id="actorLayer"></g><g id="fxLayer"></g>`;
+
+  $("world").innerHTML=html;
+  staticLayer=$("staticLayer");
+  actorLayer=$("actorLayer");
+  fxLayer=$("fxLayer");
+  $("sceneLabel").textContent=
+    `${t.name} · ${WALL_NAMES[g.wall]} · ${EXIT_NAMES[g.exitType]}`;
+  $("hintText").textContent=g.level===1?
+    "ลูกศร / WASD · เดินทีละช่อง · ไปยังประตูดาว":
+    `ลูกศร / WASD · จุดเขียว = ผ่านได้ · ยา +1${g.level===3?" · ปัดซ้าย–ขวาเพื่อดูแผนที่":""}`;
+  fitBoard();
+  renderActors(performance.now());
+}
+function fitBoard(){
+  if(!game)return;
+  const box=$("stage").getBoundingClientRect();
+  const viewCols=game.level===3?game.cols/2:game.cols;
+  cameraCell=Math.min(
+    Math.max(1,box.width-8)/viewCols,
+    Math.max(1,box.height-8)/game.rows
+  );
+  $("board").style.width=(viewCols*cameraCell)+"px";
+  $("board").style.height=(game.rows*cameraCell)+"px";
+  followPlayer(false);
+}
+function followPlayer(smooth=true){
+  if(!game)return;
+  const board=$("board");
+  if(game.level!==3){board.scrollLeft=0;return}
+  const target=(game.player.x+.5)*cameraCell-board.clientWidth/2;
+  const max=board.scrollWidth-board.clientWidth;
+  board.scrollTo({
+    left:Math.max(0,Math.min(max,target)),
+    top:0,behavior:smooth&&!reducedMotion?"smooth":"auto"
+  });
+}
+function renderActors(now){
+  if(!game||!actorLayer)return;
+  const elapsed=game.elapsed/1000;
+  let html="";
+  for(const h of game.hazards){
+    html+=`<g transform="translate(${h.x*CELL} ${h.y*CELL})">
+      ${hazardSVG(h.type,hazardActive(h),reducedMotion?0:elapsed)}
+    </g>`;
+  }
+  for(const p of game.potions){
+    if(p.collected)continue;
+    const bob=reducedMotion?0:Math.sin(elapsed*3+p.x)*2;
+    html+=`<g transform="translate(${p.x*CELL} ${p.y*CELL+bob})">
+      ${potionSVG(p.type)}</g>`;
+  }
+  for(const e of game.enemies){
+    const bob=reducedMotion?0:Math.sin(elapsed*5+e.x)*1.3;
+    html+=`<g transform="translate(${e.x*CELL} ${e.y*CELL+bob})">
+      ${enemySVG(e.type)}</g>`;
+  }
+  const blink=game.mode==="playing"&&Date.now()<game.invulnerableUntil&&
+    Math.floor(now/100)%2===0;
+  const p=game.player;
+  html+=`<g transform="translate(${p.x*CELL} ${p.y*CELL})"
+      opacity="${blink?.42:1}">
+    ${Date.now()<game.invulnerableUntil?
+      '<circle cx="24" cy="24" r="22" fill="#ffd9ed55" stroke="#f1a6d5" stroke-width="2"/>':""}
+    ${princessSVG(Number($("princess").value))}
+  </g>`;
+  actorLayer.innerHTML=html;
+}
+function burst(p,color,count=16,kind="spark"){
+  if(reducedMotion)count=Math.min(count,6);
+  for(let i=0;i<count;i++){
+    const angle=Math.random()*Math.PI*2;
+    const speed=35+Math.random()*90;
+    particles.push({
+      x:(p.x+.5)*CELL,y:(p.y+.5)*CELL,
+      vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed-35,
+      age:0,life:kind==="confetti"?1.8:.65,
+      color:kind==="confetti"?
+        pick(Math.random,["#ff9fcf","#a4dbff","#ffe48d","#b6e89a","#c7a5f3"]):color,
+      size:3+Math.random()*4,kind
+    });
+  }
+}
+function renderParticles(dt){
+  if(!fxLayer)return;
+  let html="";
+  particles=particles.filter(p=>p.age<p.life);
+  for(const p of particles){
+    p.age+=dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=90*dt;
+    const opacity=Math.max(0,1-p.age/p.life);
+    html+=p.kind==="confetti"?
+      `<rect x="${p.x}" y="${p.y}" width="${p.size}" height="${p.size*1.5}"
+        fill="${p.color}" opacity="${opacity}"
+        transform="rotate(${p.age*180} ${p.x} ${p.y})"/>`:
+      `<circle cx="${p.x}" cy="${p.y}" r="${p.size*opacity}"
+        fill="${p.color}" opacity="${opacity}"/>`;
+  }
+  fxLayer.innerHTML=html;
+}
+function toast(text,duration=2600){
+  $("toast").textContent=text;toastUntil=Date.now()+duration;
+}
+function updateHUD(){
+  const g=game;
+  $("levelLabel").textContent=["","ง่าย","ปานกลาง","ยาก"][g.level];
+  $("steps").textContent=g.steps;
+  $("hp").textContent=g.level===1?"ไม่จำกัด":
+    "♥".repeat(g.hp)+"♡".repeat(g.maxHP-g.hp);
+  $("hp").setAttribute("aria-label",
+    g.level===1?"พลังไม่จำกัด":`พลังชีวิต ${g.hp} จาก ${g.maxHP}`);
+  const remain=g.mode==="ready"?LIMIT:Math.max(0,LIMIT-g.elapsed);
+  $("clock").textContent=g.level===1?formatTime(g.elapsed):
+    formatTime(Math.ceil(remain/1000)*1000);
+  $("clock").classList.toggle("urgent",g.level>1&&remain<=30000&&g.mode==="playing");
+}
+
+/* ---------- กติกาและการเคลื่อนที่ ---------- */
+
+function refreshElapsed(){
+  if(game.mode!=="playing")return;
+  game.elapsed=Date.now()-game.startAt;
+  if(game.level>1&&Date.now()>=game.deadline){
+    game.elapsed=LIMIT;
+    finish(false,"หมดเวลา 4 นาที");
+  }
+}
+function hit(reason,returnCell,displace){
+  if(game.mode!=="playing"||game.level===1)return;
+
+  // ถูกศัตรูเดินเข้าหา หรือยืนบนกับดักที่เปิด:
+  // กลับช่องก่อนหน้า ถ้าไม่ปลอดภัยให้หาช่องว่างที่ใกล้ที่สุด
+  if(displace){
+    game.player=safeCell(returnCell)?copy(returnCell):nearestSafe(returnCell);
+    game.previous=copy(game.player);
+    followPlayer();
+  }
+
+  // ช่วงป้องกันความเสียหายซ้ำ ไม่อนุญาตให้เดินทะลุอันตราย
+  if(Date.now()<game.invulnerableUntil)return;
+  game.hp--;game.hits++;
+  game.invulnerableUntil=Date.now()+1100;
+  sfx("hit");
+  burst(game.player,"#f18ac1",22);
+  const board=$("board");
+  board.classList.remove("shake");
+  void board.offsetWidth;
+  board.classList.add("shake");
+  setTimeout(()=>board.classList.remove("shake"),300);
+  toast(`${reason} · พลัง -1 · กลับช่องก่อนหน้า`);
+  updateHUD();
+  if(game.hp<=0)finish(false,"พลังชีวิตหมด");
+}
+function collectPotion(){
+  const p=game.potions.find(p=>!p.collected&&same(p,game.player));
+  if(!p)return;
+  if(game.hp>=game.maxHP){
+    toast("พลังเต็มแล้ว! ยาจะอยู่ที่เดิม เก็บภายหลังได้");
+    return;
+  }
+  p.collected=true;
+  game.hp=Math.min(game.maxHP,game.hp+1);
+  game.collected++;
+  sfx("potion");burst(p,"#a7df91",20);
+  toast(`${POTION_NAMES[p.type]} · พลัง +1`);
+  updateHUD();
+}
+function move(direction){
+  if(!game||game.mode!=="playing")return;
+  const now=performance.now();
+  if(now<nextMoveAt)return;
+  nextMoveAt=now+130;
+  unlockAudio();
+  refreshElapsed();
+  if(game.mode!=="playing")return;
+  const [dx,dy]=DIR[direction];
+  const from=copy(game.player);
+  const target={x:from.x+dx,y:from.y+dy};
+
+  if(!pathCell(target.x,target.y)){sfx("wall");return}
+
+  const enemy=game.enemies.find(e=>same(e,target));
+  if(enemy){
+    hit(`ชน${ENEMY_NAMES[enemy.type]}`,from,false);
+    renderActors(performance.now());return;
+  }
+  const hazard=hazardAt(target);
+  if(hazard){
+    hit(`แตะ${HAZARD_NAMES[hazard.type]}`,from,false);
+    renderActors(performance.now());return;
+  }
+
+  game.previous=from;
+  game.player=target;
+  game.steps++;
+  sfx("step");
+  collectPotion();
+  followPlayer();
+  updateHUD();
+  renderActors(performance.now());
+  if(same(target,game.exit))finish(true,"ถึงทางออกแล้ว");
+}
+function moveEnemies(){
+  for(const e of game.enemies){
+    let next=e.index+e.dir;
+    if(next<0||next>=e.route.length){
+      e.dir*=-1;next=e.index+e.dir;
+    }
+    const target=e.route[next];
+    if(game.enemies.some(other=>other!==e&&same(other,target)))continue;
+    e.index=next;e.x=target.x;e.y=target.y;
+    if(same(e,game.player)){
+      hit(`ชน${ENEMY_NAMES[e.type]}`,game.previous,true);
+      if(game.mode!=="playing")return;
+    }
+  }
+}
+function updateGame(){
+  if(!game||game.mode!=="playing")return;
+  refreshElapsed();
+  if(game.mode!=="playing")return;
+
+  if(game.level>1){
+    if(game.elapsed>=game.enemyAt){
+      moveEnemies();
+      game.enemyAt=game.elapsed+game.enemyPeriod;
+    }
+    if(game.mode!=="playing")return;
+    const danger=hazardAt(game.player);
+    if(danger)hit(`${HAZARD_NAMES[danger.type]}เปิดทำงาน`,game.previous,true);
+
+    const seconds=Math.ceil((LIMIT-game.elapsed)/1000);
+    if(seconds<=10&&seconds>0&&seconds!==game.lastTick){
+      game.lastTick=seconds;sfx("tick");
+    }
+  }
+  updateHUD();
+}
+
+/* ---------- หน้าจอเริ่มและสรุปผล ---------- */
+
+function showDialog(html){
+  dialogReturnFocus=document.activeElement;
+  $("dialog").innerHTML=html;
+  $("overlay").hidden=false;
+  requestAnimationFrame(()=>{
+    const first=$("dialog").querySelector("button");
+    if(first)first.focus();
+  });
+}
+function hideDialog(){
+  $("overlay").hidden=true;
+  if(dialogReturnFocus&&dialogReturnFocus.focus)dialogReturnFocus.focus();
+}
+function readyDialog(){
+  const g=game;
+  const rule=g.level===1?
+    "ระดับง่าย ไม่มีศัตรูและอุปสรรค ไม่จำกัดเวลา":
+    `มีเวลา 4 นาที · พลังเริ่มต้น ${g.maxHP} หัวใจ<br>
+     ศัตรู ${g.enemies.length} ตัว · ยาฟื้นพลัง +1 ไม่เกิน ${g.maxHP}`;
+  showDialog(`
+    <div class="big">👑</div>
+    <h2 id="dialogTitle">ช่วยเจ้าหญิงออกจากเขาวงกต</h2>
+    <p><strong>${THEMES[g.theme].name}</strong><br>${rule}</p>
+    <p>ใช้ปุ่มลูกศร หรือ WASD เดินทีละช่อง<br>
+       บนมือถือใช้ปุ่มลูกศรด้านล่าง</p>
+    ${g.level>1?`
+      <p class="small">
+        รอศัตรูเดินพ้นทางก่อนข้าม<br>
+        กับดักจุดแดงอันตราย · จุดเขียวผ่านได้<br>
+        หลุมและเถาวัลย์เป็นอุปสรรคถาวร ต้องเดินอ้อม<br>
+        ชนแล้วเสีย 1 หัวใจ อุปสรรคไม่หาย และกลับช่องก่อนหน้า
+      </p>`:""}
+    ${g.level===3?`
+      <p class="small">แผนที่กว้าง 2 หน้าจอ เลื่อนได้เฉพาะซ้าย–ขวา<br>
+      ครั้งนี้เริ่มฝั่ง${g.reverse?"ขวา ไปทางซ้าย":"ซ้าย ไปทางขวา"}</p>`:""}
+    <div class="actions"><button id="begin" class="primary">เริ่มผจญภัย</button></div>
+    <p class="small">เสียงเริ่มหลังแตะปุ่ม · ภาพการ์ตูนวาดใหม่ ไม่ใช่ภาพทางการ</p>
+  `);
+  $("begin").onclick=start;
+}
+function start(){
+  hideDialog();
+  unlockAudio();
+  game.mode="playing";
+  game.startAt=Date.now();
+  game.deadline=game.startAt+LIMIT;
+  game.elapsed=0;
+  game.enemyAt=game.enemyPeriod;
+  nextMoveAt=0;
+  sfx("start");
+  speak("ช่วยเจ้าหญิงเดินไปถึงประตูดาวกันเถอะ");
+  toast(game.level===1?
+    "เดินไปยังประตูที่มีดาวได้เลย!":
+    "รอจุดเขียวก่อนข้ามกับดัก ระวังศัตรูด้วยนะ",4000);
+  $("board").focus({preventScroll:true});
+  updateHUD();
+}
+function finish(win,reason){
+  if(game.mode!=="playing")return;
+  game.mode=win?"won":"lost";
+  if(!win&&reason==="หมดเวลา 4 นาที")game.elapsed=LIMIT;
+  else game.elapsed=Date.now()-game.startAt;
+
+  sfx(win?"win":"lose");
+  speak(win?"ยินดีด้วย คุณช่วยเจ้าหญิงได้สำเร็จ":
+    "ไม่เป็นไรนะ ลองใหม่ได้เสมอ");
+  if(win)burst(game.player,"#ffd66b",85,"confetti");
+  updateHUD();
+
+  showDialog(`
+    <div class="big">${win?"🏆":"🌷"}</div>
+    <h2 id="dialogTitle">${win?"ยินดีด้วย! ผ่านด่านแล้ว":"ไม่เป็นไร ลองใหม่ได้นะ"}</h2>
+    <p>${win?
+      `คุณช่วย${PRINCESSES[Number($("princess").value)].name}ออกจากเขาวงกตสำเร็จ!`:
+      reason+" · ฝึกอีกนิดก็เก่งขึ้นแล้ว"}</p>
+    <div class="summary">
+      <div>เวลาที่ใช้<br><strong>${formatTime(game.elapsed)}</strong></div>
+      <div>จำนวนก้าว<br><strong>${game.steps} ก้าว</strong></div>
+      <div>ชนอันตราย<br><strong>${game.hits} ครั้ง</strong></div>
+      <div>เก็บยาฟื้นพลัง<br><strong>${game.collected} ขวด</strong></div>
+      <div>ระดับ<br><strong>${["","ง่าย","ปานกลาง","ยาก"][game.level]}</strong></div>
+      <div>พลังคงเหลือ<br><strong>${game.level===1?"ไม่จำกัด":game.hp+" / "+game.maxHP}</strong></div>
+    </div>
+    <p class="small">${THEMES[game.theme].name} · รหัสด่าน ${config.seed}</p>
+    <div class="actions">
+      <button id="retry" class="primary">เล่นด่านเดิมอีกครั้ง</button>
+      <button id="resultShuffle">สุ่มผังธีมเดิม</button>
+      <button id="resultNew">เริ่มเกมใหม่</button>
+    </div>
+  `);
+  $("retry").onclick=()=>prepare("replay");
+  $("resultShuffle").onclick=()=>prepare("sameTheme");
+  $("resultNew").onclick=()=>prepare("new");
+}
+function help(){
+  if(game&&game.mode==="playing"){
+    toast("ลูกศร/WASD → ประตูดาว · จุดเขียวผ่านได้ · ยา +1 · เวลาไม่หยุด",6500);
+    speak("เดินไปประตูดาว รอศัตรูผ่าน และรอจุดเขียวก่อนข้ามกับดัก");
+    return;
+  }
+  readyDialog();
+}
+
+function prepare(mode){
+  if("speechSynthesis" in window)speechSynthesis.cancel();
+  const level=Number($("level").value);
+  let c;
+  if(mode==="replay"&&config){
+    c={...config};
+    $("level").value=c.level;
+  }else{
+    const rect=$("stage").getBoundingClientRect();
+    const portrait=rect.width<rect.height*1.1;
+    const baseCols=portrait?13:19;
+    const rows=portrait?17:11;
+    c={
+      seed:freshSeed(),level,baseCols,rows,
+      theme:mode==="sameTheme"&&config?
+        config.theme:Math.floor(Math.random()*THEMES.length)
+    };
+  }
+
+  // สร้างใหม่ถ้าจัดศัตรูตามจำนวนที่ต้องการไม่ได้
+  let made=null;
+  for(let attempt=0;attempt<150;attempt++){
+    made=createGame(c);
+    if(made)break;
+    c.seed=(c.seed+0x9E3779B9)>>>0;
+  }
+  if(!made){
+    showDialog(`<h2 id="dialogTitle">ยังจัดด่านนี้ไม่สำเร็จ</h2>
+      <p>กรุณาลองสุ่มด่านใหม่</p>
+      <div class="actions"><button id="tryBuild">สุ่มใหม่</button></div>`);
+    $("tryBuild").onclick=()=>prepare("new");
+    return;
+  }
+  config={...c};
+  game=made;particles=[];nextMoveAt=0;
+  $("toast").textContent="พร้อมออกผจญภัย";
+  toastUntil=0;
+  buildWorld();
+  updateHUD();
+  readyDialog();
+}
+
+/* ---------- อินพุตและวงรอบหลัก ---------- */
+
+const keyMap={
+  ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",
+  w:"up",s:"down",a:"left",d:"right",
+  W:"up",S:"down",A:"left",D:"right"
+};
+document.addEventListener("keydown",e=>{
+  if(!$("overlay").hidden){
+    // เก็บโฟกัสไว้ใน dialog
+    if(e.key==="Tab"){
+      const buttons=[...$("dialog").querySelectorAll("button:not(:disabled)")];
+      if(!buttons.length)return;
+      const first=buttons[0],last=buttons[buttons.length-1];
+      if(e.shiftKey&&document.activeElement===first){
+        e.preventDefault();last.focus();
+      }else if(!e.shiftKey&&document.activeElement===last){
+        e.preventDefault();first.focus();
+      }
+    }
+    return;
+  }
+  if(e.target instanceof HTMLSelectElement)return;
+  const direction=keyMap[e.key];
+  if(direction){e.preventDefault();move(direction)}
+});
+
+document.querySelectorAll("[data-dir]").forEach(button=>{
+  button.addEventListener("pointerdown",e=>{
+    e.preventDefault();move(button.dataset.dir);
+  });
+  // ให้คีย์บอร์ดและโปรแกรมอ่านหน้าจอกดปุ่มได้ด้วย
+  button.addEventListener("click",e=>{
+    if(e.detail===0)move(button.dataset.dir);
+  });
+});
+$("newGame").onclick=()=>prepare("new");
+$("sameTheme").onclick=()=>prepare("sameTheme");
+$("level").onchange=()=>prepare("sameTheme");
+$("princess").onchange=()=>{
+  renderActors(performance.now());
+  toast(`เลือก${PRINCESSES[Number($("princess").value)].name}แล้ว`);
+};
+$("soundButton").onclick=()=>{
+  soundEnabled=!soundEnabled;
+  $("soundButton").textContent="เสียง: "+(soundEnabled?"เปิด":"ปิด");
+  $("soundButton").setAttribute("aria-pressed",String(soundEnabled));
+  if(soundEnabled){unlockAudio();sfx("potion")}
+};
+$("voiceButton").onclick=()=>{
+  if(!("speechSynthesis" in window)){
+    toast("เบราว์เซอร์นี้ไม่รองรับเสียงพูด");
+    return;
+  }
+  voiceEnabled=!voiceEnabled;
+  $("voiceButton").textContent="เสียงพูด: "+(voiceEnabled?"เปิด":"ปิด");
+  $("voiceButton").setAttribute("aria-pressed",String(voiceEnabled));
+  if(voiceEnabled)speak("พร้อมผจญภัยแล้ว");
+  else speechSynthesis.cancel();
+};
+$("helpButton").onclick=help;
+
+if("ResizeObserver" in window){
+  new ResizeObserver(()=>fitBoard()).observe($("stage"));
+}else{
+  window.addEventListener("resize",fitBoard);
+}
+
+// เวลาเดินต่อแม้สลับแท็บ และตรวจวันเวลาจริงเมื่อกลับมา
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden){
+    updateGame();
+    if(game&&game.mode==="playing")followPlayer(false);
+  }
+});
+setInterval(updateGame,80);
+
+function frame(now){
+  const dt=Math.min(.05,(now-lastFrame)/1000||.016);
+  lastFrame=now;
+  if(now-lastDraw>33){
+    renderActors(now);lastDraw=now;
+  }
+  renderParticles(dt);
+  if(toastUntil&&Date.now()>toastUntil){
+    $("toast").textContent=game&&game.mode==="playing"?
+      "เป้าหมาย: ประตูที่มีดาว":"พร้อมออกผจญภัย";
+    toastUntil=0;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+requestAnimationFrame(()=>prepare("new"));
+</script>
+</body>
+</html>
