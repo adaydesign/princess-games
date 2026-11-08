@@ -379,15 +379,15 @@ footer {
   </header>
 
   <nav class="filters" aria-label="กรองรายการเกมตามภาษา">
-    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (12 เกม)</button>
-    <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (6 เกม)</button>
-    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (6 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (14 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (7 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (7 เกม)</button>
   </nav>
 
   <main class="grid" id="gameGrid" aria-label="รายการเกมทั้งหมด"></main>
 
   <footer>
-    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games) — เวอร์ชันแอปพลิเคชัน v1.1.0</strong><br>
+    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games) — เวอร์ชันแอปพลิเคชัน v1.2.0</strong><br>
     แต่ละเกมอยู่ในไฟล์ HTML เพียงไฟล์เดียว • วาดภาพประกอบทั้งหมดด้วยโค้ด SVG • ใช้เสียงพูด Web Speech API และเสียงดนตรีสังเคราะห์ Web Audio API โดยไม่พึ่งพาไฟล์ภายนอก
   </footer>
 </div>
@@ -398,6 +398,45 @@ footer {
 const $ = id => document.getElementById(id);
 
 const GAMES = [
+  {
+    id: "math_scale",
+    href: "math_scale.html",
+    lang: "th",
+    isNew: true,
+    title: "ตาชั่งผลไม้ 10 ลูก — สวนเจ้าหญิง",
+    skill: "คณิตศาสตร์และตาชั่ง (Make 10)",
+    description: "ช่วยเจ้าหญิงเลือกกองผลไม้ขึ้นตาชั่งวิเศษให้ได้ครบ 10 ลูกพอดี สังเกตหน้าปัดตาชั่งและฝึกบวกเลขแสนสนุก",
+    speech: "เกมตาชั่งผลไม้ 10 ลูก มาช่วยเจ้าหญิงเลือกผลไม้ขึ้นตาชั่งให้ได้สิบลูกพอดีกันนะจ๊ะ",
+    bg: "linear-gradient(150deg, #fff0f6, #fce8f3 55%, #e3f9ef)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="28" cy="22" r="3" fill="#fff" opacity=".7"/>
+      <circle cx="195" cy="25" r="2.5" fill="#fff" opacity=".6"/>
+      <rect x="70" y="85" width="80" height="42" rx="14" fill="#ffd5e5" stroke="#d487a6" stroke-width="3"/>
+      <rect x="100" y="70" width="20" height="18" fill="#f3bccd" stroke="#d487a6" stroke-width="2.5"/>
+      <path d="M45 70 Q110 82 175 70 L170 65 Q110 74 50 65 Z" fill="#ffd978" stroke="#c9a45e" stroke-width="2.5"/>
+      <g transform="translate(68 52)">
+        <circle cx="0" cy="0" r="14" fill="#ff9b24" stroke="#d97408" stroke-width="2"/>
+        <path d="M0 -14 Q6 -22 12 -16 Q4 -14 0 -14" fill="#69b84e"/>
+        <circle cx="-3" cy="-4" r="2.5" fill="#fff" opacity=".5"/>
+      </g>
+      <g transform="translate(108 48)">
+        <path d="M0 -13 C-9 -20 -18 -8 -12 7 C-8 17 0 17 0 17 C0 17 8 17 12 7 C18 -8 9 -20 0 -13Z" fill="#ee546a" stroke="#c53247" stroke-width="2"/>
+        <path d="M0 -13 Q3 -20 8 -17 Q4 -13 0 -13" fill="#64b34f"/>
+        <circle cx="-4" cy="-3" r="2" fill="#fff" opacity=".5"/>
+      </g>
+      <g transform="translate(148 54)">
+        <path d="M0 -12 C-10 -12 -14 0 -8 8 C-3 15 0 16 0 16 C0 16 3 15 8 8 C14 0 10 -12 0 -12Z" fill="#f35774" stroke="#d83b5b" stroke-width="2"/>
+        <path d="M0 -12 L-6 -17 L-2 -12 L0 -17 L2 -12 L6 -17Z" fill="#63b653"/>
+        <circle cx="-2" cy="0" r="1" fill="#ffe4a5"/><circle cx="2" cy="4" r="1" fill="#ffe4a5"/><circle cx="-1" cy="7" r="1" fill="#ffe4a5"/>
+      </g>
+      <circle cx="110" cy="106" r="18" fill="#fff" stroke="#9160b5" stroke-width="2.5"/>
+      <circle cx="110" cy="94" r="6" fill="#e6f9ef" stroke="#16875b" stroke-width="1.5"/>
+      <text x="110" y="98" text-anchor="middle" font-size="8" font-weight="900" fill="#117a4b">10</text>
+      <path d="M109 106 L110 98 L111 106 Z" fill="#9160b5"/>
+      <circle cx="110" cy="106" r="3" fill="#c393ac"/>
+      <text x="110" y="119" text-anchor="middle" font-size="10" font-weight="900" fill="#8959a6">= 10</text>
+    </svg>`
+  },
   {
     id: "pattern_ariel",
     href: "pattern_ariel.html",
@@ -544,6 +583,48 @@ const GAMES = [
       <path d="M54 34 H158 V70 H110 V104 H166" fill="none" stroke="#f4be3b" stroke-width="5" stroke-dasharray="6 5" stroke-linecap="round"/>
       <circle cx="54" cy="34" r="9" fill="#e84e98"/>
       <polygon points="168,94 176,108 160,108" fill="#169868"/>
+    </svg>`
+  },
+  {
+    id: "math_scale_en",
+    href: "math_scale_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Princess Fruit Scale — Make 10!",
+    skill: "Math & Balance Scale (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมตาชั่งผลไม้ 10 ลูก เลือกผลไม้ขึ้นตาชั่งให้ได้ครบ 10 พอดี พร้อมเสียงพากย์ภาษาอังกฤษ",
+    speech: "Princess Fruit Scale Make Ten. Help the princess place fruit baskets on the magic scale to make ten in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #f0f7ff, #fceaf4 55%, #e4faf0)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="28" cy="22" r="3" fill="#fff" opacity=".7"/>
+      <circle cx="195" cy="25" r="2.5" fill="#fff" opacity=".6"/>
+      <rect x="70" y="85" width="80" height="42" rx="14" fill="#ffd5e5" stroke="#2d6cdf" stroke-width="3"/>
+      <rect x="100" y="70" width="20" height="18" fill="#f3bccd" stroke="#2d6cdf" stroke-width="2.5"/>
+      <path d="M45 70 Q110 82 175 70 L170 65 Q110 74 50 65 Z" fill="#ffd978" stroke="#c9a45e" stroke-width="2.5"/>
+      <g transform="translate(68 52)">
+        <circle cx="0" cy="0" r="14" fill="#ff9b24" stroke="#d97408" stroke-width="2"/>
+        <path d="M0 -14 Q6 -22 12 -16 Q4 -14 0 -14" fill="#69b84e"/>
+        <circle cx="-3" cy="-4" r="2.5" fill="#fff" opacity=".5"/>
+      </g>
+      <g transform="translate(108 48)">
+        <path d="M0 -13 C-9 -20 -18 -8 -12 7 C-8 17 0 17 0 17 C0 17 8 17 12 7 C18 -8 9 -20 0 -13Z" fill="#ee546a" stroke="#c53247" stroke-width="2"/>
+        <path d="M0 -13 Q3 -20 8 -17 Q4 -13 0 -13" fill="#64b34f"/>
+        <circle cx="-4" cy="-3" r="2" fill="#fff" opacity=".5"/>
+      </g>
+      <g transform="translate(148 54)">
+        <path d="M0 -12 C-10 -12 -14 0 -8 8 C-3 15 0 16 0 16 C0 16 3 15 8 8 C14 0 10 -12 0 -12Z" fill="#f35774" stroke="#d83b5b" stroke-width="2"/>
+        <path d="M0 -12 L-6 -17 L-2 -12 L0 -17 L2 -12 L6 -17Z" fill="#63b653"/>
+        <circle cx="-2" cy="0" r="1" fill="#ffe4a5"/><circle cx="2" cy="4" r="1" fill="#ffe4a5"/><circle cx="-1" cy="7" r="1" fill="#ffe4a5"/>
+      </g>
+      <circle cx="110" cy="106" r="18" fill="#fff" stroke="#2d6cdf" stroke-width="2.5"/>
+      <circle cx="110" cy="94" r="6" fill="#e6f9ef" stroke="#16875b" stroke-width="1.5"/>
+      <text x="110" y="98" text-anchor="middle" font-size="8" font-weight="900" fill="#117a4b">10</text>
+      <path d="M109 106 L110 98 L111 106 Z" fill="#2d6cdf"/>
+      <circle cx="110" cy="106" r="3" fill="#2d6cdf"/>
+      <text x="110" y="119" text-anchor="middle" font-size="10" font-weight="900" fill="#1d4fa8">= 10</text>
+      <rect x="18" y="18" width="34" height="24" rx="8" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="2.5"/>
+      <text x="35" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4fa8">EN</text>
     </svg>`
   },
   {

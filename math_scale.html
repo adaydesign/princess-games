@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fce7f3">
+  <title>ตาชั่งผลไม้ 10 ลูก — สวนเจ้าหญิง</title>
+
+  <style>
+    :root {
+      --ink: #443451;
+      --muted: #786a85;
+      --pink: #ed65a5;
+      --purple: #8b5cc7;
+      --green: #16875b;
+      --red: #d93754;
+      --gold: #e8b650;
+      --border: #eaddef;
+      --shadow: 0 12px 35px #79498818;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+      background: linear-gradient(150deg, #fff2f8, #eef0ff 55%, #e7faf2);
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    button, a { font: inherit; }
+
+    button, a, summary {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button, a {
+      cursor: pointer;
+      color: inherit;
+    }
+
+    button:disabled {
+      cursor: default;
+    }
+
+    button:focus-visible, a:focus-visible, summary:focus-visible {
+      outline: 4px solid #7c57ce;
+      outline-offset: 4px;
+    }
+
+    [hidden] { display: none !important; }
+
+    .svg-library {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .scenery {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: .42;
+      z-index: -1;
+    }
+
+    .app {
+      max-width: 1120px;
+      margin: auto;
+      padding: 22px 18px 36px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(23px, 4vw, 35px);
+      color: #71438b;
+    }
+
+    .subtitle {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .clock {
+      flex-shrink: 0;
+      padding: 9px 17px;
+      border: 2px solid #fff;
+      background: #ffffffd9;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .clock span {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .clock strong {
+      font-size: 25px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .princess-panel {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 22px;
+      border: 2px solid white;
+      background: #ffffffd9;
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .portrait-frame {
+      width: 105px;
+      height: 114px;
+      flex-shrink: 0;
+      border-radius: 24px;
+      background: linear-gradient(140deg, #fff5cc, #fae1f5);
+      overflow: hidden;
+    }
+
+    #princessPortrait {
+      width: 100%;
+      height: 100%;
+      --hair: #ecd28c;
+      --dress: #70cce8;
+      --skin: #ffdfc5;
+      --accessory: #caefff;
+    }
+
+    .princess-copy h2 {
+      margin: 0 0 5px;
+      font-size: 21px;
+      color: #905096;
+    }
+
+    .princess-copy p {
+      margin: 0;
+      line-height: 1.75;
+      font-size: 17px;
+    }
+
+    .goal {
+      display: inline-block;
+      padding: 0 9px;
+      border-radius: 10px;
+      background: #fff0b8;
+      color: #8b5915;
+      font-weight: 800;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 13px 0;
+    }
+
+    .btn {
+      border: 1px solid #decfe8;
+      border-radius: 13px;
+      padding: 9px 15px;
+      background: #ffffffed;
+      font-weight: 700;
+      box-shadow: 0 3px 0 #e9dcec;
+      transition: transform .15s, background .15s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #fff3fb;
+      transform: translateY(-2px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    .btn:disabled { opacity: .5; }
+
+    .btn.primary {
+      color: white;
+      border-color: transparent;
+      background: linear-gradient(110deg, #d858a3, #9768d7);
+      box-shadow: 0 4px 0 #ad498b;
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: linear-gradient(110deg, #e267ae, #a577e0);
+    }
+
+    .round-label {
+      margin-left: auto;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 2px solid white;
+      border-radius: 27px;
+      background: #ffffffd9;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 21px;
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .scale-panel {
+      text-align: center;
+      background: linear-gradient(#fffefbea, #fff1faed);
+    }
+
+    .machine {
+      width: min(100%, 400px);
+      margin: 5px auto 0;
+    }
+
+    .tray-items {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-rows: 58px;
+      align-content: end;
+      gap: 5px;
+      min-height: 126px;
+      padding: 5px 10px;
+    }
+
+    .tray-placeholder {
+      grid-column: 1 / -1;
+      align-self: center;
+      margin: 0;
+      color: #a28d9f;
+      font-size: 14px;
+    }
+
+    .tray-pack {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 3px;
+      min-width: 0;
+      padding: 4px;
+      background: #fff9e8;
+      border: 1px solid #ead4a0;
+      border-radius: 12px;
+      box-shadow: 0 3px 0 #ddcaa063;
+      animation: arrive .25s ease-out;
+    }
+
+    .tray-pack:hover:not(:disabled) {
+      background: #ffe5ec;
+      border-color: #e987a0;
+    }
+
+    .tiny-fruits {
+      display: grid;
+      grid-template-columns: repeat(5, 13px);
+      gap: 1px;
+      justify-content: center;
+    }
+
+    .tiny-fruits svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .tray-label {
+      max-width: 100%;
+      font-size: 10px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tray-label b { color: #c75171; }
+
+    .tray-pan {
+      height: 25px;
+      border: 2px solid #c9a45e;
+      border-top: 5px solid #f8df9e;
+      border-radius: 8px 8px 50% 50% / 8px 8px 90% 90%;
+      background: linear-gradient(#f7d890, #d3ad61);
+      box-shadow: 0 5px 7px #9d6b3020;
+    }
+
+    .scale-neck {
+      width: 58px;
+      height: 17px;
+      margin: auto;
+      background: linear-gradient(90deg, #c58c9e, #f3bccd, #c58c9e);
+    }
+
+    .scale-body {
+      width: 88%;
+      margin: auto;
+      padding: 7px 8px 4px;
+      border: 3px solid #d487a6;
+      border-radius: 45% 45% 22px 22px / 24% 24% 22px 22px;
+      background: linear-gradient(130deg, #ffd3e5, #e7a8c9);
+      box-shadow: inset 0 3px 0 #ffffffb3, 0 8px 15px #9d648322;
+    }
+
+    .dial-svg {
+      display: block;
+      width: 100%;
+      overflow: visible;
+    }
+
+    #needle {
+      transform-box: view-box;
+      transform-origin: 200px 157px;
+      transform: rotate(-130deg);
+      transition: transform .55s cubic-bezier(.2, .8, .25, 1);
+    }
+
+    #needleBlade {
+      transition: fill .2s;
+    }
+
+    .scale-feet {
+      display: flex;
+      justify-content: space-between;
+      width: 64%;
+      height: 10px;
+      margin: auto;
+    }
+
+    .scale-feet::before, .scale-feet::after {
+      content: "";
+      width: 38px;
+      background: #89647c;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .equation {
+      min-height: 28px;
+      margin: 12px 0 0;
+      font-size: 19px;
+      font-weight: 800;
+      color: #855091;
+      overflow-wrap: anywhere;
+    }
+
+    .scale-legend {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .scale-legend .green { color: var(--green); }
+    .scale-legend .red { color: var(--red); }
+
+    .feedback {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 65px;
+      padding: 10px 13px;
+      margin-bottom: 13px;
+      border: 1px solid #e7d5f3;
+      border-radius: 16px;
+      background: #f8efff;
+      color: #80509d;
+      text-align: center;
+      line-height: 1.55;
+      font-weight: 700;
+    }
+
+    .feedback.over {
+      background: #fff0f2;
+      border-color: #f2a7b5;
+      color: #bb2745;
+    }
+
+    .feedback.exact {
+      background: #e6f9ef;
+      border-color: #8bd5ad;
+      color: #117a4b;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .fruit-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+      padding: 10px 5px 8px;
+      border: 2px solid #eadcf1;
+      border-radius: 18px;
+      background: white;
+      box-shadow: 0 5px 0 #eee3f3;
+      transition: transform .15s, border-color .15s, background .15s;
+    }
+
+    .fruit-card:hover:not(:disabled) {
+      transform: translateY(-3px);
+      border-color: #c29add;
+    }
+
+    .fruit-card.selected {
+      border-color: #8d62c0;
+      background: #f4eaff;
+      box-shadow: 0 5px 0 #d4b8eb;
+    }
+
+    .fruit-card.selected::after {
+      content: "✓";
+      position: absolute;
+      top: -8px;
+      right: -5px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      color: white;
+      background: #9364c5;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .fruit-name {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .fruit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 24px);
+      gap: 2px;
+      align-content: center;
+      justify-content: center;
+      min-height: 77px;
+    }
+
+    .fruit-grid svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .quantity {
+      min-width: 57px;
+      padding: 0 10px;
+      border-radius: 11px;
+      background: #fff0bd;
+      color: #80531d;
+      font-size: 23px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .quantity small {
+      margin-left: 3px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .card-action {
+      color: #90749b;
+      font-size: 10px;
+    }
+
+    .rule-note {
+      margin: 13px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .records {
+      margin-top: 18px;
+      padding: 15px 18px;
+      border: 2px solid white;
+      border-radius: 20px;
+      background: #ffffffd4;
+      box-shadow: var(--shadow);
+    }
+
+    .records summary {
+      cursor: pointer;
+      font-weight: 800;
+      color: #815393;
+    }
+
+    .table-scroll { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 9px 7px;
+      border-bottom: 1px solid #efe4f4;
+      white-space: nowrap;
+    }
+
+    th { color: #8a6a98; }
+
+    .empty-record {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .voice-note {
+      margin: 13px 0 0;
+      color: #887b92;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    dialog {
+      width: min(92vw, 460px);
+      max-height: 90vh;
+      max-height: 90svh;
+      overflow: auto;
+      padding: 28px;
+      border: 3px solid white;
+      border-radius: 30px;
+      color: var(--ink);
+      background: linear-gradient(145deg, #fffdf6, #fff0fb);
+      box-shadow: 0 25px 90px #57386755;
+      text-align: center;
+    }
+
+    dialog::backdrop {
+      background: #51326069;
+      backdrop-filter: blur(5px);
+    }
+
+    dialog h2 {
+      margin: 8px 0;
+      font-size: 27px;
+      color: #8b4b9b;
+    }
+
+    dialog p { line-height: 1.8; }
+
+    dialog .btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 13px 18px;
+      font-size: 18px;
+    }
+
+    .dialog-crown {
+      width: 88px;
+      height: 66px;
+    }
+
+    .intro-rules {
+      text-align: left;
+      padding: 14px 17px;
+      background: #ffffffa8;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.85;
+    }
+
+    .intro-rules ol {
+      padding-left: 23px;
+      margin: 0;
+    }
+
+    .result-time {
+      margin: 14px 0;
+      padding: 15px;
+      border-radius: 18px;
+      background: white;
+    }
+
+    .result-time span {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .result-time strong {
+      display: block;
+      color: #9863c4;
+      font-size: 36px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-equation {
+      color: var(--green);
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .result-fruits {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    #winDialog { overflow-x: hidden; }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      border-radius: inherit;
+    }
+
+    .confetti i {
+      position: absolute;
+      top: -18px;
+      width: 9px;
+      height: 15px;
+      border-radius: 3px;
+      animation: confetti-fall 1.9s ease-in forwards;
+    }
+
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(620px) rotate(640deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(-12px) scale(.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @media (max-width: 740px) {
+      .app { padding: 12px 10px 24px; }
+      .topbar { gap: 8px; margin-bottom: 10px; }
+      .subtitle { font-size: 11px; }
+      .clock { padding: 6px 10px; border-radius: 14px; }
+      .clock strong { font-size: 20px; }
+      .princess-panel { padding: 10px 12px; gap: 10px; }
+      .portrait-frame { width: 74px; height: 84px; }
+      .princess-copy h2 { font-size: 17px; }
+      .princess-copy p { font-size: 14px; }
+      .toolbar { gap: 6px; padding: 10px 0; }
+      .toolbar .btn { font-size: 12px; padding: 8px 10px; }
+      .round-label { font-size: 12px; }
+      .game-grid { grid-template-columns: 1fr; gap: 12px; }
+      .panel { padding: 12px; border-radius: 22px; }
+      .panel h2 { font-size: 18px; }
+      .panel-subtitle { margin-bottom: 5px; font-size: 12px; }
+      .machine { max-width: 290px; margin-top: 0; }
+      .tray-items {
+        grid-auto-rows: 45px;
+        min-height: 97px;
+        gap: 3px;
+        padding: 3px 5px;
+      }
+      .tray-pack { padding: 2px; border-radius: 9px; gap: 1px; }
+      .tray-label { font-size: 9px; }
+      .tiny-fruits { grid-template-columns: repeat(5, 11px); }
+      .tiny-fruits svg { width: 11px; height: 11px; }
+      .tray-pan { height: 18px; border-top-width: 4px; }
+      .scale-neck { height: 10px; width: 44px; }
+      .scale-body { width: 77%; padding: 3px 5px 2px; }
+      .scale-feet { height: 7px; width: 56%; }
+      .equation { margin-top: 6px; font-size: 17px; }
+      .scale-legend { font-size: 11px; margin-top: 1px; }
+      .feedback { min-height: 52px; font-size: 14px; margin-bottom: 10px; }
+      .cards { gap: 8px; }
+      .fruit-card { padding: 8px 4px 6px; gap: 3px; border-radius: 15px; }
+      .fruit-grid { grid-template-columns: repeat(3, 21px); min-height: 65px; }
+      .fruit-grid svg { width: 21px; height: 21px; }
+      .quantity { font-size: 21px; }
+      .fruit-name { font-size: 12px; }
+      .rule-note { margin-top: 9px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+      .confetti { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ภาพผลไม้ทั้งหมดเป็น SVG ภายในไฟล์ -->
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg"
+       aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="fruit-orange" viewBox="0 0 48 48">
+        <path d="M24 12 Q24 5 29 3" fill="none"
+              stroke="#805126" stroke-width="3" stroke-linecap="round"/>
+        <path d="M25 9 Q34 0 40 8 Q33 16 25 9" fill="#69b84e"/>
+        <circle cx="24" cy="28" r="17" fill="#ff9b24"/>
+        <path d="M12 27 Q12 17 21 15" fill="none"
+              stroke="#ffd17b" stroke-width="4" stroke-linecap="round"/>
+        <g fill="#e68118">
+          <circle cx="31" cy="23" r="1"/>
+          <circle cx="36" cy="29" r="1"/>
+          <circle cx="29" cy="36" r="1"/>
+          <circle cx="20" cy="39" r="1"/>
+        </g>
+      </symbol>
+
+      <symbol id="fruit-apple" viewBox="0 0 48 48">
+        <path d="M24 13 Q22 5 27 2" fill="none"
+              stroke="#80502e" stroke-width="3" stroke-linecap="round"/>
+        <path d="M25 8 Q31 0 39 6 Q35 15 25 8" fill="#64b34f"/>
+        <path d="M24 15 C9 4 1 20 8 35
+                 C13 47 19 45 24 41
+                 C30 47 37 43 41 33
+                 C47 17 37 6 24 15Z"
+              fill="#ee546a"/>
+        <path d="M14 18 Q9 23 12 30" fill="none"
+              stroke="#ffb5bc" stroke-width="4" stroke-linecap="round"/>
+        <path d="M25 16 Q28 13 31 14" fill="none"
+              stroke="#d43b54" stroke-width="2"/>
+      </symbol>
+
+      <symbol id="fruit-banana" viewBox="0 0 48 48">
+        <path d="M35 5 C42 17 35 34 18 38
+                 C11 40 6 38 3 34
+                 C18 35 30 23 30 10Z"
+              fill="#ffd64c" stroke="#e6ac26" stroke-width="2"/>
+        <path d="M8 34 Q28 34 35 12" fill="none"
+              stroke="#fff19a" stroke-width="3" stroke-linecap="round"/>
+        <path d="M30 9 L31 3 L36 3 L36 8Z" fill="#826038"/>
+        <path d="M3 33 L6 32 L8 36 L5 37Z" fill="#9c7032"/>
+      </symbol>
+
+      <symbol id="fruit-pear" viewBox="0 0 48 48">
+        <path d="M25 9 Q23 4 28 1" fill="none"
+              stroke="#865635" stroke-width="3" stroke-linecap="round"/>
+        <path d="M27 8 Q33 1 40 7 Q35 13 27 8" fill="#52994a"/>
+        <path d="M17 13 C17 6 31 5 32 14
+                 C32 22 43 26 42 34
+                 C40 48 8 48 6 34
+                 C5 25 17 22 17 13Z"
+              fill="#b4d65b" stroke="#91b942" stroke-width="1.5"/>
+        <path d="M17 22 Q9 32 14 37" fill="none"
+              stroke="#e5f3ac" stroke-width="4" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="fruit-strawberry" viewBox="0 0 48 48">
+        <path d="M7 18 C8 6 40 6 41 18
+                 C42 28 29 44 24 46
+                 C18 43 5 28 7 18Z"
+              fill="#f35774" stroke="#d83b5b" stroke-width="1.5"/>
+        <path d="M24 12 L11 6 L17 15 L7 17
+                 L20 21 L24 15 L29 21 L41 15
+                 L31 13 L36 5Z"
+              fill="#63b653"/>
+        <g fill="#ffe4a5">
+          <ellipse cx="15" cy="24" rx="1.2" ry="2"/>
+          <ellipse cx="25" cy="25" rx="1.2" ry="2"/>
+          <ellipse cx="34" cy="23" rx="1.2" ry="2"/>
+          <ellipse cx="20" cy="33" rx="1.2" ry="2"/>
+          <ellipse cx="29" cy="32" rx="1.2" ry="2"/>
+          <ellipse cx="24" cy="40" rx="1" ry="1.7"/>
+        </g>
+      </symbol>
+
+      <symbol id="fruit-mango" viewBox="0 0 48 48">
+        <path d="M29 10 Q31 3 35 2" fill="none"
+              stroke="#845730" stroke-width="3" stroke-linecap="round"/>
+        <path d="M30 8 Q38 1 44 7 Q38 14 30 8" fill="#61a84b"/>
+        <path d="M31 10 C14 3 5 16 6 30
+                 C7 42 20 47 32 39
+                 C42 32 45 16 31 10Z"
+              fill="#ffc34d" stroke="#e7a337" stroke-width="1.5"/>
+        <path d="M16 15 Q8 22 12 31" fill="none"
+              stroke="#ffe9a0" stroke-width="4" stroke-linecap="round"/>
+        <path d="M31 15 Q40 23 32 34" fill="none"
+              stroke="#ffa746" stroke-width="5" stroke-linecap="round"/>
+      </symbol>
+
+      <symbol id="royal-crown" viewBox="0 0 100 70">
+        <path d="M15 22 L34 38 L50 12 L66 38 L85 22
+                 L78 61 L22 61Z"
+              fill="#ffd568" stroke="#dba23a" stroke-width="3"
+              stroke-linejoin="round"/>
+        <path d="M23 52 H77" stroke="#fff0b1" stroke-width="5"/>
+        <circle cx="15" cy="19" r="6" fill="#ffdf84"/>
+        <circle cx="50" cy="10" r="6" fill="#ffdf84"/>
+        <circle cx="85" cy="19" r="6" fill="#ffdf84"/>
+        <path d="M50 31 L58 40 L50 49 L42 40Z" fill="#e980bc"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ฉากปราสาทเทพนิยาย -->
+  <svg class="scenery" viewBox="0 0 1600 1000"
+       preserveAspectRatio="xMidYMax slice"
+       aria-hidden="true" focusable="false">
+    <g fill="#fff" opacity=".9">
+      <ellipse cx="190" cy="140" rx="110" ry="33"/>
+      <ellipse cx="270" cy="128" rx="68" ry="43"/>
+      <ellipse cx="1350" cy="200" rx="120" ry="34"/>
+      <ellipse cx="1270" cy="187" rx="60" ry="42"/>
+    </g>
+    <circle cx="1350" cy="90" r="57" fill="#ffe5a7"/>
+    <path d="M0 810 Q280 650 600 820 Q950 650 1600 770
+             V1000 H0Z" fill="#c0e4d0"/>
+    <path d="M0 900 Q500 710 950 895 Q1300 750 1600 880
+             V1000 H0Z" fill="#a9d9c4"/>
+    <g transform="translate(1130 415)">
+      <path d="M30 400 V180 H100 V400Z" fill="#dac6ec"/>
+      <path d="M15 180 L65 95 L115 180Z" fill="#c594d8"/>
+      <path d="M210 400 V180 H280 V400Z" fill="#dac6ec"/>
+      <path d="M195 180 L245 95 L295 180Z" fill="#c594d8"/>
+      <path d="M90 400 V220 H220 V400Z" fill="#f1daf1"/>
+      <path d="M115 220 V110 H195 V220Z" fill="#e5c8ec"/>
+      <path d="M102 110 L155 15 L208 110Z" fill="#be87d2"/>
+      <path d="M155 18 V-12 L196 0 L155 10" fill="#e79bc4"/>
+      <path d="M135 400 V339 A20 20 0 0 1 40 0 V400"
+            fill="#b28bc8"/>
+      <g fill="#fff0c1">
+        <path d="M52 240 V215 A13 13 0 0 1 26 0 V240Z"/>
+        <path d="M232 240 V215 A13 13 0 0 1 26 0 V240Z"/>
+        <path d="M143 162 V143 A12 12 0 0 1 24 0 V162Z"/>
+      </g>
+    </g>
+    <g fill="#fff0ab">
+      <path d="M135 510 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5Z"/>
+      <path d="M1450 390 l5 14 14 5 -14 5 -5 14 -5 -14 -14 -5 14 -5Z"/>
+      <path d="M350 80 l4 11 11 4 -11 4 -4 11 -4 -11 -11 -4 11 -4Z"/>
+    </g>
+  </svg>
+
+  <div class="app">
+    <header class="topbar">
+      <div>
+        <h1>ตาชั่งผลไม้ 10 ลูก</h1>
+        <p class="subtitle">สวนผลไม้เจ้าหญิง · เลือกให้พอดี มีความสุขกับตัวเลข</p>
+      </div>
+      <div class="clock" aria-label="เวลาที่ใช้">
+        <span>เวลา</span>
+        <strong id="clock">00:00.0</strong>
+      </div>
+    </header>
+
+    <section class="princess-panel" aria-labelledby="princessName">
+      <div class="portrait-frame">
+        <!-- ภาพเจ้าหญิง SVG ต้นฉบับ ปรับสีตามตัวละครที่สุ่มได้ -->
+        <svg id="princessPortrait" viewBox="0 0 120 132"
+             role="img" aria-labelledby="portraitTitle">
+          <title id="portraitTitle">เจ้าหญิงในสวนผลไม้</title>
+          <circle cx="60" cy="64" r="49" fill="#ffffff70"/>
+          <path d="M29 63 C14 11 96 5 94 60
+                   L100 110 H21Z"
+                fill="var(--hair)"/>
+          <path d="M34 95 Q60 79 86 95 L108 132 H12Z"
+                fill="var(--dress)"/>
+          <path d="M49 82 H71 V97 Q60 108 49 97Z"
+                fill="var(--skin)"/>
+          <path d="M33 48 Q31 83 60 88 Q90 83 87 48Z"
+                fill="var(--skin)"/>
+          <path d="M29 54 Q27 18 61 22 Q94 22 92 58
+                   Q76 50 65 33 Q53 50 29 54Z"
+                fill="var(--hair)"/>
+          <path d="M34 55 Q27 76 33 103"
+                fill="none" stroke="var(--hair)"
+                stroke-width="12" stroke-linecap="round"/>
+          <path id="princessBraid"
+                d="M84 58 Q98 74 87 87 Q77 99 91 119"
+                fill="none" stroke="var(--hair)"
+                stroke-width="12" stroke-linecap="round"/>
+          <g fill="#493951">
+            <ellipse cx="47" cy="60" rx="3" ry="4"/>
+            <ellipse cx="73" cy="60" rx="3" ry="4"/>
+          </g>
+          <g fill="#fff">
+            <circle cx="48" cy="59" r="1"/>
+            <circle cx="74" cy="59" r="1"/>
+          </g>
+          <g fill="#ee9da9" opacity=".65">
+            <ellipse cx="40" cy="69" rx="6" ry="3"/>
+            <ellipse cx="80" cy="69" rx="6" ry="3"/>
+          </g>
+          <path d="M53 73 Q60 80 67 73"
+                fill="none" stroke="#c76a79"
+                stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M38 26 L41 11 L52 20 L60 6
+                   L68 20 L79 11 L82 26Z"
+                fill="#ffd568" stroke="#d4a343" stroke-width="1.5"/>
+          <path d="M60 16 L64 21 L60 25 L56 21Z"
+                fill="var(--accessory)"/>
+          <path d="M35 95 Q60 115 85 95"
+                fill="none" stroke="var(--accessory)" stroke-width="6"/>
+          <circle cx="60" cy="105" r="5" fill="#fff0b9"/>
+          <path d="M22 112 Q12 108 9 95"
+                fill="none" stroke="var(--skin)"
+                stroke-width="10" stroke-linecap="round"/>
+          <path d="M98 111 Q108 105 111 91"
+                fill="none" stroke="var(--skin)"
+                stroke-width="10" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="princess-copy">
+        <h2 id="princessName">เจ้าหญิงกำลังรอผลไม้อยู่</h2>
+        <p id="princessRequest">
+          ช่วยเลือกผลไม้ชนิดใดก็ได้ให้รวมกันเป็น
+          <span class="goal">10 ลูกพอดี</span> นะจ๊ะ
+        </p>
+      </div>
+    </section>
+
+    <nav class="toolbar" aria-label="ตัวควบคุมเกม">
+      <a class="btn" href="index.html">← กลับหน้ารวมเกม</a>
+      <button class="btn" id="soundButton" type="button" aria-pressed="true">
+        เสียง: เปิด
+      </button>
+      <button class="btn" id="repeatButton" type="button" disabled>
+        ฟังโจทย์อีกครั้ง
+      </button>
+      <button class="btn" id="newButton" type="button" disabled>
+        สุ่มโจทย์ใหม่
+      </button>
+      <span id="roundLabel" class="round-label">พร้อมเล่นไหม?</span>
+    </nav>
+
+    <main class="game-grid">
+      <section class="panel scale-panel" aria-labelledby="scaleHeading">
+        <h2 id="scaleHeading">ตาชั่งวิเศษ</h2>
+        <p class="panel-subtitle">แตะกองผลไม้บนถาด เพื่อนำกองนั้นออก</p>
+
+        <div class="machine">
+          <div id="trayItems" class="tray-items" aria-label="กองผลไม้บนตาชั่ง">
+            <p class="tray-placeholder">รอรับผลไม้จากหนูอยู่นะ</p>
+          </div>
+
+          <div class="tray-pan" aria-hidden="true"></div>
+          <div class="scale-neck" aria-hidden="true"></div>
+
+          <div class="scale-body">
+            <svg id="dial" class="dial-svg" viewBox="0 0 400 310"
+                 role="img" aria-labelledby="dialTitle">
+              <title id="dialTitle">ตาชั่งมีผลไม้ 0 ลูก เป้าหมาย 10 ลูก</title>
+              <circle cx="200" cy="157" r="150"
+                      fill="#fffefa" stroke="#cfaabb" stroke-width="4"/>
+              <circle cx="200" cy="157" r="143"
+                      fill="none" stroke="#f2e8eb" stroke-width="2"/>
+
+              <g id="dialZones"></g>
+              <g id="dialTicks"></g>
+
+              <text x="200" y="108" text-anchor="middle"
+                    fill="#9b8595" font-size="12">
+                จำนวนผลไม้
+              </text>
+
+              <g id="needle" aria-hidden="true">
+                <path id="needleBlade"
+                      d="M195 168 L197 57 L200 40 L203 57 L205 168Z"
+                      fill="#9160b5"/>
+              </g>
+
+              <circle cx="200" cy="157" r="12"
+                      fill="#c393ac" stroke="#fff" stroke-width="3"/>
+              <circle cx="200" cy="157" r="5" fill="#fff5fa"/>
+
+              <text id="totalNumber" x="200" y="254"
+                    text-anchor="middle" font-size="43"
+                    font-weight="900" fill="#8959a6">0</text>
+              <text x="200" y="277" text-anchor="middle"
+                    font-size="13" fill="#91768c">ลูก / เป้าหมาย 10 ลูก</text>
+            </svg>
+          </div>
+
+          <div class="scale-feet" aria-hidden="true"></div>
+        </div>
+
+        <p class="equation" id="equation">ยังไม่ได้เลือกผลไม้</p>
+        <p class="scale-legend">
+          <span class="green">เลข 10 = พอดี</span>
+          ·
+          <span class="red">โซนสีแดง = เกิน 10</span>
+        </p>
+      </section>
+
+      <section class="panel" aria-labelledby="marketHeading">
+        <h2 id="marketHeading">เลือกกองผลไม้</h2>
+        <p class="panel-subtitle">นับผลไม้ หรือดูตัวเลขบนการ์ด แล้วแตะเพื่อเลือก</p>
+
+        <div id="feedback" class="feedback"
+             role="status" aria-live="polite" aria-atomic="true">
+          กดเริ่มเล่น เพื่อรับโจทย์จากเจ้าหญิง
+        </div>
+
+        <div id="cards" class="cards" aria-label="การ์ดผลไม้ 6 กอง"></div>
+
+        <p class="rule-note">
+          แต่ละการ์ดใช้ได้ 1 ครั้ง และเลือกได้หลายการ์ด<br>
+          การ์ดที่เลือกแล้วจะแสดงเครื่องหมาย ✓ แตะซ้ำเพื่อนำออกได้
+        </p>
+      </section>
+    </main>
+
+    <details class="records">
+      <summary>สมุดบันทึกความสำเร็จ — <span id="recordCount">0</span> ข้อล่าสุด</summary>
+      <p id="emptyRecord" class="empty-record">
+        เมื่อทำสำเร็จ เวลาของแต่ละข้อจะปรากฏที่นี่
+      </p>
+      <div id="historyWrap" class="table-scroll" hidden>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">ข้อ</th>
+              <th scope="col">เจ้าหญิง</th>
+              <th scope="col">คำตอบ</th>
+              <th scope="col">เวลา</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <p id="voiceNote" class="voice-note">
+      เสียงบรรยายภาษาไทยขึ้นอยู่กับเบราว์เซอร์และเสียงที่ติดตั้งในอุปกรณ์
+    </p>
+  </div>
+
+  <dialog id="introDialog" aria-labelledby="introTitle">
+    <svg class="dialog-crown" aria-hidden="true">
+      <use href="#royal-crown"></use>
+    </svg>
+    <h2 id="introTitle">ไปซื้อผลไม้ให้เจ้าหญิงกัน!</h2>
+    <p>ภารกิจของหนูคือ เลือกผลไม้ให้ได้ <strong>10 ลูกพอดี</strong></p>
+    <div class="intro-rules">
+      <ol>
+        <li>แตะการ์ด เพื่อนำผลไม้ทั้งกองขึ้นตาชั่ง</li>
+        <li>ดูเข็มและตัวเลข แล้วเลือกเพิ่มได้เลย</li>
+        <li>ถ้าเกิน 10 แตะกองที่เลือกเพื่อนำออก</li>
+        <li>ครบ 10 เมื่อไร เจ้าหญิงจะดีใจมาก!</li>
+      </ol>
+    </div>
+    <button id="startButton" class="btn primary" type="button" autofocus>
+      เริ่มเล่น
+    </button>
+    <a class="btn" href="index.html" style="width:100%; margin-top:10px;">← กลับหน้ารวมเกม</a>
+    <p class="voice-note">กดเริ่มเล่นเพื่ออนุญาตให้เกมเริ่มใช้เสียง</p>
+  </dialog>
+
+  <dialog id="winDialog" aria-labelledby="winTitle">
+    <div id="confetti" class="confetti" aria-hidden="true"></div>
+    <svg class="dialog-crown" aria-hidden="true">
+      <use href="#royal-crown"></use>
+    </svg>
+    <h2 id="winTitle">เก่งมาก! ครบ 10 ลูกแล้ว</h2>
+    <p id="winMessage"></p>
+    <div id="winEquation" class="result-equation"></div>
+    <p id="winFruits" class="result-fruits"></p>
+    <div class="result-time">
+      <span>เวลาที่ใช้ในข้อนี้</span>
+      <strong id="winTime">00:00.0</strong>
+    </div>
+    <button id="playAgainButton" class="btn primary" type="button" autofocus>
+      เริ่มเกมใหม่
+    </button>
+    <a class="btn" href="index.html" style="width:100%; margin-top:10px;">← กลับหน้ารวมเกม</a>
+  </dialog>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const TARGET = 10;
+      const HISTORY_KEY = "princess-fruit-10-history-v1";
+      const $ = id => document.getElementById(id);
+
+      const FRUITS = [
+        { id: "orange", name: "ส้ม" },
+        { id: "apple", name: "แอปเปิล" },
+        { id: "banana", name: "กล้วย" },
+        { id: "pear", name: "ลูกแพร์" },
+        { id: "strawberry", name: "สตรอว์เบอร์รี" },
+        { id: "mango", name: "มะม่วง" }
+      ];
+
+      const PRINCESSES = [
+        {
+          name: "เอลซ่า", hair: "#ead497",
+          dress: "#75cce4", skin: "#ffe0cc",
+          accessory: "#c9f3ff", braid: true
+        },
+        {
+          name: "อันนา", hair: "#a95e32",
+          dress: "#6b88c4", skin: "#ffddc2",
+          accessory: "#b999d6", braid: true
+        },
+        {
+          name: "แอเรียล", hair: "#d94b52",
+          dress: "#76c7b6", skin: "#ffdac0",
+          accessory: "#b6a0e0", braid: false
+        },
+        {
+          name: "เบลล์", hair: "#825332",
+          dress: "#f1ca59", skin: "#ffdabd",
+          accessory: "#fff0a6", braid: false
+        },
+        {
+          name: "ราพันเซล", hair: "#edc45f",
+          dress: "#be8ddd", skin: "#ffe0c6",
+          accessory: "#f2bfeb", braid: true
+        },
+        {
+          name: "ซินเดอเรลล่า", hair: "#dcb765",
+          dress: "#8dc4f0", skin: "#ffe0c9",
+          accessory: "#e0f3ff", braid: false
+        },
+        {
+          name: "จัสมิน", hair: "#302a3d",
+          dress: "#62c7c5", skin: "#dca47c",
+          accessory: "#b8f2eb", braid: true
+        },
+        {
+          name: "สโนว์ไวท์", hair: "#342e40",
+          dress: "#e8c95a", skin: "#ffe0ce",
+          accessory: "#e85b71", braid: false
+        },
+        {
+          name: "เทียน่า", hair: "#3d2b27",
+          dress: "#9fc670", skin: "#a86d4c",
+          accessory: "#e5edac", braid: false
+        }
+      ];
+
+      let phase = "idle";
+      let cards = [];
+      let selected = new Set();
+      let currentPrincess = null;
+      let roundNumber = 0;
+      let maximum = 30;
+      let startedAt = 0;
+      let elapsedMs = 0;
+      let timerId = null;
+      let finishTimeout = null;
+
+      let soundEnabled = true;
+      const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+      let thaiVoice = null;
+      let speechTimeout = null;
+      let activeUtterance = null;
+
+      let audio = null;
+      let masterGain = null;
+
+      const history = readHistory();
+
+      if (history.length) {
+        roundNumber = Math.max(...history.map(item => item.round));
+      }
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function shuffle(items) {
+        const result = [...items];
+        for (let i = result.length - 1; i > 0; i--) {
+          const j = randomInt(0, i);
+          [result[i], result[j]] = [result[j], result[i]];
+        }
+        return result;
+      }
+
+      function formatTime(ms) {
+        const tenths = Math.floor(ms / 100);
+        const minutes = Math.floor(tenths / 600);
+        const seconds = Math.floor(tenths / 10) % 60;
+        return (
+          String(minutes).padStart(2, "0") + ":" +
+          String(seconds).padStart(2, "0") + "." +
+          (tenths % 10)
+        );
+      }
+
+      function spokenTime(ms) {
+        const seconds = Math.max(1, Math.round(ms / 1000));
+        const minutes = Math.floor(seconds / 60);
+        const remainder = seconds % 60;
+        if (!minutes) return `${seconds} วินาที`;
+        return `${minutes} นาที${remainder ? ` ${remainder} วินาที` : ""}`;
+      }
+
+      function getSelectedCards() {
+        return cards.filter(card => selected.has(card.id));
+      }
+
+      function getTotal() {
+        return getSelectedCards().reduce((sum, card) => sum + card.count, 0);
+      }
+
+      function fruitIcons(fruitId, count) {
+        return Array.from({ length: count }, () =>
+          `<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+             <use href="#fruit-${fruitId}"></use>
+           </svg>`
+        ).join("");
+      }
+
+      /*
+       * สร้างคำตอบที่ถูกต้องก่อน 2–4 กอง รวมเป็น 10
+       * จากนั้นเติมการ์ดสุ่มจนครบ 6 และสลับตำแหน่ง
+       * ทุกกองมี 1–9 ลูก จึงไม่มีการ์ด 10 ที่กดครั้งเดียวจบ
+       */
+      function generateCards() {
+        const solutionSize = randomInt(2, 4);
+        const numbers = [];
+        let remaining = TARGET;
+
+        for (let i = 0; i < solutionSize - 1; i++) {
+          const slotsLeft = solutionSize - i - 1;
+          const value = randomInt(1, remaining - slotsLeft);
+          numbers.push(value);
+          remaining -= value;
+        }
+
+        numbers.push(remaining);
+
+        while (numbers.length < 6) {
+          numbers.push(randomInt(1, 9));
+        }
+
+        const shuffledNumbers = shuffle(numbers);
+        const shuffledFruits = shuffle(FRUITS);
+
+        return shuffledNumbers.map((count, index) => ({
+          id: index,
+          count,
+          fruit: shuffledFruits[index],
+          button: null
+        }));
+      }
+
+      function updatePrincess() {
+        const candidates = PRINCESSES.filter(
+          princess => princess.name !== currentPrincess?.name
+        );
+
+        currentPrincess = candidates[randomInt(0, candidates.length - 1)];
+
+        const portrait = $("princessPortrait");
+        portrait.style.setProperty("--hair", currentPrincess.hair);
+        portrait.style.setProperty("--dress", currentPrincess.dress);
+        portrait.style.setProperty("--skin", currentPrincess.skin);
+        portrait.style.setProperty("--accessory", currentPrincess.accessory);
+
+        $("princessBraid").style.display = currentPrincess.braid ? "" : "none";
+        $("portraitTitle").textContent = `ภาพเจ้าหญิง${currentPrincess.name}`;
+        $("princessName").textContent = `เจ้าหญิง${currentPrincess.name}`;
+
+        $("princessRequest").innerHTML =
+          `“วันนี้ฉันอยากซื้อผลไม้ <span class="goal">10 ลูกพอดี</span>
+           จะเป็นผลไม้ชนิดไหนก็ได้ ช่วยเลือกให้ฉันหน่อยนะจ๊ะ”`;
+      }
+
+      function problemSpeech() {
+        return `สวัสดีจ้ะ ฉันคือเจ้าหญิง${currentPrincess.name}
+          วันนี้อยากซื้อผลไม้สิบลูกพอดี
+          เลือกผลไม้ชนิดไหนก็ได้
+          แตะการ์ดแล้วนำขึ้นตาชั่งกันเลยจ้ะ`;
+      }
+
+      // ---------- เสียงบรรยายภาษาไทย ----------
+
+      function loadVoices() {
+        if (!synth) {
+          $("voiceNote").textContent =
+            "เบราว์เซอร์นี้ไม่มีเสียงบรรยาย แต่ยังเล่นเกมและอ่านคำแนะนำได้ตามปกติ";
+          return;
+        }
+
+        const voices = synth.getVoices();
+        const thaiVoices = voices.filter(voice => /^th(?:-|_|$)/i.test(voice.lang));
+
+        thaiVoice = thaiVoices.find(voice => voice.localService)
+          || thaiVoices[0]
+          || null;
+
+        $("voiceNote").textContent = thaiVoice
+          ? "เสียงภาษาไทยพร้อมแล้ว · สามารถเปิดหรือปิดเสียงได้"
+          : "เสียงไทยขึ้นอยู่กับอุปกรณ์ หากไม่ได้ยินภาษาไทย ให้เพิ่มเสียงภาษาไทยในการตั้งค่าเสียงพูด";
+      }
+
+      function cancelSpeech() {
+        clearTimeout(speechTimeout);
+        if (synth) synth.cancel();
+        activeUtterance = null;
+      }
+
+      function say(text, delay = 60) {
+        cancelSpeech();
+        if (!soundEnabled || !synth) return;
+
+        speechTimeout = setTimeout(() => {
+          if (!soundEnabled) return;
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "th-TH";
+          utterance.rate = 1.02;
+          utterance.pitch = 1.16;
+          utterance.volume = 1;
+
+          if (thaiVoice) utterance.voice = thaiVoice;
+
+          activeUtterance = utterance;
+
+          utterance.onend = () => {
+            if (activeUtterance === utterance) activeUtterance = null;
+          };
+
+          utterance.onerror = event => {
+            if (!["canceled", "interrupted"].includes(event.error)) {
+              $("voiceNote").textContent =
+                "เสียงบรรยายยังไม่พร้อมในอุปกรณ์นี้ สามารถเล่นตามข้อความบนหน้าจอได้เลย";
+            }
+            if (activeUtterance === utterance) activeUtterance = null;
+          };
+
+          try {
+            synth.resume();
+            synth.speak(utterance);
+          } catch {
+            $("voiceNote").textContent =
+              "อุปกรณ์นี้ยังเล่นเสียงบรรยายไม่ได้ แต่ตัวเกมยังเล่นได้ตามปกติ";
+          }
+        }, delay);
+      }
+
+      // ---------- เสียงเอฟเฟกต์ด้วย Web Audio ----------
+
+      function unlockAudio() {
+        if (!soundEnabled) return;
+
+        try {
+          const AudioClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioClass) return;
+
+          if (!audio) {
+            audio = new AudioClass();
+            masterGain = audio.createGain();
+            masterGain.gain.value = .10;
+            masterGain.connect(audio.destination);
+          }
+
+          masterGain.gain.value = soundEnabled ? .10 : 0;
+          if (audio.state === "suspended") audio.resume().catch(() => {});
+        } catch {
+          // ไม่มี Web Audio ก็เล่นเกมและใช้ข้อความได้ตามปกติ
+        }
+      }
+
+      function playNotes(frequencies, duration = .12) {
+        if (!soundEnabled || !audio || !masterGain) return;
+
+        const beginning = audio.currentTime;
+
+        frequencies.forEach((frequency, index) => {
+          const start = beginning + index * duration;
+          const oscillator = audio.createOscillator();
+          const gain = audio.createGain();
+
+          oscillator.type = "sine";
+          oscillator.frequency.value = frequency;
+
+          gain.gain.setValueAtTime(.001, start);
+          gain.gain.exponentialRampToValueAtTime(.7, start + .015);
+          gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+
+          oscillator.connect(gain);
+          gain.connect(masterGain);
+
+          oscillator.start(start);
+          oscillator.stop(start + duration + .025);
+          oscillator.onended = () => {
+            oscillator.disconnect();
+            gain.disconnect();
+          };
+        });
+      }
+
+      // ---------- หน้าปัดตาชั่ง ----------
+      /*
+       * ช่วง 0–10 กระจายเต็มฝั่งอ่านตัวเลขหลัก
+       * ช่วงเกิน 10 ใช้โซนแดง และขยายค่าสูงสุดตามผลไม้ทั้งหมด
+       * เข็มจึงแสดงยอดจริงได้ แม้เลือกครบทั้ง 6 การ์ด
+       */
+
+      function angleFor(value) {
+        if (value <= TARGET) {
+          return -130 + (value / TARGET) * 165;
+        }
+        return 35 + ((value - TARGET) / (maximum - TARGET)) * 95;
+      }
+
+      function pointAt(angle, radius) {
+        const radians = angle * Math.PI / 180;
+        return {
+          x: 200 + Math.sin(radians) * radius,
+          y: 157 - Math.cos(radians) * radius
+        };
+      }
+
+      function arcPath(startAngle, endAngle, radius) {
+        const start = pointAt(startAngle, radius);
+        const end = pointAt(endAngle, radius);
+        const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+
+        return `M ${start.x} ${start.y}
+          A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y}`;
+      }
+
+      function buildDial() {
+        const allFruit = cards.reduce((sum, card) => sum + card.count, 0);
+        maximum = Math.max(15, Math.ceil(allFruit / 5) * 5);
+
+        $("dialZones").innerHTML = `
+          <path d="${arcPath(-130, 35, 132)}"
+                fill="none" stroke="#f1d99d" stroke-width="16"/>
+          <path d="${arcPath(35, 130, 132)}"
+                fill="none" stroke="#f3a5b2" stroke-width="16"/>
+          <path d="${arcPath(angleFor(9.5), 35, 132)}"
+                fill="none" stroke="#6bc699" stroke-width="19"/>
+        `;
+
+        const tickValues = Array.from({ length: 11 }, (_, index) => index);
+        const overflowStep = Math.max(
+          5,
+          Math.ceil((maximum - TARGET) / 25) * 5
+        );
+
+        for (let value = TARGET + overflowStep; value <= maximum; value += overflowStep) {
+          tickValues.push(value);
+        }
+
+        if (tickValues[tickValues.length - 1] !== maximum) {
+          tickValues.push(maximum);
+        }
+
+        $("dialTicks").innerHTML = tickValues.map(value => {
+          const angle = angleFor(value);
+          const outer = pointAt(angle, 139);
+          const inner = pointAt(angle, value === TARGET ? 119 : 124);
+          const label = pointAt(angle, 105);
+
+          const color = value > TARGET
+            ? "#c23a53"
+            : value === TARGET
+              ? "#12814e"
+              : "#7c6674";
+
+          return `
+            <line x1="${inner.x}" y1="${inner.y}"
+                  x2="${outer.x}" y2="${outer.y}"
+                  stroke="${color}" stroke-width="${value === TARGET ? 4 : 2}"/>
+            <text x="${label.x}" y="${label.y + 5}"
+                  text-anchor="middle"
+                  fill="${color}"
+                  font-size="${value === TARGET ? 19 : 14}"
+                  font-weight="${value === TARGET ? 900 : 700}">
+              ${value}
+            </text>
+          `;
+        }).join("");
+      }
+
+      function updateDial(total) {
+        $("needle").style.transform = `rotate(${angleFor(total)}deg)`;
+
+        const color = total > TARGET
+          ? "#d93754"
+          : total === TARGET
+            ? "#16875b"
+            : "#8959a6";
+
+        $("needleBlade").setAttribute("fill", color);
+        $("totalNumber").setAttribute("fill", color);
+        $("totalNumber").textContent = total;
+
+        $("dialTitle").textContent =
+          `ตาชั่งมีผลไม้ ${total} ลูก เป้าหมาย 10 ลูก` +
+          (total > TARGET ? ` เกิน ${total - TARGET} ลูก` : "");
+      }
+
+      // ---------- การ์ดและกองผลไม้บนถาด ----------
+
+      function buildCards() {
+        $("cards").replaceChildren();
+
+        cards.forEach(card => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "fruit-card";
+          button.setAttribute("aria-pressed", "false");
+          button.setAttribute(
+            "aria-label",
+            `${card.fruit.name} ${card.count} ลูก แตะเพื่อเลือกหรือนำออก`
+          );
+
+          button.innerHTML = `
+            <span class="fruit-name">${card.fruit.name}</span>
+            <span class="fruit-grid" aria-hidden="true">
+              ${fruitIcons(card.fruit.id, card.count)}
+            </span>
+            <span class="quantity">${card.count}<small>ลูก</small></span>
+            <span class="card-action">เลือกกองนี้</span>
+          `;
+
+          button.addEventListener("click", () => toggleCard(card.id));
+          card.button = button;
+          $("cards").appendChild(button);
+        });
+      }
+
+      function updateSelectionDisplay() {
+        cards.forEach(card => {
+          const isSelected = selected.has(card.id);
+          card.button.classList.toggle("selected", isSelected);
+          card.button.setAttribute("aria-pressed", String(isSelected));
+          card.button.disabled = phase !== "playing";
+          card.button.querySelector(".card-action").textContent =
+            isSelected ? "อยู่บนตาชั่ง · แตะเพื่อนำออก" : "เลือกกองนี้";
+        });
+
+        const chosen = getSelectedCards();
+        const tray = $("trayItems");
+        tray.replaceChildren();
+
+        if (!chosen.length) {
+          const message = document.createElement("p");
+          message.className = "tray-placeholder";
+          message.textContent = "แตะการ์ดผลไม้ เพื่อนำขึ้นตาชั่ง";
+          tray.appendChild(message);
+        } else {
+          chosen.forEach(card => {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "tray-pack";
+            button.disabled = phase !== "playing";
+            button.setAttribute(
+              "aria-label",
+              `นำ${card.fruit.name} ${card.count} ลูก ออกจากตาชั่ง`
+            );
+
+            button.innerHTML = `
+              <span class="tiny-fruits" aria-hidden="true">
+                ${fruitIcons(card.fruit.id, card.count)}
+              </span>
+              <span class="tray-label">
+                ${card.fruit.name} ${card.count} ลูก
+                <b aria-hidden="true">×</b>
+              </span>
+            `;
+
+            button.addEventListener("click", () => {
+              if (phase !== "playing") return;
+              toggleCard(card.id);
+
+              // กองบนถาดถูกนำออกแล้ว คืนโฟกัสไปยังการ์ดเดิม
+              if (phase === "playing") {
+                card.button.focus({ preventScroll: true });
+              }
+            });
+
+            tray.appendChild(button);
+          });
+        }
+
+        const total = getTotal();
+        updateDial(total);
+
+        $("equation").textContent = chosen.length
+          ? `${chosen.map(card => card.count).join(" + ")} = ${total} ลูก`
+          : "ยังไม่ได้เลือกผลไม้";
+      }
+
+      function setFeedback(text, type = "") {
+        $("feedback").className = "feedback" + (type ? ` ${type}` : "");
+        $("feedback").textContent = text;
+      }
+
+      function toggleCard(id) {
+        if (phase !== "playing") return;
+
+        unlockAudio();
+
+        const card = cards.find(item => item.id === id);
+        const removing = selected.has(id);
+
+        if (removing) {
+          selected.delete(id);
+        } else {
+          selected.add(id);
+        }
+
+        const total = getTotal();
+        updateSelectionDisplay();
+
+        if (total === TARGET) {
+          finishRound();
+          return;
+        }
+
+        const action = removing
+          ? `นำ${card.fruit.name} ${card.count} ลูกออกแล้ว`
+          : `เพิ่ม${card.fruit.name} ${card.count} ลูกแล้ว`;
+
+        if (total > TARGET) {
+          const excess = total - TARGET;
+          setFeedback(
+            `มี ${total} ลูก เกิน 10 แล้ว! เกินมา ${excess} ลูก ลองนำบางกองออกนะ`,
+            "over"
+          );
+
+          playNotes([260, 220], .13);
+
+          say(`${action} ตอนนี้มี ${total} ลูก
+            จำนวนเกินสิบแล้วจ้ะ เกินมา ${excess} ลูก
+            แตะกองผลไม้บนตาชั่ง เพื่อนำออกนะ`);
+        } else if (total === 0) {
+          setFeedback("ตาชั่งว่างแล้ว มาเลือกผลไม้ให้ได้ 10 ลูกกันใหม่จ้ะ");
+          playNotes([390], .09);
+          say("ตาชั่งว่างแล้วจ้ะ มาเลือกผลไม้ให้ครบสิบลูกกันนะ");
+        } else {
+          const missing = TARGET - total;
+          setFeedback(`ตอนนี้มี ${total} ลูก ยังขาดอีก ${missing} ลูก เลือกเพิ่มได้เลย`);
+          playNotes(removing ? [420] : [660], .09);
+          say(`${action} ตอนนี้มี ${total} ลูก
+            ยังขาดอีก ${missing} ลูก ลองเลือกเพิ่มได้เลยจ้ะ`);
+        }
+      }
+
+      // ---------- เริ่มและจบโจทย์ ----------
+
+      function startRound() {
+        clearInterval(timerId);
+        clearTimeout(finishTimeout);
+        cancelSpeech();
+
+        if ($("introDialog").open) $("introDialog").close();
+        if ($("winDialog").open) $("winDialog").close();
+
+        unlockAudio();
+        loadVoices();
+
+        selected = new Set();
+        cards = generateCards();
+        roundNumber += 1;
+        elapsedMs = 0;
+        phase = "playing";
+
+        updatePrincess();
+        buildDial();
+        buildCards();
+        updateSelectionDisplay();
+
+        $("roundLabel").textContent = `โจทย์ที่ ${roundNumber}`;
+        $("clock").textContent = "00:00.0";
+        $("newButton").disabled = false;
+        $("repeatButton").disabled = !synth;
+
+        setFeedback("เลือกผลไม้ขึ้นตาชั่ง ให้รวมกันได้ 10 ลูกพอดี");
+
+        startedAt = performance.now();
+
+        timerId = setInterval(() => {
+          if (phase === "playing") {
+            elapsedMs = performance.now() - startedAt;
+            $("clock").textContent = formatTime(elapsedMs);
+          }
+        }, 100);
+
+        say(problemSpeech(), 120);
+      }
+
+      function finishRound() {
+        // จับเวลาทันทีที่ผลไม้ครบ ไม่รวมเวลารอภาพเคลื่อนไหวหรือเสียง
+        elapsedMs = performance.now() - startedAt;
+        phase = "won";
+
+        clearInterval(timerId);
+        cancelSpeech();
+
+        $("clock").textContent = formatTime(elapsedMs);
+        $("newButton").disabled = true;
+        $("repeatButton").disabled = true;
+
+        updateSelectionDisplay();
+        setFeedback("ครบ 10 ลูกพอดี! เก่งมาก เจ้าหญิงดีใจแล้ว", "exact");
+
+        const chosen = getSelectedCards();
+        const values = chosen.map(card => card.count);
+
+        history.unshift({
+          round: roundNumber,
+          princess: currentPrincess.name,
+          values,
+          ms: Math.round(elapsedMs)
+        });
+
+        history.splice(8);
+        saveHistory();
+        renderHistory();
+
+        $("winMessage").textContent =
+          `เจ้าหญิง${currentPrincess.name}ขอบคุณหนูมาก ผลไม้ครบพอดีเลย!`;
+        $("winEquation").textContent = `${values.join(" + ")} = 10`;
+        $("winFruits").textContent = chosen
+          .map(card => `${card.fruit.name} ${card.count} ลูก`)
+          .join(" · ");
+        $("winTime").textContent = formatTime(elapsedMs);
+
+        playNotes([523.25, 659.25, 783.99, 1046.5], .16);
+
+        say(`เยี่ยมมากจ้ะ ผลไม้ครบสิบลูกพอดี!
+          เจ้าหญิง${currentPrincess.name}ขอบคุณหนูมากนะ
+          ข้อนี้ใช้เวลา ${spokenTime(elapsedMs)}
+          พร้อมแล้ว มาเล่นข้อใหม่กันเลย`, 180);
+
+        // ให้เห็นเข็มเคลื่อนไปถึงเลข 10 ก่อนแสดงผลลัพธ์
+        finishTimeout = setTimeout(() => {
+          if (phase !== "won") return;
+          $("winDialog").showModal();
+          createConfetti();
+        }, 650);
+      }
+
+      function createConfetti() {
+        const container = $("confetti");
+        container.replaceChildren();
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          return;
+        }
+
+        const colors = ["#ef8abc", "#e8c45c", "#aa85db", "#7bcfae", "#8bcaf2"];
+
+        for (let i = 0; i < 30; i++) {
+          const piece = document.createElement("i");
+          piece.style.left = `${randomInt(2, 98)}%`;
+          piece.style.background = colors[i % colors.length];
+          piece.style.animationDelay = `${Math.random() * .5}s`;
+          piece.style.animationDuration = `${1.5 + Math.random() * .8}s`;
+          container.appendChild(piece);
+        }
+      }
+
+      // ---------- บันทึกเฉพาะผลเกมในอุปกรณ์นี้ ----------
+
+      function readHistory() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+          if (!Array.isArray(stored)) return [];
+
+          return stored.filter(item =>
+            item &&
+            Number.isInteger(item.round) &&
+            item.round > 0 &&
+            Number.isFinite(item.ms) &&
+            item.ms >= 0 &&
+            PRINCESSES.some(princess => princess.name === item.princess) &&
+            Array.isArray(item.values) &&
+            item.values.length >= 2 &&
+            item.values.length <= 6 &&
+            item.values.every(value => Number.isInteger(value) && value >= 1 && value <= 9) &&
+            item.values.reduce((sum, value) => sum + value, 0) === TARGET
+          ).slice(0, 8);
+        } catch {
+          return [];
+        }
+      }
+
+      function saveHistory() {
+        try {
+          localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+        } catch {
+          // ถ้าไม่อนุญาตให้บันทึก ยังดูผลภายในรอบการเปิดหน้านี้ได้
+        }
+      }
+
+      function renderHistory() {
+        $("historyBody").replaceChildren();
+        $("recordCount").textContent = history.length;
+        $("emptyRecord").hidden = history.length > 0;
+        $("historyWrap").hidden = history.length === 0;
+
+        history.forEach(item => {
+          const row = document.createElement("tr");
+          const values = [
+            item.round,
+            item.princess,
+            `${item.values.join(" + ")} = 10`,
+            formatTime(item.ms)
+          ];
+
+          values.forEach(value => {
+            const cell = document.createElement("td");
+            cell.textContent = value;
+            row.appendChild(cell);
+          });
+
+          $("historyBody").appendChild(row);
+        });
+      }
+
+      // ---------- ปุ่มและการเตรียมหน้า ----------
+
+      $("startButton").addEventListener("click", startRound);
+      $("playAgainButton").addEventListener("click", startRound);
+      $("newButton").addEventListener("click", startRound);
+
+      $("repeatButton").addEventListener("click", () => {
+        if (phase !== "playing") return;
+
+        if (!soundEnabled) {
+          soundEnabled = true;
+          $("soundButton").textContent = "เสียง: เปิด";
+          $("soundButton").setAttribute("aria-pressed", "true");
+        }
+
+        unlockAudio();
+        say(problemSpeech());
+      });
+
+      $("soundButton").addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+
+        $("soundButton").textContent = soundEnabled ? "เสียง: เปิด" : "เสียง: ปิด";
+        $("soundButton").setAttribute("aria-pressed", String(soundEnabled));
+
+        if (!soundEnabled) {
+          cancelSpeech();
+          if (masterGain) masterGain.gain.value = 0;
+        } else {
+          unlockAudio();
+          if (phase === "playing") {
+            say("เปิดเสียงแล้วจ้ะ มาเลือกผลไม้ให้ครบสิบลูกกัน");
+          }
+        }
+      });
+
+      // ไม่ให้ปิดหน้าต่างเริ่มเกม/ผลลัพธ์จนหลุดเข้าไปในเกมที่ยังไม่พร้อม
+      $("introDialog").addEventListener("cancel", event => event.preventDefault());
+      $("winDialog").addEventListener("cancel", event => event.preventDefault());
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) cancelSpeech();
+      });
+
+      if (synth) {
+        if (typeof synth.addEventListener === "function") {
+          synth.addEventListener("voiceschanged", loadVoices);
+        } else {
+          synth.onvoiceschanged = loadVoices;
+        }
+      }
+
+      loadVoices();
+      renderHistory();
+
+      // หน้าปัดเริ่มต้นก่อนรับโจทย์
+      cards = [
+        { count: 5 }, { count: 4 }, { count: 6 },
+        { count: 3 }, { count: 7 }, { count: 5 }
+      ];
+      buildDial();
+      updateDial(0);
+      cards = [];
+      window.addEventListener("pagehide", () => {
+        if (synth) synth.cancel();
+      });
+
+      $("introDialog").showModal();
+    })();
+  </script>
+</body>
+</html>
