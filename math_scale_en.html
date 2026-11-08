@@ -2027,7 +2027,7 @@
         finishTimeout = setTimeout(() => {
           if (phase !== "won") return;
 
-          $("winDialog").showModal();
+          if (!$("winDialog").open) $("winDialog").showModal();
           createConfetti();
         }, 650);
       }
@@ -2198,6 +2198,9 @@
         if (document.hidden) cancelSpeech();
       });
       window.addEventListener("pagehide", cancelSpeech);
+      document.querySelectorAll('a[href="index.html"]').forEach(link => {
+        link.addEventListener("click", cancelSpeech);
+      });
 
       if (synth) {
         if (typeof synth.addEventListener === "function") {

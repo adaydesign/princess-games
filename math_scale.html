@@ -1773,7 +1773,7 @@
         // ให้เห็นเข็มเคลื่อนไปถึงเลข 10 ก่อนแสดงผลลัพธ์
         finishTimeout = setTimeout(() => {
           if (phase !== "won") return;
-          $("winDialog").showModal();
+          if (!$("winDialog").open) $("winDialog").showModal();
           createConfetti();
         }, 650);
       }
@@ -1919,8 +1919,9 @@
       buildDial();
       updateDial(0);
       cards = [];
-      window.addEventListener("pagehide", () => {
-        if (synth) synth.cancel();
+      window.addEventListener("pagehide", cancelSpeech);
+      document.querySelectorAll('a[href="index.html"]').forEach(link => {
+        link.addEventListener("click", cancelSpeech);
       });
 
       $("introDialog").showModal();
