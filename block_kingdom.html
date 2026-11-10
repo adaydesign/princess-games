@@ -1,0 +1,1965 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Princess Block Kingdom</title>
+<style>
+:root {
+  --pink:#ec4899;
+  --purple:#8b5cf6;
+  --ink:#302044;
+  --glass:rgba(255,255,255,.94);
+}
+* { box-sizing:border-box }
+html,body {
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#acd9f2;
+  font-family:Tahoma,Arial,sans-serif;
+  color:var(--ink);
+}
+button, a.btn-link { font:inherit }
+button, a.btn-link {
+  border:0;
+  border-radius:12px;
+  padding:10px 13px;
+  background:#fff;
+  color:var(--ink);
+  cursor:pointer;
+  box-shadow:0 3px 12px #33204418;
+  touch-action:manipulation;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+button:hover, a.btn-link:hover { filter:brightness(.96) }
+button:active, a.btn-link:active { transform:translateY(1px) }
+button:disabled { opacity:.45; cursor:not-allowed }
+button.primary, a.btn-link.primary {
+  background:linear-gradient(135deg,var(--pink),var(--purple));
+  color:white;
+  font-weight:bold;
+}
+button.active { background:#eadcff; outline:2px solid #a78bfa }
+[hidden] { display:none!important }
+#game {
+  display:block;
+  width:100vw;
+  height:100vh;
+  touch-action:none;
+}
+#hud { position:fixed; inset:0; pointer-events:none }
+.card {
+  background:var(--glass);
+  border:1px solid #ffffffc9;
+  border-radius:16px;
+  box-shadow:0 7px 25px #30204420;
+  backdrop-filter:blur(8px);
+}
+#top {
+  position:absolute;
+  top:10px;
+  left:10px;
+  right:10px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+#status {
+  padding:11px 14px;
+  width:280px;
+}
+#status strong { font-size:15px }
+.bar {
+  height:9px;
+  background:#eee5f3;
+  border-radius:20px;
+  overflow:hidden;
+  margin-top:5px;
+}
+.bar span {
+  display:block;
+  height:100%;
+  width:100%;
+  transition:width .15s;
+}
+#hp { background:linear-gradient(90deg,#f43f5e,#fb7185) }
+#mana { background:linear-gradient(90deg,#6366f1,#38bdf8) }
+.small { font-size:12px; line-height:1.55; color:#695875 }
+#inventory {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:8px;
+  font-size:13px;
+}
+#tools {
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  max-width:470px;
+  pointer-events:auto;
+}
+#tools button, #tools a.btn-link { padding:9px 10px; font-size:12px }
+#quest {
+  position:absolute;
+  left:10px;
+  top:155px;
+  padding:12px 14px;
+  width:280px;
+}
+#questText { font-size:13px; line-height:1.6; margin-top:5px }
+#mapBox {
+  position:absolute;
+  right:10px;
+  top:102px;
+  padding:7px;
+}
+#map {
+  display:block;
+  width:150px;
+  height:150px;
+  border-radius:10px;
+}
+#panel {
+  position:absolute;
+  right:10px;
+  top:285px;
+  width:290px;
+  max-height:calc(100vh - 385px);
+  padding:14px;
+  overflow:auto;
+  pointer-events:auto;
+}
+#panel h3 { margin:0 0 9px }
+#panel .row {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:7px 0;
+}
+#panel .row button {
+  flex:1;
+  text-align:left;
+  padding:9px 10px;
+}
+#panel .row .small { display:block }
+#panel .actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px }
+#panel .actions button { flex:1; font-size:12px }
+#subtitle {
+  position:absolute;
+  bottom:98px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(650px,calc(100vw - 24px));
+  padding:10px 15px;
+  background:#2b193be6;
+  color:white;
+  border-radius:12px;
+  text-align:center;
+  font-size:14px;
+  line-height:1.6;
+}
+#hint {
+  position:absolute;
+  bottom:153px;
+  left:50%;
+  transform:translateX(-50%);
+  color:#fff;
+  background:#34214fbf;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  text-align:center;
+  max-width:85vw;
+}
+#bottom {
+  position:absolute;
+  bottom:12px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:7px;
+  pointer-events:auto;
+}
+#bottom button {
+  min-width:88px;
+  background:#ffffffed;
+  font-size:13px;
+}
+#bottom button.magic {
+  background:linear-gradient(135deg,#f472b6,#a78bfa);
+  color:white;
+}
+#controls {
+  position:absolute;
+  bottom:66px;
+  left:50%;
+  transform:translateX(-50%);
+  width:95%;
+  text-align:center;
+  font-size:11px;
+  color:#2e214a;
+  text-shadow:0 1px 2px white;
+}
+#pauseLabel {
+  position:absolute;
+  top:45%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  padding:18px 28px;
+  font-size:23px;
+}
+#touchPad {
+  position:absolute;
+  bottom:170px;
+  left:12px;
+  display:none;
+  grid-template-columns:48px 48px 48px;
+  grid-template-rows:48px 48px;
+  gap:4px;
+  pointer-events:auto;
+}
+#touchPad button {
+  padding:0;
+  font-size:20px;
+  background:#ffffffb8;
+  touch-action:none;
+}
+#touchPad [data-key="w"] { grid-column:2 }
+#touchPad [data-key="a"] { grid-column:1; grid-row:2 }
+#touchPad [data-key="s"] { grid-column:2; grid-row:2 }
+#touchPad [data-key="d"] { grid-column:3; grid-row:2 }
+.overlay {
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(140deg,#40265470,#db6ca64d);
+  padding:18px;
+  z-index:10;
+}
+.dialog {
+  width:min(650px,100%);
+  max-height:95vh;
+  overflow:auto;
+  background:#fffafef5;
+  border-radius:24px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 20px 80px #24172a60;
+}
+.dialog h1 { margin:4px 0 8px; color:#7540a2; font-size:29px }
+.dialog p { font-size:14px; line-height:1.7 }
+#princesses {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+  margin:18px 0;
+}
+.choice { padding:12px 5px; font-size:12px }
+.swatch {
+  width:38px;
+  height:48px;
+  border-radius:10px 10px 18px 18px;
+  margin:0 auto 8px;
+  border:3px solid #fff;
+  box-shadow:0 3px 10px #30204425;
+}
+.startActions { display:flex; justify-content:center; gap:9px; flex-wrap:wrap }
+#voiceInfo { margin-top:14px }
+.logo { width:150px; height:105px }
+@media(pointer:coarse) {
+  #touchPad { display:grid }
+  #controls { display:none }
+}
+@media(max-width:700px) {
+  #status { width:205px; padding:9px }
+  #status strong { font-size:13px }
+  #inventory { gap:6px; font-size:11px }
+  #tools { max-width:180px }
+  #tools button, #tools a.btn-link { padding:7px; font-size:11px }
+  #quest { width:205px; top:148px; padding:9px }
+  #questText { font-size:11px }
+  #mapBox { top:150px }
+  #map { width:105px; height:105px }
+  #panel {
+    top:270px;
+    width:min(285px,calc(100vw - 20px));
+    max-height:calc(100vh - 365px);
+  }
+  #subtitle { bottom:83px; font-size:12px; padding:8px 10px }
+  #hint { bottom:133px; font-size:11px }
+  #bottom { bottom:12px; gap:4px }
+  #bottom button { min-width:65px; padding:10px 6px; font-size:11px }
+  .dialog { padding:18px }
+  .dialog h1 { font-size:24px }
+  #princesses { gap:5px }
+}
+</style>
+</head>
+<body>
+
+<canvas id="game" aria-label="เกมอาณาจักรเจ้าหญิงสามมิติ"></canvas>
+
+<div id="hud" hidden>
+  <div id="top">
+    <div id="status" class="card">
+      <strong id="playerName">เจ้าหญิง</strong>
+      <div class="small">หัวใจ <span id="hpText">100</span></div>
+      <div class="bar"><span id="hp"></span></div>
+      <div class="small">พลังเวท <span id="manaText">100</span></div>
+      <div class="bar"><span id="mana"></span></div>
+      <div id="inventory">
+        <span>ไม้ <b id="wood">0</b></span>
+        <span>หิน <b id="stone">0</b></span>
+        <span>คริสตัล <b id="crystal">0</b></span>
+        <span>น้ำยา <b id="potion">0</b></span>
+      </div>
+    </div>
+    <div id="tools">
+      <a class="btn-link" href="index.html" aria-label="กลับหน้ารวมเกม">← หน้าแรก</a>
+      <button id="buildBtn">B สร้าง</button>
+      <button id="craftBtn">C คราฟ</button>
+      <button id="saveBtn">บันทึก</button>
+      <button id="soundBtn">ดนตรี: เปิด</button>
+      <button id="voiceBtn">บรรยาย: เปิด</button>
+      <button id="readBtn">V ฟังภารกิจ</button>
+      <button id="pauseBtn">P พัก</button>
+    </div>
+  </div>
+
+  <div id="quest" class="card">
+    <strong>ภารกิจอาณาจักรหัวใจ</strong>
+    <div id="questText"></div>
+  </div>
+
+  <div id="mapBox" class="card">
+    <canvas id="map" width="160" height="160"></canvas>
+    <div class="small" style="text-align:center">1–3 หีบ · ม่วง ปราสาท</div>
+  </div>
+
+  <section id="panel" class="card" hidden></section>
+  <div id="hint"></div>
+  <div id="subtitle">ยินดีต้อนรับสู่อาณาจักรเจ้าหญิง</div>
+
+  <div id="touchPad">
+    <button data-key="w" aria-label="เดินหน้า">▲</button>
+    <button data-key="a" aria-label="เดินซ้าย">◀</button>
+    <button data-key="s" aria-label="เดินถอยหลัง">▼</button>
+    <button data-key="d" aria-label="เดินขวา">▶</button>
+  </div>
+
+  <div id="controls">
+    WASD เดิน · Shift วิ่ง · Space กระโดด · E เก็บ/เปิด · F พลังหัวใจ
+    · B สร้าง · C คราฟ · R หมุน · Enter วาง · Delete รื้อ
+    · G น้ำยา · ลากเมาส์ขวาหมุนกล้อง · ล้อเมาส์ซูม
+  </div>
+
+  <div id="bottom">
+    <button id="interactBtn">E เก็บ/เปิด</button>
+    <button id="magicBtn" class="magic">F พลังหัวใจ</button>
+    <button id="jumpBtn">กระโดด</button>
+    <button id="potionBtn">G น้ำยา</button>
+  </div>
+
+  <div id="pauseLabel" class="card" hidden>
+    <div>พักเกม · กด P เพื่อเล่นต่อ</div>
+    <div style="margin-top:10px;font-size:14px;pointer-events:auto">
+      <a class="btn-link" href="index.html" style="background:#f3e8ff;color:#4f2888;font-weight:bold">← กลับหน้ารวมเกม</a>
+    </div>
+  </div>
+</div>
+
+<div id="start" class="overlay">
+  <div class="dialog">
+    <svg class="logo" viewBox="0 0 180 120" aria-label="ปราสาทเจ้าหญิง">
+      <path d="M24 106V49h28v57M128 106V49h28v57"
+            fill="#b69af0" stroke="#7952b3" stroke-width="3"/>
+      <path d="M19 49L38 20l19 29M123 49l19-29 19 29"
+            fill="#ec8dc4"/>
+      <path d="M51 106V66h78v40M68 66V40h44v26"
+            fill="#efe5ff" stroke="#7952b3" stroke-width="3"/>
+      <path d="M63 40L90 9l27 31" fill="#a58aea"/>
+      <path d="M81 106V87a9 9 0 0 1 18 0v19"
+            fill="#a984d0"/>
+      <path d="M84 23c-9-10-20 2 6 16 26-14 15-26 6-16l-6 5z"
+            fill="#f45d9f"/>
+      <path d="M12 108h156" stroke="#7952b3" stroke-width="4"/>
+      <g fill="#83c8ed">
+        <rect x="33" y="65" width="10" height="17" rx="4"/>
+        <rect x="137" y="65" width="10" height="17" rx="4"/>
+        <rect x="82" y="48" width="16" height="15" rx="5"/>
+      </g>
+    </svg>
+    <h1>Princess Block Kingdom</h1>
+    <p>
+      สร้างบ้านในฝัน คราฟของวิเศษ สำรวจสามดินแดน<br>
+      และใช้พลังหัวใจเปลี่ยนเงาหมอกให้กลับมาเป็นเพื่อน
+    </p>
+    <div id="princesses"></div>
+    <div class="startActions">
+      <button id="newBtn" class="primary">เริ่มการผจญภัย</button>
+      <button id="continueBtn" hidden>เล่นต่อจากที่บันทึก</button>
+      <a class="btn-link" href="index.html" style="background:#f3e8ff;color:#4f2888;font-weight:bold">← กลับหน้ารวมเกม</a>
+    </div>
+    <div id="voiceInfo" class="small">
+      กดเริ่มเพื่อเปิดเสียง · เสียงไทยขึ้นอยู่กับอุปกรณ์
+    </div>
+    <p class="small">
+      เกมต้นแบบแฟนเมด ตัวละครบล็อกและทำนองสร้างขึ้นใหม่<br>
+      เก็บข้อมูลเกมไว้ในเบราว์เซอร์เครื่องนี้
+    </p>
+  </div>
+</div>
+
+<div id="win" class="overlay" hidden>
+  <div class="dialog">
+    <h1>อาณาจักรกลับมาสดใสแล้ว!</h1>
+    <p id="winText"></p>
+    <div class="startActions" style="justify-content:center">
+      <button id="keepPlaying" class="primary">เล่นต่อและตกแต่งบ้าน</button>
+      <a class="btn-link" href="index.html" style="background:#f3e8ff;color:#4f2888;font-weight:bold">← กลับหน้ารวมเกม</a>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const $ = id => document.getElementById(id);
+const canvas = $("game");
+const gl = canvas.getContext("webgl", {antialias:true, alpha:false});
+
+if (!gl) {
+  $("start").querySelector(".dialog").innerHTML =
+    "<h1>อุปกรณ์นี้เปิด WebGL ไม่ได้</h1>" +
+    "<p>ลองเปิดด้วย Chrome หรือ Edge รุ่นใหม่ และเปิดการเร่งกราฟิกของเบราว์เซอร์</p>";
+  return;
+}
+
+/* ---------- ข้อมูลเกม ---------- */
+
+const SAVE_KEY = "princess-block-kingdom-v1";
+const clamp = (n,a,b) => Math.max(a,Math.min(b,n));
+const distance = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
+const styles = {
+  cinderella:{name:"ซินเดอเรลลา",dress:"#78caff",hair:"#e6be62",trim:"#e7f8ff"},
+  belle:{name:"เบลล์",dress:"#ffd65d",hair:"#72432d",trim:"#fff0a5"},
+  rapunzel:{name:"ราพันเซล",dress:"#b48aff",hair:"#f6d66b",trim:"#f7d2ff"},
+  ariel:{name:"แอเรียล",dress:"#66d3bd",hair:"#d34d39",trim:"#d3fff2"}
+};
+const labels = {
+  wood:"ไม้", stone:"หิน", crystal:"คริสตัล",
+  chair:"เก้าอี้", bed:"เตียง", lamp:"โคมไฟ", potion:"น้ำยา"
+};
+const specs = {
+  floor:{name:"พื้น",cost:{wood:2,stone:1}},
+  wall:{name:"ผนัง",cost:{wood:3}},
+  door:{name:"ซุ้มประตู",cost:{wood:4,crystal:1}},
+  roof:{name:"หลังคา",cost:{wood:4}},
+  chair:{name:"เก้าอี้",cost:{chair:1}},
+  bed:{name:"เตียง",cost:{bed:1}},
+  lamp:{name:"โคมไฟ",cost:{lamp:1}}
+};
+const recipes = {
+  charm:{
+    name:"เครื่องรางหัวใจ",
+    desc:"เพิ่มพลังหัวใจจาก 25 เป็น 45",
+    cost:{wood:4,crystal:3}
+  },
+  chair:{name:"เก้าอี้",desc:"นำไปวางในโหมดสร้าง",cost:{wood:4,stone:1}},
+  bed:{name:"เตียง",desc:"กด E ใกล้เตียงเพื่อพักฟื้น",cost:{wood:6,crystal:1}},
+  lamp:{name:"โคมไฟ",desc:"ของตกแต่งแสงคริสตัล",cost:{stone:2,crystal:2}},
+  potion:{name:"น้ำยาฟื้นพลัง",desc:"ฟื้นหัวใจ 35 และพลังเวท 45",cost:{stone:1,crystal:2}}
+};
+const sites = [
+  {x:-19,z:-17,name:"ป่าดอกดาว"},
+  {x:20,z:-14,name:"หุบเขาคริสตัล"},
+  {x:-18,z:18,name:"สวนสายรุ้ง"}
+];
+
+function fresh(princess) {
+  return {
+    version:1, princess,
+    p:{x:0,y:0,z:6,vy:0,dir:Math.PI,hp:100,mana:100,invuln:0},
+    inv:{wood:36,stone:20,crystal:8,chair:0,bed:0,lamp:0,potion:1},
+    pieces:[], charm:false, opened:[false,false,false], won:false,
+    enemies:sites.flatMap((s,i) => [
+      {site:i,x:s.x-2.3,z:s.z+2,hp:70,calm:false,cool:0,stun:0},
+      {site:i,x:s.x+2.3,z:s.z-2,hp:70,calm:false,cool:0,stun:0}
+    ])
+  };
+}
+
+let selected = "cinderella";
+let state = fresh(selected);
+let started = false, paused = false;
+let time = 0, last = performance.now(), uiClock = 0, saveClock = 0;
+let mode = "", buildType = "floor", rotation = 0;
+let homeAnnounced = false;
+let keys = Object.create(null);
+let particles = [], bolts = [];
+let yaw = 0, pitch = .62, zoom = 10;
+let cameraEye = [0,7,15], cameraTarget = [0,1,6];
+let pointerAim = false, pointer = {x:0,y:0};
+let drag = null;
+let soundOn = true, voiceOn = true;
+let audio = null, master = null, musicClock = 0, musicStep = 0;
+let lastSpeech = -100;
+let saved = null;
+
+try {
+  const text = localStorage.getItem(SAVE_KEY);
+  if (text) {
+    const parsed = JSON.parse(text);
+    if (parsed.version === 1) saved = parsed;
+  }
+} catch (_) {}
+
+/* ---------- เสียงที่สร้างโดยเบราว์เซอร์ ---------- */
+
+function unlockAudio() {
+  try {
+    if (!audio) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audio = new AC();
+      master = audio.createGain();
+      master.gain.value = .45;
+      master.connect(audio.destination);
+    }
+    audio.resume().catch(() => {});
+  } catch (_) {}
+}
+
+function tone(freq, duration=.15, volume=.12, delay=0, type="sine") {
+  if (!audio || !soundOn || audio.state !== "running") return;
+  const at = audio.currentTime + delay;
+  const o = audio.createOscillator();
+  const g = audio.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(freq,at);
+  g.gain.setValueAtTime(.0001,at);
+  g.gain.exponentialRampToValueAtTime(Math.max(.001,volume),at+.012);
+  g.gain.exponentialRampToValueAtTime(.0001,at+duration);
+  o.connect(g);
+  g.connect(master);
+  o.start(at);
+  o.stop(at+duration+.03);
+}
+
+function sfx(kind) {
+  const patterns = {
+    gather:[660,880],
+    build:[440,554,660],
+    craft:[523,659,784,1047],
+    magic:[784,1175],
+    friend:[659,784,988],
+    hurt:[220,196],
+    jump:[330,440],
+    win:[523,659,784,1047,1319]
+  };
+  (patterns[kind] || [660]).forEach((f,i) => tone(f,.18,.14,i*.075));
+}
+
+function narrate(text, force=false) {
+  if (!voiceOn || !("speechSynthesis" in window)) return;
+  if (!force && time-lastSpeech < 3.5) return;
+  lastSpeech = time;
+  const speech = window.speechSynthesis;
+  const u = new SpeechSynthesisUtterance(text);
+  const thai = speech.getVoices().find(v => /^th/i.test(v.lang));
+  if (thai) u.voice = thai;
+  u.lang = "th-TH";
+  u.rate = .96;
+  u.pitch = 1.08;
+  u.volume = 1;
+  speech.cancel();
+  speech.speak(u);
+}
+
+function voiceInfo() {
+  if (!("speechSynthesis" in window)) {
+    $("voiceInfo").textContent =
+      "เบราว์เซอร์นี้ไม่มีเสียงบรรยาย แต่ยังมีข้อความและเสียงเกม";
+    return;
+  }
+  const hasThai = speechSynthesis.getVoices().some(v => /^th/i.test(v.lang));
+  $("voiceInfo").textContent = hasThai
+    ? "พบเสียงภาษาไทย · กดเริ่มเพื่อเปิดเสียง"
+    : "ยังไม่พบเสียงไทยในรายการระบบ · เกมจะขอใช้ th-TH และแสดงข้อความเสมอ";
+}
+if ("speechSynthesis" in window) {
+  speechSynthesis.addEventListener("voiceschanged",voiceInfo);
+}
+voiceInfo();
+
+function message(text, read=false, force=false) {
+  $("subtitle").textContent = text;
+  if (read) narrate(text,force);
+}
+
+/* ---------- คณิตศาสตร์และ WebGL ---------- */
+
+function normalize(v) {
+  const n = Math.hypot(...v) || 1;
+  return v.map(x => x/n);
+}
+function cross(a,b) {
+  return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+}
+function dot(a,b) { return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+
+function multiply(a,b) {
+  const out = new Float32Array(16);
+  for (let c=0;c<4;c++) {
+    for (let r=0;r<4;r++) {
+      out[c*4+r] =
+        a[r]*b[c*4] + a[4+r]*b[c*4+1] +
+        a[8+r]*b[c*4+2] + a[12+r]*b[c*4+3];
+    }
+  }
+  return out;
+}
+
+function perspective(fov,aspect,near,far) {
+  const f = 1/Math.tan(fov/2);
+  return new Float32Array([
+    f/aspect,0,0,0,
+    0,f,0,0,
+    0,0,(far+near)/(near-far),-1,
+    0,0,2*far*near/(near-far),0
+  ]);
+}
+
+function lookAt(eye,target) {
+  const z = normalize(eye.map((v,i) => v-target[i]));
+  const x = normalize(cross([0,1,0],z));
+  const y = cross(z,x);
+  return new Float32Array([
+    x[0],y[0],z[0],0,
+    x[1],y[1],z[1],0,
+    x[2],y[2],z[2],0,
+    -dot(x,eye),-dot(y,eye),-dot(z,eye),1
+  ]);
+}
+
+const identity = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
+
+function box(x,y,z,sx,sy,sz,c,r=0) {
+  return {x,y,z,sx,sy,sz,c,r};
+}
+
+function model(b) {
+  const c=Math.cos(b.r),s=Math.sin(b.r);
+  return new Float32Array([
+    c*b.sx,0,-s*b.sx,0,
+    0,b.sy,0,0,
+    s*b.sz,0,c*b.sz,0,
+    b.x,b.y,b.z,1
+  ]);
+}
+
+function rgba(hex) {
+  const n = parseInt(hex.slice(1),16);
+  return [(n>>16&255)/255,(n>>8&255)/255,(n&255)/255,1];
+}
+
+function shader(type,source) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s,source);
+  gl.compileShader(s);
+  if (!gl.getShaderParameter(s,gl.COMPILE_STATUS))
+    throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+
+const program = gl.createProgram();
+gl.attachShader(program,shader(gl.VERTEX_SHADER,`
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute vec4 aColor;
+uniform mat4 uModel;
+uniform mat4 uVP;
+uniform vec4 uTint;
+uniform vec3 uEye;
+varying vec4 vColor;
+varying vec3 vNormal;
+varying float vDistance;
+void main() {
+  vec4 world=uModel*vec4(aPosition,1.0);
+  gl_Position=uVP*world;
+  vNormal=normalize(mat3(uModel)*aNormal);
+  vColor=aColor*uTint;
+  vDistance=distance(world.xyz,uEye);
+}`));
+gl.attachShader(program,shader(gl.FRAGMENT_SHADER,`
+precision mediump float;
+varying vec4 vColor;
+varying vec3 vNormal;
+varying float vDistance;
+void main() {
+  float light=.55+.45*max(dot(normalize(vNormal),
+                      normalize(vec3(-.35,.9,.45))),0.0);
+  vec3 rgb=vColor.rgb*light;
+  float fog=smoothstep(35.0,105.0,vDistance);
+  rgb=mix(rgb,vec3(.68,.85,.95),fog);
+  gl_FragColor=vec4(rgb,vColor.a);
+}`));
+gl.linkProgram(program);
+if (!gl.getProgramParameter(program,gl.LINK_STATUS))
+  throw new Error(gl.getProgramInfoLog(program));
+gl.useProgram(program);
+
+const loc = {
+  position:gl.getAttribLocation(program,"aPosition"),
+  normal:gl.getAttribLocation(program,"aNormal"),
+  color:gl.getAttribLocation(program,"aColor"),
+  model:gl.getUniformLocation(program,"uModel"),
+  vp:gl.getUniformLocation(program,"uVP"),
+  tint:gl.getUniformLocation(program,"uTint"),
+  eye:gl.getUniformLocation(program,"uEye")
+};
+
+const faces = [
+  [[0,0,1],[[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]]],
+  [[0,0,-1],[[.5,-.5,-.5],[-.5,-.5,-.5],[-.5,.5,-.5],[.5,.5,-.5]]],
+  [[1,0,0],[[.5,-.5,.5],[.5,-.5,-.5],[.5,.5,-.5],[.5,.5,.5]]],
+  [[-1,0,0],[[-.5,-.5,-.5],[-.5,-.5,.5],[-.5,.5,.5],[-.5,.5,-.5]]],
+  [[0,1,0],[[-.5,.5,.5],[.5,.5,.5],[.5,.5,-.5],[-.5,.5,-.5]]],
+  [[0,-1,0],[[-.5,-.5,-.5],[.5,-.5,-.5],[.5,-.5,.5],[-.5,-.5,.5]]]
+];
+const indices = [0,1,2,0,2,3];
+
+function meshFromBoxes(boxes) {
+  const data = [];
+  for (const b of boxes) {
+    const col=rgba(b.c),c=Math.cos(b.r),s=Math.sin(b.r);
+    for (const [normal,corners] of faces) {
+      const nx=c*normal[0]+s*normal[2];
+      const nz=-s*normal[0]+c*normal[2];
+      for (const index of indices) {
+        const p=corners[index];
+        const lx=p[0]*b.sx,lz=p[2]*b.sz;
+        data.push(
+          b.x+c*lx+s*lz,b.y+p[1]*b.sy,b.z-s*lx+c*lz,
+          nx,normal[1],nz,...col
+        );
+      }
+    }
+  }
+  const buffer=gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
+  gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);
+  return {buffer,count:data.length/10};
+}
+
+const cubeMesh=meshFromBoxes([box(0,0,0,1,1,1,"#ffffff")]);
+
+function draw(mesh,m=identity,tint=[1,1,1,1]) {
+  if (!mesh || !mesh.count) return;
+  gl.bindBuffer(gl.ARRAY_BUFFER,mesh.buffer);
+  gl.enableVertexAttribArray(loc.position);
+  gl.enableVertexAttribArray(loc.normal);
+  gl.enableVertexAttribArray(loc.color);
+  gl.vertexAttribPointer(loc.position,3,gl.FLOAT,false,40,0);
+  gl.vertexAttribPointer(loc.normal,3,gl.FLOAT,false,40,12);
+  gl.vertexAttribPointer(loc.color,4,gl.FLOAT,false,40,24);
+  gl.uniformMatrix4fv(loc.model,false,m);
+  gl.uniform4fv(loc.tint,tint);
+  gl.drawArrays(gl.TRIANGLES,0,mesh.count);
+}
+
+function drawBox(b,alpha=1) {
+  const col=rgba(b.c);
+  col[3]=alpha;
+  draw(cubeMesh,model(b),col);
+}
+
+gl.enable(gl.DEPTH_TEST);
+gl.enable(gl.CULL_FACE);
+gl.clearColor(.68,.85,.95,1);
+
+/* ---------- โลก ปราสาท และทรัพยากร ---------- */
+
+let seed=19381;
+function random() {
+  seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+  return seed/4294967296;
+}
+
+const resources=[];
+for (let i=0;i<48;) {
+  const x=random()*64-32,z=random()*64-32;
+  if (Math.abs(x)<11 && Math.abs(z)<11) continue;
+  if (Math.abs(x)<11 && z<-24) continue;
+  if (sites.some(s => Math.hypot(x-s.x,z-s.z)<4)) continue;
+  resources.push({x,z,type:["wood","stone","crystal"][i%3],readyAt:0});
+  i++;
+}
+
+const world=[],staticColliders=[];
+function worldBox(b,solid=false) {
+  world.push(b);
+  if (solid) staticColliders.push(b);
+}
+
+worldBox(box(0,-.35,0,88,.7,88,"#8fcf87"));
+worldBox(box(0,.012,0,18,.025,18,"#b8dfaa"));
+worldBox(box(0,.025,0,3,.04,76,"#ecd6aa"));
+worldBox(box(0,.025,0,76,.04,3,"#ecd6aa"));
+
+for (let n=-9;n<=9;n+=2) {
+  worldBox(box(n,.055,0,.025,.015,18,"#d9edcd"));
+  worldBox(box(0,.055,n,18,.015,.025,"#d9edcd"));
+}
+
+worldBox(box(18,.025,18,10,.05,9,"#6ac6ee"));
+worldBox(box(18,.12,18,11,.2,1.4,"#c79a65"));
+for (let x=13;x<=23;x+=2) {
+  worldBox(box(x,.5,17.4,.1,.7,.1,"#946c4f"));
+  worldBox(box(x,.5,18.6,.1,.7,.1,"#946c4f"));
+}
+worldBox(box(18,.82,17.4,11,.12,.12,"#946c4f"));
+worldBox(box(18,.82,18.6,11,.12,.12,"#946c4f"));
+
+worldBox(box(0,.06,-29,18,.12,10,"#e9d9f3"));
+worldBox(box(-5,1.8,-27,6,3.6,1,"#eee3ff"),true);
+worldBox(box(5,1.8,-27,6,3.6,1,"#eee3ff"),true);
+worldBox(box(0,2,-33,17,4,1,"#dac7ee"),true);
+worldBox(box(0,3.4,-27,4,1,1,"#eee3ff"));
+
+for (const x of [-7,7]) {
+  worldBox(box(x,2.8,-30,3,5.6,3,"#c8aff0"),true);
+  for (let k=0;k<4;k++)
+    worldBox(box(x,5.75+k*.36,-30,3.6-k*.7,.36,3.6-k*.7,"#df82b7"));
+  worldBox(box(x,3.3,-28.47,.8,1.2,.06,"#77b9ed"));
+  worldBox(box(x,7.1,-30,.08,1.1,.08,"#d1ab45"));
+  worldBox(box(x+.38,7.35,-30,.7,.4,.05,"#ffcf73"));
+}
+for (const x of [-4,4])
+  worldBox(box(x,2,-26.47,.85,1.35,.08,"#82c9ef"));
+
+for (let i=0;i<22;i++) {
+  const angle=i/22*Math.PI*2;
+  const x=Math.sin(angle)*43,z=Math.cos(angle)*43;
+  const h=3+random()*5;
+  worldBox(box(x,h/2,z,6,h,6,i%2?"#98b4ac":"#a1bca7"));
+  worldBox(box(x,h+.6,z,4,1.2,4,"#dae7da"));
+}
+
+for (let i=0;i<95;i++) {
+  const x=random()*70-35,z=random()*70-35;
+  if (Math.abs(x)<10 && Math.abs(z)<10) continue;
+  if (Math.abs(x)<10 && z<-24) continue;
+  worldBox(box(x,.18,z,.06,.35,.06,"#62934d"));
+  worldBox(box(x,.37,z,.26,.13,.26,
+    ["#f59bc6","#ffe17c","#c5a6f5"][i%3]));
+}
+
+for (let i=0;i<sites.length;i++) {
+  const s=sites[i];
+  worldBox(box(s.x,.04,s.z,7,.08,7,
+    ["#b1d89e","#bdd0e9","#e2c4df"][i]));
+  for (let k=0;k<4;k++) {
+    const a=k*Math.PI/2;
+    worldBox(box(s.x+Math.sin(a)*4,1.1,s.z+Math.cos(a)*4,
+      .45,2.2,.45,"#d6ccdc"),true);
+  }
+}
+
+const worldMesh=meshFromBoxes(world);
+let buildingMesh=null,buildingColliders=[];
+
+/* ---------- รูปร่างสิ่งปลูกสร้าง ---------- */
+
+function buildingShapes(d) {
+  const out=[],r=d.r*Math.PI/2,c=Math.cos(r),s=Math.sin(r);
+  function at(x,y,z,sx,sy,sz,color) {
+    out.push(box(d.x+c*x+s*z,y,d.z-s*x+c*z,sx,sy,sz,color,r));
+  }
+  switch(d.type) {
+    case "floor":
+      at(0,.11,0,1.96,.2,1.96,"#e9c79f");
+      break;
+    case "wall":
+      at(0,1.27,-.92,2,2.5,.16,"#f5dce9");
+      at(0,2.35,-.92,2,.14,.19,"#b791c6");
+      break;
+    case "door":
+      at(-.78,1.16,-.92,.3,2.3,.2,"#dcb8df");
+      at(.78,1.16,-.92,.3,2.3,.2,"#dcb8df");
+      at(0,2.3,-.92,1.85,.25,.23,"#b791c6");
+      break;
+    case "roof":
+      at(0,2.66,0,2.12,.22,2.12,"#b791df");
+      at(0,2.87,0,1.66,.22,1.66,"#a981d2");
+      at(0,3.08,0,1.1,.22,1.1,"#9c70c9");
+      break;
+    case "chair":
+      at(0,.53,0,.85,.18,.85,"#c695d0");
+      at(0,1,-.34,.85,.85,.15,"#e6c2e9");
+      for (const x of [-.3,.3])
+        for (const z of [-.3,.3])
+          at(x,.26,z,.13,.52,.13,"#997351");
+      break;
+    case "bed":
+      at(0,.3,0,1.45,.5,1.7,"#b58bcc");
+      at(0,.62,.13,1.48,.2,1.4,"#f6accd");
+      at(0,.79,-.48,1.2,.18,.42,"#fff4f9");
+      at(0,.8,-.8,1.5,1.1,.13,"#cfaddb");
+      break;
+    case "lamp":
+      at(0,.12,0,.55,.22,.55,"#d1ac53");
+      at(0,.7,0,.13,1.25,.13,"#a98640");
+      at(0,1.39,0,.57,.49,.57,"#ffe8a0");
+      at(0,1.68,0,.24,.1,.24,"#fff4c9");
+      break;
+  }
+  return out;
+}
+
+function rebuildBuildings() {
+  const boxes=[];
+  buildingColliders=[];
+  for (const d of state.pieces) {
+    const shapes=buildingShapes(d);
+    boxes.push(...shapes);
+    if (!["floor","roof"].includes(d.type))
+      buildingColliders.push(...shapes);
+  }
+  if (buildingMesh) gl.deleteBuffer(buildingMesh.buffer);
+  buildingMesh=meshFromBoxes(boxes);
+}
+
+/* ---------- การชนและการเคลื่อนที่ ---------- */
+
+function overlaps(x,z,b) {
+  const p=state.p;
+  if (p.y+1.8<=b.y-b.sy/2 || p.y>=b.y+b.sy/2) return false;
+  const dx=x-b.x,dz=z-b.z,c=Math.cos(b.r),s=Math.sin(b.r);
+  const lx=c*dx-s*dz,lz=s*dx+c*dz;
+  const nearX=clamp(lx,-b.sx/2,b.sx/2);
+  const nearZ=clamp(lz,-b.sz/2,b.sz/2);
+  return Math.hypot(lx-nearX,lz-nearZ)<.34;
+}
+
+function blocked(x,z) {
+  if (Math.abs(x)>35 || Math.abs(z)>35) return true;
+  if (staticColliders.some(b => overlaps(x,z,b))) return true;
+  if (buildingColliders.some(b => overlaps(x,z,b))) return true;
+  for (const r of resources) {
+    if (r.readyAt>time) continue;
+    const height=r.type==="wood"?3:r.type==="stone"?1.1:1.3;
+    if (state.p.y>=height) continue;
+    const radius=r.type==="wood"?.6:.75;
+    if (Math.hypot(x-r.x,z-r.z)<radius) return true;
+  }
+  return false;
+}
+
+function jump() {
+  if (!started || paused || state.p.y>.02) return;
+  state.p.vy=6.5;
+  sfx("jump");
+}
+
+function homeProgress() {
+  return {
+    floors:state.pieces.filter(d => d.type==="floor").length,
+    walls:state.pieces.filter(d => ["wall","door"].includes(d.type)).length,
+    roofs:state.pieces.filter(d => d.type==="roof").length
+  };
+}
+function homeReady() {
+  const h=homeProgress();
+  return h.floors>=4 && h.walls>=3 && h.roofs>=1;
+}
+function missionReady() {
+  return homeReady() && state.charm && state.opened.every(Boolean);
+}
+function questNarration() {
+  if (!homeReady())
+    return "สร้างบ้านในเขตตาราง ใช้พื้นอย่างน้อยสี่ชิ้น ผนังหรือซุ้มประตูสามชิ้น และหลังคาหนึ่งชิ้น";
+  if (!state.charm)
+    return "บ้านพร้อมแล้ว เปิดเมนูคราฟ แล้วสร้างเครื่องรางหัวใจ";
+  if (!state.opened.every(Boolean))
+    return "เดินทางไปจุดหนึ่ง สอง และสามบนแผนที่ ช่วยเพื่อนจากเงาหมอก แล้วเปิดหีบสมบัติ";
+  if (!state.won)
+    return "ครบทุกภารกิจแล้ว ไปยังประตูปราสาททางทิศเหนือ แล้วกดอีเพื่อฟื้นอาณาจักร";
+  return "อาณาจักรกลับมาสดใสแล้ว คุณสามารถสำรวจและตกแต่งบ้านต่อได้";
+}
+
+/* ---------- การสร้าง ---------- */
+
+function slot(d) {
+  if (d.type==="wall" || d.type==="door") return "wall"+d.r;
+  if (["chair","bed","lamp"].includes(d.type)) return "furniture";
+  return d.type;
+}
+
+function targetTile() {
+  const p=state.p;
+  let x=p.x+Math.sin(p.dir)*2.7,z=p.z+Math.cos(p.dir)*2.7;
+
+  if (pointerAim) {
+    const rect=canvas.getBoundingClientRect();
+    const nx=(pointer.x-rect.left)/rect.width*2-1;
+    const ny=1-(pointer.y-rect.top)/rect.height*2;
+    const forward=normalize(cameraTarget.map((v,i)=>v-cameraEye[i]));
+    const right=normalize(cross(forward,[0,1,0]));
+    const up=cross(right,forward);
+    const f=Math.tan(Math.PI/6),aspect=rect.width/rect.height;
+    const ray=normalize(forward.map((v,i)=>
+      v+right[i]*nx*f*aspect+up[i]*ny*f
+    ));
+    if (ray[1]<-.025) {
+      const t=(.12-cameraEye[1])/ray[1];
+      if (t>0) {
+        x=cameraEye[0]+ray[0]*t;
+        z=cameraEye[2]+ray[2]*t;
+      }
+    }
+  }
+  return {type:buildType,x:Math.round(x/2)*2,z:Math.round(z/2)*2,r:rotation};
+}
+
+function enough(cost) {
+  return Object.entries(cost).every(([k,n]) => state.inv[k]>=n);
+}
+function spend(cost) {
+  for (const [k,n] of Object.entries(cost)) state.inv[k]-=n;
+}
+function costText(cost) {
+  return Object.entries(cost).map(([k,n])=>`${labels[k]} ${n}`).join(" · ");
+}
+
+function buildCheck(d) {
+  if (Math.abs(d.x)>8 || Math.abs(d.z)>8)
+    return "สร้างได้เฉพาะพื้นที่ตารางกลางหมู่บ้าน";
+  if (distance(state.p,d)>9)
+    return "เดินเข้าใกล้จุดที่จะสร้างอีกนิด";
+  if (state.pieces.length>=140)
+    return "เต็ม 140 ชิ้นแล้ว รื้อบางชิ้นก่อน";
+  if (state.pieces.some(a=>a.x===d.x && a.z===d.z && slot(a)===slot(d)))
+    return "ตำแหน่งนี้มีชิ้นส่วนชนิดเดียวกันแล้ว";
+  if (d.type!=="floor" &&
+      !state.pieces.some(a=>a.type==="floor" && a.x===d.x && a.z===d.z))
+    return "วางพื้นในช่องนี้ก่อน";
+  if (!enough(specs[d.type].cost))
+    return "วัตถุดิบไม่พอ หรือยังไม่ได้คราฟเฟอร์นิเจอร์";
+  if (!["floor","roof"].includes(d.type) &&
+      buildingShapes(d).some(b=>overlaps(state.p.x,state.p.z,b)))
+    return "เดินออกจากตำแหน่งชิ้นส่วนก่อนวาง";
+  return "";
+}
+
+function place() {
+  if (!started || paused || mode!=="build") return;
+  const d=targetTile(),reason=buildCheck(d);
+  if (reason) { message(reason); return; }
+  spend(specs[d.type].cost);
+  state.pieces.push(d);
+  rebuildBuildings();
+  sfx("build");
+  sparkle(d.x,.8,d.z,"#ffe4a2",9);
+  message(`สร้าง${specs[d.type].name}แล้ว`);
+  refreshPanel();
+  updateHUD();
+  if (homeReady() && !homeAnnounced) {
+    homeAnnounced=true;
+    message("บ้านในฝันพร้อมแล้ว! คราฟเครื่องรางหัวใจ แล้วออกผจญภัยกัน",true,true);
+  }
+}
+
+function removePiece() {
+  if (!started || paused || mode!=="build") return;
+  const d=targetTile();
+  const matches=state.pieces.map((p,i)=>({p,i}))
+    .filter(a=>a.p.x===d.x && a.p.z===d.z);
+  if (!matches.length) { message("ช่องนี้ไม่มีสิ่งปลูกสร้าง"); return; }
+  const found=matches.find(a=>slot(a.p)===slot(d)) || matches[matches.length-1];
+  if (found.p.type==="floor" && matches.length>1) {
+    message("รื้อผนัง หลังคา และเฟอร์นิเจอร์ในช่องนี้ก่อนรื้อพื้น");
+    return;
+  }
+  state.pieces.splice(found.i,1);
+  for (const [k,n] of Object.entries(specs[found.p.type].cost)) {
+    state.inv[k]+= ["chair","bed","lamp"].includes(k)?n:Math.floor(n/2);
+  }
+  rebuildBuildings();
+  refreshPanel();
+  sfx("build");
+  message("รื้อแล้ว คืนเฟอร์นิเจอร์เต็มจำนวน และคืนวัสดุพื้นฐานบางส่วน");
+}
+
+function rotatePiece() {
+  rotation=(rotation+1)%4;
+  refreshPanel();
+}
+
+function craft(name) {
+  if (!started || paused || !recipes[name]) return;
+  if (name==="charm" && state.charm) {
+    message("มีเครื่องรางหัวใจแล้ว"); return;
+  }
+  const r=recipes[name];
+  if (!enough(r.cost)) { message("วัตถุดิบสำหรับคราฟยังไม่พอ"); return; }
+  spend(r.cost);
+  if (name==="charm") state.charm=true;
+  else state.inv[name]++;
+  sfx("craft");
+  message(`คราฟ${r.name}สำเร็จ ${r.desc}`,true,true);
+  refreshPanel();
+  updateHUD();
+}
+
+function usePotion() {
+  if (!started || paused) return;
+  if (state.inv.potion<=0) {
+    message("ไม่มีน้ำยา เปิดเมนูคราฟเพื่อทำน้ำยา"); return;
+  }
+  if (state.p.hp>=100 && state.p.mana>=100) {
+    message("หัวใจและพลังเวทเต็มอยู่แล้ว"); return;
+  }
+  state.inv.potion--;
+  state.p.hp=clamp(state.p.hp+35,0,100);
+  state.p.mana=clamp(state.p.mana+45,0,100);
+  sfx("craft");
+  sparkle(state.p.x,1,state.p.z,"#86efd1",15);
+  message("สดชื่นแล้ว! หัวใจและพลังเวทฟื้นขึ้น",true);
+  refreshPanel();
+}
+
+/* ---------- เมนู ---------- */
+
+function togglePanel(next) {
+  if (!started) return;
+  mode=mode===next?"":next;
+  $("panel").hidden=!mode;
+  pointerAim=false;
+  refreshPanel();
+}
+
+function refreshPanel() {
+  $("buildBtn").classList.toggle("active",mode==="build");
+  $("craftBtn").classList.toggle("active",mode==="craft");
+  if (!mode) return;
+  let html="";
+  if (mode==="build") {
+    html="<h3>สร้างบ้านในฝัน</h3>" +
+      '<div class="small">ชี้เมาส์เพื่อเลือกช่อง หรือหันตัวละครเข้าหาช่องบนจอสัมผัส วางพื้นก่อนชิ้นส่วนอื่น</div>';
+    for (const [id,s] of Object.entries(specs)) {
+      html+=`<div class="row"><button data-build="${id}"
+        class="${id===buildType?"active":""}">
+        ${s.name}<span class="small">${costText(s.cost)}</span>
+        </button></div>`;
+    }
+    html+=`<div class="small">หมุน: ${rotation*90}° · ชิ้นส่วน ${state.pieces.length}/140</div>
+      <div class="actions">
+        <button data-action="rotate">R หมุน</button>
+        <button data-action="place" class="primary">วาง</button>
+        <button data-action="remove">รื้อ</button>
+      </div>`;
+  } else {
+    html="<h3>โต๊ะคราฟของวิเศษ</h3>";
+    for (const [id,r] of Object.entries(recipes)) {
+      const done=id==="charm" && state.charm;
+      html+=`<div class="row"><button data-craft="${id}"
+        ${!enough(r.cost)||done?"disabled":""}>
+        ${r.name} ${done?"— มีแล้ว":""}
+        <span class="small">${r.desc}</span>
+        <span class="small">${costText(r.cost)}</span>
+        </button></div>`;
+    }
+    html+='<div class="small">เฟอร์นิเจอร์ที่คราฟแล้วเลือกวางได้ในเมนูสร้าง</div>';
+  }
+  html+='<div class="actions"><button data-action="close">ปิดเมนู</button></div>';
+  $("panel").innerHTML=html;
+}
+
+$("panel").addEventListener("click",e=>{
+  const b=e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.build) {
+    buildType=b.dataset.build;
+    refreshPanel();
+  } else if (b.dataset.craft) craft(b.dataset.craft);
+  else {
+    const actions={
+      rotate:rotatePiece,place,remove:removePiece,
+      close:()=>{mode="";$("panel").hidden=true;refreshPanel();}
+    };
+    actions[b.dataset.action]?.();
+  }
+});
+
+/* ---------- เก็บของ เปิดหีบ พักฟื้น ---------- */
+
+function nearestThing() {
+  const p=state.p,list=[];
+  if (Math.hypot(p.x,p.z+28)<3)
+    list.push({kind:"portal",index:0,d:Math.hypot(p.x,p.z+28)});
+  resources.forEach((r,i)=>{
+    const d=distance(p,r);
+    if (r.readyAt<=time && d<2.7) list.push({kind:"resource",index:i,d});
+  });
+  sites.forEach((s,i)=>{
+    const d=distance(p,s);
+    if (!state.opened[i] && d<2.7) list.push({kind:"chest",index:i,d});
+  });
+  state.pieces.forEach((b,i)=>{
+    const d=distance(p,b);
+    if (b.type==="bed" && d<2.7) list.push({kind:"bed",index:i,d});
+  });
+  list.sort((a,b)=>a.d-b.d);
+  return list[0];
+}
+
+let bedCooldown=0;
+
+function interact() {
+  if (!started || paused) return;
+  const found=nearestThing();
+  if (!found) {
+    message("เข้าใกล้ต้นไม้ ก้อนหิน คริสตัล หีบ เตียง หรือประตูปราสาท แล้วกด E");
+    return;
+  }
+  if (found.kind==="resource") {
+    const r=resources[found.index];
+    const amount={wood:5,stone:4,crystal:3}[r.type];
+    state.inv[r.type]+=amount;
+    r.readyAt=time+55;
+    sfx("gather");
+    sparkle(r.x,.8,r.z,"#fff0b5",10);
+    message(`เก็บ${labels[r.type]}ได้ ${amount} ชิ้น จุดนี้จะฟื้นตัวภายหลัง`,true);
+  } else if (found.kind==="chest") {
+    const i=found.index;
+    if (state.enemies.some(e=>e.site===i && !e.calm)) {
+      message("หีบยังถูกเงาหมอกปกคลุม ใช้พลังหัวใจช่วยเพื่อนสองตัวในบริเวณนี้ก่อน",true);
+      return;
+    }
+    state.opened[i]=true;
+    state.inv.wood+=6;
+    state.inv.stone+=5;
+    state.inv.crystal+=4;
+    sfx("craft");
+    sparkle(sites[i].x,1,sites[i].z,"#ffe174",25);
+    message(`พบดาวแห่ง${sites[i].name}! ได้ไม้ หิน และคริสตัลเพิ่ม`,true,true);
+  } else if (found.kind==="bed") {
+    if (time<bedCooldown) { message("พักอีกครั้งได้ในอีกสักครู่"); return; }
+    bedCooldown=time+5;
+    state.p.hp=100;
+    state.p.mana=100;
+    sfx("craft");
+    message("พักบนเตียงแล้ว หัวใจและพลังเวทเต็ม พร้อมผจญภัยต่อ",true);
+  } else if (found.kind==="portal") {
+    if (state.won) {
+      message("ปราสาทยินดีต้อนรับ ขอบคุณที่ช่วยอาณาจักรของเรา",true);
+    } else if (!missionReady()) {
+      message(questNarration(),true,true);
+    } else finishGame();
+  }
+  refreshPanel();
+  updateHUD();
+}
+
+function finishGame() {
+  state.won=true;
+  sfx("win");
+  message("ยอดเยี่ยม! ความอบอุ่นจากบ้านและพลังหัวใจทำให้อาณาจักรกลับมาสดใส",true,true);
+  $("winText").textContent =
+    `คุณสร้างบ้าน คราฟเครื่องราง และค้นพบดาวครบ 3 ดวง `+
+    `พร้อมช่วยเพื่อน ${state.enemies.filter(e=>e.calm).length} ตัว `+
+    "ตอนนี้เล่นต่อในโหมดอิสระได้เลย";
+  $("win").hidden=false;
+  setPaused(true);
+  saveGame(false);
+}
+
+/* ---------- พลังหัวใจและเงาหมอก ---------- */
+
+let castCooldown=0;
+
+function sparkle(x,y,z,color,count=12) {
+  for (let i=0;i<count;i++) {
+    const a=random()*Math.PI*2;
+    particles.push({
+      x,y,z,vx:Math.cos(a)*(1+random()*2),
+      vy:1+random()*2,vz:Math.sin(a)*(1+random()*2),
+      life:.5+random()*.35,max:.85,color
+    });
+  }
+}
+
+function magic() {
+  if (!started || paused || time<castCooldown) return;
+  const p=state.p;
+  const target=state.enemies
+    .filter(e=>!e.calm && distance(p,e)<8)
+    .sort((a,b)=>distance(p,a)-distance(p,b))[0];
+
+  if (!target) {
+    message("ยังไม่มีเงาหมอกในระยะ 8 เมตร เดินไปใกล้จุดหีบบนแผนที่");
+    return;
+  }
+  if (p.mana<14) {
+    message("พลังเวทยังไม่พอ รอสักครู่หรือใช้น้ำยา",true);
+    return;
+  }
+  castCooldown=time+.38;
+  p.mana-=14;
+  p.dir=Math.atan2(target.x-p.x,target.z-p.z);
+  bolts.push({
+    x:p.x,y:p.y+1.15,z:p.z,
+    target,damage:state.charm?45:25,life:1.5
+  });
+  sfx("magic");
+}
+
+function calmEnemy(e) {
+  if (e.calm) return;
+  e.calm=true;
+  e.hp=70;
+  state.inv.crystal++;
+  state.inv.wood+=2;
+  sparkle(e.x,.8,e.z,"#ffbfdc",20);
+  sfx("friend");
+  message("เงาหมอกจางลงแล้ว เพื่อนกลับมายิ้มได้! ได้คริสตัลและไม้เป็นของขอบคุณ",true);
+  refreshPanel();
+}
+
+function hurtPlayer() {
+  const p=state.p;
+  if (p.invuln>0) return;
+  p.hp-=10;
+  p.invuln=1;
+  sfx("hurt");
+  sparkle(p.x,1,p.z,"#eac0ff",7);
+  if (p.hp<=0) {
+    p.x=0;p.z=10;p.y=0;p.vy=0;
+    p.hp=100;p.mana=70;p.invuln=3;
+    message("เหนื่อยแล้ว กลับมาพักใกล้บ้านก่อน ไม่มีของสูญหาย ลองคราฟเครื่องรางและน้ำยา",true,true);
+  }
+}
+
+/* ---------- การวาดตัวละครและวัตถุ ---------- */
+
+function princessBoxes() {
+  const p=state.p,s=styles[state.princess],out=[];
+  const c=Math.cos(p.dir),sn=Math.sin(p.dir);
+  const moving=keys.w||keys.a||keys.s||keys.d||
+               keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright;
+  const swing=moving?Math.sin(time*10)*.07:0;
+
+  function part(x,y,z,sx,sy,sz,color) {
+    out.push(box(
+      p.x+c*x+sn*z,p.y+y,p.z-sn*x+c*z,
+      sx,sy,sz,color,p.dir
+    ));
+  }
+  part(-.2,.15,0,.2,.3,.28,"#a578c4");
+  part(.2,.15,0,.2,.3,.28,"#a578c4");
+  part(0,.45,0,.92,.65,.74,s.dress);
+  part(0,.88,0,.68,.43,.55,s.dress);
+  part(0,1.18,0,.61,.35,.46,s.trim);
+  part(-.44,1.03+swing,0,.22,.55,.24,"#f4ccb4");
+  part(.44,1.03-swing,0,.22,.55,.24,"#f4ccb4");
+  part(0,1.63,0,.62,.57,.55,"#f4ccb4");
+  part(0,1.94,-.02,.68,.18,.61,s.hair);
+  part(0,1.48,-.27,.68,.7,.2,s.hair);
+  if (state.princess==="rapunzel")
+    part(.25,1,-.32,.25,1.25,.23,s.hair);
+  part(-.14,1.67,.29,.07,.09,.025,"#352738");
+  part(.14,1.67,.29,.07,.09,.025,"#352738");
+  part(0,1.5,.29,.12,.035,.025,"#cb7186");
+  part(0,2.06,0,.52,.1,.4,"#f4d477");
+  for (const x of [-.2,0,.2])
+    part(x,2.16,0,.09,.15,.09,"#ffe395");
+  part(0,1.17,.25,.14,.14,.06,"#ec79b5");
+  return out;
+}
+
+function drawResource(r) {
+  if (r.readyAt>time) {
+    if (r.type==="wood")
+      drawBox(box(r.x,.14,r.z,.48,.28,.48,"#a27a56"));
+    return;
+  }
+  if (r.type==="wood") {
+    drawBox(box(r.x,1.05,r.z,.48,2.1,.48,"#a77c53"));
+    drawBox(box(r.x,2.2,r.z,1.8,1.15,1.8,"#78b56c"));
+    drawBox(box(r.x,2.95,r.z,1.25,.85,1.25,
+      r.x<0?"#e8a4ce":"#90c977"));
+  } else if (r.type==="stone") {
+    drawBox(box(r.x,.46,r.z,1.1,.92,.95,"#a6b0bf",.35));
+    drawBox(box(r.x+.2,.95,r.z-.1,.65,.4,.6,"#c0c7d1",.2));
+  } else {
+    drawBox(box(r.x,.55,r.z,.45,1.1,.45,"#9ae4ef",time*.3));
+    drawBox(box(r.x+.4,.36,r.z+.15,.3,.72,.3,"#bd9cf5",-.4));
+    drawBox(box(r.x-.3,.28,r.z-.1,.28,.56,.28,"#e3b4f4",.5));
+  }
+}
+
+function drawChest(s,i) {
+  const opened=state.opened[i];
+  drawBox(box(s.x,.4,s.z,1.15,.7,.85,opened?"#b4a5a0":"#c69359"));
+  drawBox(box(s.x,opened?.95:.83,s.z-.08,
+    1.2,.22,.9,opened?"#cbbdb4":"#edc071",opened?.4:0));
+  drawBox(box(s.x,.55,s.z+.44,.18,.25,.06,"#ffe780"));
+  if (!opened)
+    drawBox(box(s.x,1.55+Math.sin(time*2)*.08,s.z,
+      .25,.25,.25,"#fff0a7",time));
+}
+
+function drawEnemy(e,index) {
+  const y=.43+Math.sin(time*3+index)*.07;
+  const col=e.calm?"#8de1c0":"#a88ad7";
+  drawBox(box(e.x,y,e.z,.85,.76,.85,col));
+  drawBox(box(e.x-.19,y+.12,e.z+.43,.1,.13,.035,"#3d2b51"));
+  drawBox(box(e.x+.19,y+.12,e.z+.43,.1,.13,.035,"#3d2b51"));
+  drawBox(box(e.x,y-.1,e.z+.43,.2,.045,.035,
+    e.calm?"#ea719f":"#6b4c86"));
+  if (e.calm) {
+    drawBox(box(e.x-.3,y+.48,e.z,.18,.25,.18,"#b5f2d9"));
+    drawBox(box(e.x+.3,y+.48,e.z,.18,.25,.18,"#b5f2d9"));
+    drawBox(box(e.x,1.4+Math.sin(time*2)*.08,e.z,
+      .15,.15,.15,"#ffabd4",time));
+  } else {
+    drawBox(box(e.x,1.18,e.z,.95,.075,.08,"#5f4976"));
+    const width=.91*clamp(e.hp/70,0,1);
+    drawBox(box(e.x-(.91-width)/2,1.185,e.z+.006,
+      width,.055,.09,"#f3b5dc"));
+  }
+}
+
+/* ---------- แผนที่และ HUD ---------- */
+
+const mapContext=$("map").getContext("2d");
+function drawMap() {
+  const c=mapContext,S=2;
+  const mx=x=>80+x*S,mz=z=>80+z*S;
+  c.fillStyle="#d8ebcd";c.fillRect(0,0,160,160);
+  c.fillStyle="#eed9b7";
+  c.fillRect(77,4,6,152);c.fillRect(4,77,152,6);
+  c.fillStyle="#bad7ab";c.fillRect(62,62,36,36);
+  c.strokeStyle="#80a66e";c.strokeRect(62,62,36,36);
+  c.fillStyle="#7cc8e8";c.fillRect(mx(13),mz(13.5),20,18);
+  c.fillStyle="#ab82cc";c.fillRect(mx(-8),mz(-33),32,15);
+  resources.forEach(r=>{
+    if(r.readyAt>time)return;
+    c.fillStyle=r.type==="wood"?"#64a15b":r.type==="stone"?"#8d95a3":"#ad85df";
+    c.fillRect(mx(r.x)-1,mz(r.z)-1,2,2);
+  });
+  state.pieces.forEach(b=>{
+    c.fillStyle=b.type==="roof"?"#ac81ce":"#d6a985";
+    c.fillRect(mx(b.x)-2,mz(b.z)-2,4,4);
+  });
+  sites.forEach((s,i)=>{
+    c.fillStyle=state.opened[i]?"#c1afa3":"#efb331";
+    c.beginPath();c.arc(mx(s.x),mz(s.z),5,0,Math.PI*2);c.fill();
+    c.fillStyle="#493650";c.font="bold 10px Arial";
+    c.textAlign="center";c.fillText(String(i+1),mx(s.x),mz(s.z)+3);
+  });
+  state.enemies.forEach(e=>{
+    c.fillStyle=e.calm?"#54be97":"#d967a1";
+    c.beginPath();c.arc(mx(e.x),mz(e.z),2.5,0,Math.PI*2);c.fill();
+  });
+  const p=state.p;
+  c.save();c.translate(mx(p.x),mz(p.z));c.rotate(-p.dir);
+  c.fillStyle="#3374cd";
+  c.beginPath();c.moveTo(0,5);c.lineTo(-3,-3);c.lineTo(3,-3);
+  c.closePath();c.fill();c.restore();
+}
+
+function updateHUD() {
+  const p=state.p,h=homeProgress();
+  $("playerName").textContent=`${styles[state.princess].name} · อาณาจักรหัวใจ`;
+  $("hp").style.width=`${clamp(p.hp,0,100)}%`;
+  $("mana").style.width=`${clamp(p.mana,0,100)}%`;
+  $("hpText").textContent=Math.ceil(p.hp);
+  $("manaText").textContent=Math.floor(p.mana);
+  for (const k of ["wood","stone","crystal","potion"])
+    $(k).textContent=state.inv[k];
+
+  $("questText").innerHTML=
+    `${homeReady()?"✓":"○"} บ้าน: พื้น ${h.floors}/4 · ผนัง/ประตู ${h.walls}/3 · หลังคา ${h.roofs}/1<br>`+
+    `${state.charm?"✓":"○"} คราฟเครื่องรางหัวใจ<br>`+
+    `${state.opened.every(Boolean)?"✓":"○"} ดาวจากหีบ ${state.opened.filter(Boolean).length}/3<br>`+
+    `${state.won?"✓":"○"} ฟื้นอาณาจักรที่ประตูปราสาท`;
+
+  if (mode==="build") {
+    const d=targetTile(),reason=buildCheck(d);
+    $("hint").textContent=
+      `${specs[buildType].name} (${d.x}, ${d.z}) · ${reason||"พร้อมวาง: คลิกหรือกด Enter"}`;
+  } else {
+    const found=nearestThing();
+    if (!found) $("hint").textContent="จุด 1–3 บนแผนที่คือดินแดนผจญภัย · พื้นที่ตารางคือเขตสร้างบ้าน";
+    else {
+      const text={
+        resource:"E เก็บทรัพยากร",
+        chest:"E เปิดหีบสมบัติ",
+        bed:"E พักฟื้น",
+        portal:"E ฟื้นอาณาจักร"
+      };
+      $("hint").textContent=text[found.kind];
+    }
+  }
+  drawMap();
+}
+
+/* ---------- บันทึกและโหลด ---------- */
+
+function saveGame(notify=true) {
+  if (!started) return;
+  try {
+    const data={
+      version:1,princess:state.princess,
+      p:{x:state.p.x,z:state.p.z,hp:state.p.hp,mana:state.p.mana},
+      inv:state.inv,pieces:state.pieces,
+      charm:state.charm,opened:state.opened,won:state.won,
+      calm:state.enemies.map(e=>e.calm)
+    };
+    localStorage.setItem(SAVE_KEY,JSON.stringify(data));
+    saved=data;
+    if (notify) message("บันทึกเกมในเบราว์เซอร์เครื่องนี้แล้ว",true);
+  } catch (_) {
+    if (notify) message("เบราว์เซอร์ไม่อนุญาตให้บันทึก ลองออกจากโหมดส่วนตัว");
+  }
+}
+
+function hydrate(raw) {
+  if (!raw || raw.version!==1) throw new Error("invalid save");
+  const s=fresh(styles[raw.princess]?raw.princess:"cinderella");
+  const number=(v,f,a,b)=>Number.isFinite(v)?clamp(v,a,b):f;
+  s.p.x=number(raw.p?.x,0,-35,35);
+  s.p.z=number(raw.p?.z,6,-35,35);
+  s.p.hp=number(raw.p?.hp,100,1,100);
+  s.p.mana=number(raw.p?.mana,100,0,100);
+  for (const k of Object.keys(s.inv))
+    s.inv[k]=Math.floor(number(raw.inv?.[k],s.inv[k],0,9999));
+  if (Array.isArray(raw.pieces)) {
+    s.pieces=raw.pieces.filter(d=>
+      specs[d.type] && Number.isFinite(d.x) && Number.isFinite(d.z) &&
+      Math.abs(d.x)<=8 && Math.abs(d.z)<=8 &&
+      d.x%2===0 && d.z%2===0 &&
+      Number.isInteger(d.r) && d.r>=0 && d.r<4
+    ).slice(0,140).map(d=>({type:d.type,x:d.x,z:d.z,r:d.r}));
+  }
+  s.charm=raw.charm===true;
+  s.won=raw.won===true;
+  s.opened=sites.map((_,i)=>raw.opened?.[i]===true);
+  s.enemies.forEach((e,i)=>{e.calm=raw.calm?.[i]===true;});
+  return s;
+}
+
+function startGame(load=false) {
+  unlockAudio();
+  try { state=load?hydrate(saved):fresh(selected); }
+  catch (_) {
+    state=fresh(selected);
+    message("ข้อมูลบันทึกไม่สมบูรณ์ จึงเริ่มเกมใหม่");
+  }
+  time=0;uiClock=0;saveClock=0;
+  particles=[];bolts=[];keys=Object.create(null);
+  resources.forEach(r=>r.readyAt=0);
+  mode="";rotation=0;pointerAim=false;
+  castCooldown=0;bedCooldown=0;lastSpeech=-100;
+  musicClock=0;musicStep=0;
+  yaw=0;pitch=.62;zoom=10;
+  started=true;paused=false;
+  rebuildBuildings();
+  if (blocked(state.p.x,state.p.z)) {
+    state.p.x=0;state.p.z=10;
+  }
+  homeAnnounced=homeReady();
+  $("start").hidden=true;
+  $("win").hidden=true;
+  $("hud").hidden=false;
+  $("panel").hidden=true;
+  $("pauseLabel").hidden=true;
+  refreshPanel();
+  updateHUD();
+  sfx("craft");
+  message(
+    load
+      ? "กลับมาแล้วเจ้าหญิง! "+questNarration()
+      : "ยินดีต้อนรับเจ้าหญิง! เริ่มจากสร้างบ้านในพื้นที่ตาราง เก็บของด้วยปุ่มอี และเปิดเมนูสร้างด้วยปุ่มบี",
+    true,true
+  );
+}
+
+function setPaused(value) {
+  paused=value;
+  keys=Object.create(null);
+  $("pauseLabel").hidden=!paused || !$("win").hidden;
+  $("pauseBtn").textContent=paused?"P เล่นต่อ":"P พัก";
+  if (paused && "speechSynthesis" in window) speechSynthesis.cancel();
+}
+
+/* ---------- อัปเดตเกม ---------- */
+
+let stepSound=0;
+
+function update(dt) {
+  time+=dt;
+  const p=state.p;
+  p.invuln=Math.max(0,p.invuln-dt);
+  p.mana=Math.min(100,p.mana+dt*7);
+
+  let side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
+  let forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
+  const moving=side!==0 || forward!==0;
+  if (moving) {
+    pointerAim=false;
+    const n=Math.hypot(side,forward);
+    side/=n;forward/=n;
+    const dx=Math.cos(yaw)*side-Math.sin(yaw)*forward;
+    const dz=-Math.sin(yaw)*side-Math.cos(yaw)*forward;
+    let speed=keys.shift?5.5:3.7;
+    if (Math.hypot(p.x-18,p.z-18)<5) speed*=.6;
+    const nx=p.x+dx*speed*dt,nz=p.z+dz*speed*dt;
+    if (!blocked(nx,p.z)) p.x=nx;
+    if (!blocked(p.x,nz)) p.z=nz;
+    p.dir=Math.atan2(dx,dz);
+    stepSound-=dt;
+    if (stepSound<=0 && p.y<.05) {
+      stepSound=keys.shift?.27:.4;
+      tone(145+random()*45,.045,.025,0,"triangle");
+    }
+  }
+
+  p.vy-=18*dt;
+  p.y+=p.vy*dt;
+  if (p.y<0) {p.y=0;p.vy=0;}
+
+  const safe=Math.abs(p.x)<=9 && Math.abs(p.z)<=9;
+  if (safe && !state.enemies.some(e=>!e.calm && distance(p,e)<4))
+    p.hp=Math.min(100,p.hp+dt*4);
+
+  for (const e of state.enemies) {
+    if (e.calm) continue;
+    e.cool=Math.max(0,e.cool-dt);
+    e.stun=Math.max(0,e.stun-dt);
+    const d=distance(p,e);
+    if (!safe && d<9 && d>.85 && e.stun<=0) {
+      const speed=1.45;
+      const nx=e.x+(p.x-e.x)/d*speed*dt;
+      const nz=e.z+(p.z-e.z)/d*speed*dt;
+      const entersHome=Math.abs(nx)<=9 && Math.abs(nz)<=9;
+      if (!entersHome) {
+        if (!blocked(nx,e.z)) e.x=nx;
+        if (!blocked(e.x,nz)) e.z=nz;
+      }
+    }
+    if (!safe && d<1.15 && e.cool<=0 && p.y<.7) {
+      e.cool=1.5;
+      hurtPlayer();
+    }
+  }
+
+  for (let i=bolts.length-1;i>=0;i--) {
+    const b=bolts[i],e=b.target;
+    b.life-=dt;
+    const tx=e.x,ty=.65,tz=e.z;
+    const d=Math.hypot(tx-b.x,ty-b.y,tz-b.z);
+    if (d<.38 || d<dt*16) {
+      if (!e.calm) {
+        e.hp-=b.damage;
+        e.stun=.45;
+        sparkle(e.x,.8,e.z,"#ffd5eb",8);
+        if (e.hp<=0) calmEnemy(e);
+      }
+      bolts.splice(i,1);
+    } else if (b.life<=0) bolts.splice(i,1);
+    else {
+      b.x+=(tx-b.x)/d*16*dt;
+      b.y+=(ty-b.y)/d*16*dt;
+      b.z+=(tz-b.z)/d*16*dt;
+    }
+  }
+
+  for (let i=particles.length-1;i>=0;i--) {
+    const a=particles[i];
+    a.life-=dt;
+    if (a.life<=0) {particles.splice(i,1);continue;}
+    a.x+=a.vx*dt;a.y+=a.vy*dt;a.z+=a.vz*dt;
+    a.vy-=4*dt;
+  }
+  if (particles.length>250) particles.splice(0,particles.length-250);
+
+  musicClock-=dt;
+  if (musicClock<=0) {
+    musicClock=.58;
+    const melody=[523,659,784,659,587,698,880,698,494,622,740,622,523,659,784,1047];
+    tone(melody[musicStep++%melody.length],.48,.032);
+  }
+
+  uiClock+=dt;saveClock+=dt;
+  if (uiClock>.16) {uiClock=0;updateHUD();}
+  if (saveClock>12) {saveClock=0;saveGame(false);}
+}
+
+/* ---------- เรนเดอร์ ---------- */
+
+function render() {
+  const dpr=Math.min(window.devicePixelRatio||1,1.6);
+  const w=Math.floor(canvas.clientWidth*dpr),h=Math.floor(canvas.clientHeight*dpr);
+  if (canvas.width!==w || canvas.height!==h) {
+    canvas.width=w;canvas.height=h;
+  }
+  gl.viewport(0,0,w,h);
+  gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+
+  const p=state.p,hor=Math.cos(pitch)*zoom;
+  cameraTarget=[p.x,p.y+1,p.z];
+  cameraEye=[
+    p.x+Math.sin(yaw)*hor,
+    p.y+1+Math.sin(pitch)*zoom,
+    p.z+Math.cos(yaw)*hor
+  ];
+  const vp=multiply(perspective(Math.PI/3,w/h,.1,150),
+                    lookAt(cameraEye,cameraTarget));
+  gl.uniformMatrix4fv(loc.vp,false,vp);
+  gl.uniform3fv(loc.eye,cameraEye);
+
+  draw(worldMesh);
+  draw(buildingMesh);
+  resources.forEach(drawResource);
+  sites.forEach(drawChest);
+  state.enemies.forEach(drawEnemy);
+
+  /* ประตูพลังใจ */
+  drawBox(box(-1.2,1.3,-28,.26,2.6,.3,"#b692e3"));
+  drawBox(box(1.2,1.3,-28,.26,2.6,.3,"#b692e3"));
+  drawBox(box(0,2.65,-28,2.65,.25,.3,"#d7b6f3"));
+  const portalColor=missionReady()?"#ffb8df":"#9fd5ef";
+  for (let i=0;i<7;i++) {
+    const a=time+i*Math.PI*2/7;
+    drawBox(box(Math.sin(a)*.8,1.35+Math.cos(a)*.95,-28,
+      .13,.13,.13,portalColor,a));
+  }
+
+  if (p.invuln<=0 || Math.floor(time*12)%2===0)
+    princessBoxes().forEach(b=>drawBox(b));
+
+  for (const b of bolts) {
+    drawBox(box(b.x,b.y,b.z,.23,.23,.23,"#ff8dc5",time*5));
+    drawBox(box(b.x-.1,b.y+.12,b.z,.12,.12,.12,"#ffc0df"));
+    drawBox(box(b.x+.1,b.y+.12,b.z,.12,.12,.12,"#ffc0df"));
+  }
+
+  for (const a of particles) {
+    const size=.11*clamp(a.life/.3,0,1);
+    drawBox(box(a.x,a.y,a.z,size,size,size,a.color,time));
+  }
+
+  if (started && mode==="build") {
+    const d=targetTile(),ok=!buildCheck(d);
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+    gl.depthMask(false);
+    for (const b of buildingShapes(d)) {
+      b.c=ok?"#88f0be":"#ff8eaa";
+      drawBox(b,.46);
+    }
+    drawBox(box(d.x,.24,d.z,1.9,.04,1.9,ok?"#baffd5":"#ffafba"),.5);
+    gl.depthMask(true);
+    gl.disable(gl.BLEND);
+  }
+}
+
+function frame(now) {
+  const dt=Math.min((now-last)/1000,.04);
+  last=now;
+  if (started && !paused) update(dt);
+  render();
+  requestAnimationFrame(frame);
+}
+
+/* ---------- อินพุต ---------- */
+
+const preventKeys=new Set([
+  " ","arrowup","arrowdown","arrowleft","arrowright","enter","delete"
+]);
+
+window.addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if (started && preventKeys.has(k)) e.preventDefault();
+  if (!started) return;
+
+  if (k==="p" && !e.repeat && $("win").hidden) {
+    setPaused(!paused);return;
+  }
+  if (paused) return;
+  keys[k]=true;
+  if (e.repeat) return;
+
+  if (k===" ") jump();
+  else if (k==="e") interact();
+  else if (k==="f") magic();
+  else if (k==="b") togglePanel("build");
+  else if (k==="c") togglePanel("craft");
+  else if (k==="r" && mode==="build") rotatePiece();
+  else if (k==="enter") place();
+  else if (k==="delete") removePiece();
+  else if (k==="g") usePotion();
+  else if (k==="v") message(questNarration(),true,true);
+  else if (k==="escape") {
+    mode="";$("panel").hidden=true;refreshPanel();
+  }
+});
+window.addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;});
+window.addEventListener("blur",()=>{
+  keys=Object.create(null);
+  if (started && $("win").hidden) setPaused(true);
+});
+document.addEventListener("visibilitychange",()=>{
+  if (document.hidden && started && $("win").hidden) setPaused(true);
+});
+
+canvas.addEventListener("contextmenu",e=>e.preventDefault());
+canvas.addEventListener("pointerdown",e=>{
+  if (!started || paused) return;
+  unlockAudio();
+  pointer={x:e.clientX,y:e.clientY};
+  if (e.button===2 || e.pointerType==="touch") {
+    drag={
+      id:e.pointerId,x:e.clientX,y:e.clientY,
+      startX:e.clientX,startY:e.clientY,at:performance.now(),
+      touch:e.pointerType==="touch"
+    };
+    canvas.setPointerCapture(e.pointerId);
+    pointerAim=false;
+  } else if (e.button===0) {
+    pointerAim=e.pointerType==="mouse";
+    if (mode==="build") place();
+    else magic();
+  }
+});
+canvas.addEventListener("pointermove",e=>{
+  pointer={x:e.clientX,y:e.clientY};
+  if (drag && drag.id===e.pointerId) {
+    yaw-=(e.clientX-drag.x)*.006;
+    pitch=clamp(pitch+(e.clientY-drag.y)*.004,.3,1.1);
+    drag.x=e.clientX;drag.y=e.clientY;
+  } else if (e.pointerType==="mouse") pointerAim=true;
+});
+function endDrag(e) {
+  if (!drag || drag.id!==e.pointerId) return;
+  const tap=drag.touch &&
+    performance.now()-drag.at<240 &&
+    Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<10;
+  drag=null;
+  if (tap && !paused) {
+    pointerAim=false;
+    if (mode==="build") place();
+    else magic();
+  }
+}
+canvas.addEventListener("pointerup",endDrag);
+canvas.addEventListener("pointercancel",()=>{drag=null;});
+canvas.addEventListener("lostpointercapture",()=>{drag=null;});
+canvas.addEventListener("wheel",e=>{
+  e.preventDefault();
+  zoom=clamp(zoom+e.deltaY*.012,5,18);
+},{passive:false});
+
+document.querySelectorAll("#touchPad button").forEach(b=>{
+  function release() { keys[b.dataset.key]=false; }
+  b.addEventListener("pointerdown",e=>{
+    e.preventDefault();
+    if (!started || paused) return;
+    keys[b.dataset.key]=true;
+    pointerAim=false;
+    b.setPointerCapture(e.pointerId);
+  });
+  b.addEventListener("pointerup",release);
+  b.addEventListener("pointercancel",release);
+  b.addEventListener("lostpointercapture",release);
+});
+
+$("buildBtn").onclick=()=>togglePanel("build");
+$("craftBtn").onclick=()=>togglePanel("craft");
+$("saveBtn").onclick=()=>saveGame(true);
+$("interactBtn").onclick=interact;
+$("magicBtn").onclick=magic;
+$("jumpBtn").onclick=jump;
+$("potionBtn").onclick=usePotion;
+$("readBtn").onclick=()=>message(questNarration(),true,true);
+$("pauseBtn").onclick=()=>{
+  if ($("win").hidden) setPaused(!paused);
+};
+$("soundBtn").onclick=()=>{
+  unlockAudio();
+  soundOn=!soundOn;
+  $("soundBtn").textContent=`ดนตรี: ${soundOn?"เปิด":"ปิด"}`;
+};
+$("voiceBtn").onclick=()=>{
+  voiceOn=!voiceOn;
+  $("voiceBtn").textContent=`บรรยาย: ${voiceOn?"เปิด":"ปิด"}`;
+  if (!voiceOn && "speechSynthesis" in window) speechSynthesis.cancel();
+  if (voiceOn) narrate(questNarration(),true);
+};
+$("keepPlaying").onclick=()=>{
+  $("win").hidden=true;
+  setPaused(false);
+  message("เล่นต่อได้เลย! สร้างบ้าน ตกแต่ง และสำรวจตามใจ");
+};
+
+function drawChoices() {
+  $("princesses").innerHTML=Object.entries(styles).map(([id,s])=>
+    `<button class="choice ${selected===id?"active":""}" data-princess="${id}">
+      <div class="swatch" style="background:${s.dress};
+        border-top-color:${s.hair}"></div>${s.name}
+    </button>`
+  ).join("");
+}
+$("princesses").addEventListener("click",e=>{
+  const b=e.target.closest("[data-princess]");
+  if (!b) return;
+  selected=b.dataset.princess;
+  state.princess=selected;
+  drawChoices();
+});
+$("newBtn").onclick=()=>{
+  if (saved && !confirm("เริ่มเกมใหม่? ข้อมูลเดิมจะถูกแทนที่เมื่อเกมบันทึก")) return;
+  startGame(false);
+};
+$("continueBtn").hidden=!saved;
+$("continueBtn").onclick=()=>startGame(true);
+
+window.addEventListener("pagehide",()=>{
+  saveGame(false);
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+});
+document.querySelectorAll('a[href="index.html"]').forEach(link => {
+  link.addEventListener("click", () => {
+    saveGame(false);
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
+  });
+});
+canvas.addEventListener("webglcontextlost",e=>{
+  e.preventDefault();
+  if (started) setPaused(true);
+  message("ระบบกราฟิกหยุดทำงาน โปรดรีโหลดหน้าเพื่อเล่นต่อจากข้อมูลบันทึก");
+});
+
+drawChoices();
+rebuildBuildings();
+requestAnimationFrame(frame);
+
+})();
+</script>
+</body>
+</html>
