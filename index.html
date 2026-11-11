@@ -379,15 +379,15 @@ footer {
   </header>
 
   <nav class="filters" aria-label="กรองรายการเกมตามภาษา">
-    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (15 เกม)</button>
-    <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (8 เกม)</button>
-    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (7 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="all" aria-pressed="true">ทั้งหมด (17 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="th" aria-pressed="false">ภาษาไทย (9 เกม)</button>
+    <button class="filter-btn" type="button" data-filter="en" aria-pressed="false">English (8 เกม)</button>
   </nav>
 
   <main class="grid" id="gameGrid" aria-label="รายการเกมทั้งหมด"></main>
 
   <footer>
-    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games) — เวอร์ชันแอปพลิเคชัน v1.3.0</strong><br>
+    <strong>โครงการเกมเจ้าหญิงพัฒนาทักษะเด็กอนุบาล (Single-File HTML Games) — เวอร์ชันแอปพลิเคชัน v1.4.0</strong><br>
     แต่ละเกมอยู่ในไฟล์ HTML เพียงไฟล์เดียว • วาดภาพประกอบทั้งหมดด้วยโค้ด SVG • ใช้เสียงพูด Web Speech API และเสียงดนตรีสังเคราะห์ Web Audio API โดยไม่พึ่งพาไฟล์ภายนอก
   </footer>
 </div>
@@ -398,6 +398,60 @@ footer {
 const $ = id => document.getElementById(id);
 
 const GAMES = [
+  {
+    id: "clock",
+    href: "clock.html",
+    lang: "th",
+    isNew: true,
+    title: "ปราสาทเจ้าหญิงเรียนรู้เวลา (Princess Clock Castle)",
+    skill: "การอ่านเวลาและหน้าปัดนาฬิกา (Telling Time & Clock Hands)",
+    description: "ฝึกอ่านเวลาแบบเข็มและตัวเลข สังเกตฉากท้องฟ้าเช้า กลางวัน เย็น ดึก และเล่นเกมสะสมดาวอ่านเวลากับเจ้าหญิงซินเดอเรลลา",
+    speech: "เกมปราสาทเจ้าหญิงเรียนรู้เวลา มาฝึกอ่านนาฬิกาแบบเข็มและสะสมดาวกับเจ้าหญิงซินเดอเรลลากันนะจ๊ะ",
+    bg: "linear-gradient(150deg, #fff0f5, #f3e8ff 50%, #e0f2fe)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="clockGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fffdf0"/>
+          <stop offset="100%" stop-color="#f5e8ff"/>
+        </radialGradient>
+      </defs>
+      <!-- Twinkling stars -->
+      <g fill="#fde047">
+        <circle cx="28" cy="24" r="2.5"/>
+        <circle cx="192" cy="28" r="3"/>
+        <circle cx="34" cy="116" r="2"/>
+        <circle cx="188" cy="112" r="2.5"/>
+        <polygon points="184,20 186,25 191,26 186,27 184,32 182,27 177,26 182,25"/>
+      </g>
+      <!-- Castle turrets backdrop -->
+      <g opacity=".85">
+        <rect x="36" y="60" width="30" height="66" rx="4" fill="#d8c5ef"/>
+        <path d="M30 60 L51 28 L72 60 Z" fill="#987bc7"/>
+        <rect x="154" y="60" width="30" height="66" rx="4" fill="#d8c5ef"/>
+        <path d="M148 60 L169 28 L190 60 Z" fill="#987bc7"/>
+        <rect x="62" y="78" width="96" height="48" fill="#e7dbf5"/>
+      </g>
+      <!-- Clock tower center circle -->
+      <circle cx="110" cy="74" r="50" fill="#eeddfa" stroke="#8c68c2" stroke-width="3"/>
+      <circle cx="110" cy="74" r="44" fill="url(#clockGlow)" stroke="#cbb4e8" stroke-width="2"/>
+      <!-- Hour dots / marks -->
+      <circle cx="110" cy="37" r="3" fill="#c84279"/>
+      <circle cx="147" cy="74" r="3" fill="#6a528c"/>
+      <circle cx="110" cy="111" r="3" fill="#6a528c"/>
+      <circle cx="73" cy="74" r="3" fill="#6a528c"/>
+      <!-- Hour and Minute hands (7:00) -->
+      <line x1="110" y1="74" x2="94" y2="96" stroke="#c84279" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="74" x2="110" y2="44" stroke="#186bad" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Center Pin -->
+      <circle cx="110" cy="74" r="5" fill="#f4be3b" stroke="#fff" stroke-width="1.5"/>
+      <!-- Mini Princess Tiara on top of clock -->
+      <path d="M96 29 L100 20 L110 25 L120 20 L124 29 Z" fill="#fcd34d" stroke="#d97706" stroke-width="1.5"/>
+      <circle cx="110" cy="24" r="2" fill="#ec4899"/>
+      <!-- Digital time pill -->
+      <rect x="85" y="118" width="50" height="18" rx="9" fill="#7042a9" stroke="#fff" stroke-width="1.5"/>
+      <text x="110" y="131" text-anchor="middle" font-size="11" font-weight="900" fill="#fff" font-family="monospace">07:00</text>
+    </svg>`
+  },
   {
     id: "block_kingdom",
     href: "block_kingdom.html",
@@ -647,6 +701,63 @@ const GAMES = [
       <path d="M54 34 H158 V70 H110 V104 H166" fill="none" stroke="#f4be3b" stroke-width="5" stroke-dasharray="6 5" stroke-linecap="round"/>
       <circle cx="54" cy="34" r="9" fill="#e84e98"/>
       <polygon points="168,94 176,108 160,108" fill="#169868"/>
+    </svg>`
+  },
+  {
+    id: "clock_en",
+    href: "clock_en.html",
+    lang: "en",
+    isNew: true,
+    title: "Princess Clock Castle — Learn to Tell Time",
+    skill: "Telling Time & Clock Hands (EN)",
+    description: "เวอร์ชันภาษาอังกฤษของเกมปราสาทเจ้าหญิงเรียนรู้เวลา ฝึกอ่านนาฬิกาแบบเข็มและตัวเลข AM/PM และสะสมดาวกับซินเดอเรลลา พร้อมเสียงพากย์ภาษาอังกฤษ",
+    speech: "Princess Clock Castle. Practice telling time with Cinderella and collect stars in English!",
+    speechLang: "en-US",
+    bg: "linear-gradient(150deg, #f0f7ff, #fceaf4 55%, #e4faf0)",
+    svg: `<svg viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <radialGradient id="clockGlowEn" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#fffdf0"/>
+          <stop offset="100%" stop-color="#e8f1ff"/>
+        </radialGradient>
+      </defs>
+      <!-- Twinkling stars -->
+      <g fill="#fde047">
+        <circle cx="192" cy="28" r="3"/>
+        <circle cx="34" cy="116" r="2"/>
+        <circle cx="188" cy="112" r="2.5"/>
+        <polygon points="184,20 186,25 191,26 186,27 184,32 182,27 177,26 182,25"/>
+      </g>
+      <!-- Castle turrets backdrop -->
+      <g opacity=".85">
+        <rect x="36" y="60" width="30" height="66" rx="4" fill="#cbe2f8"/>
+        <path d="M30 60 L51 28 L72 60 Z" fill="#6ba2db"/>
+        <rect x="154" y="60" width="30" height="66" rx="4" fill="#cbe2f8"/>
+        <path d="M148 60 L169 28 L190 60 Z" fill="#6ba2db"/>
+        <rect x="62" y="78" width="96" height="48" fill="#e0effc"/>
+      </g>
+      <!-- Clock tower center circle -->
+      <circle cx="110" cy="74" r="50" fill="#e3effc" stroke="#2d6cdf" stroke-width="3"/>
+      <circle cx="110" cy="74" r="44" fill="url(#clockGlowEn)" stroke="#a5c9f5" stroke-width="2"/>
+      <!-- Hour dots / marks -->
+      <circle cx="110" cy="37" r="3" fill="#c84279"/>
+      <circle cx="147" cy="74" r="3" fill="#2d6cdf"/>
+      <circle cx="110" cy="111" r="3" fill="#2d6cdf"/>
+      <circle cx="73" cy="74" r="3" fill="#2d6cdf"/>
+      <!-- Hour and Minute hands (7:00) -->
+      <line x1="110" y1="74" x2="94" y2="96" stroke="#c84279" stroke-width="5" stroke-linecap="round"/>
+      <line x1="110" y1="74" x2="110" y2="44" stroke="#186bad" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Center Pin -->
+      <circle cx="110" cy="74" r="5" fill="#f4be3b" stroke="#fff" stroke-width="1.5"/>
+      <!-- Mini Princess Tiara on top of clock -->
+      <path d="M96 29 L100 20 L110 25 L120 20 L124 29 Z" fill="#fcd34d" stroke="#d97706" stroke-width="1.5"/>
+      <circle cx="110" cy="24" r="2" fill="#ec4899"/>
+      <!-- Digital time pill -->
+      <rect x="75" y="118" width="70" height="18" rx="9" fill="#2d6cdf" stroke="#fff" stroke-width="1.5"/>
+      <text x="110" y="131" text-anchor="middle" font-size="10" font-weight="900" fill="#fff" font-family="monospace">07:00 AM</text>
+      <!-- EN Badge -->
+      <rect x="18" y="18" width="34" height="24" rx="8" fill="#e8f1ff" stroke="#2d6cdf" stroke-width="2.5"/>
+      <text x="35" y="35" text-anchor="middle" font-size="13" font-weight="bold" fill="#1d4fa8">EN</text>
     </svg>`
   },
   {

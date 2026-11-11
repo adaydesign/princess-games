@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8063bb">
+  <title>Princess Clock Castle — Learn to Tell Time</title>
+
+  <style>
+    :root {
+      --sky-a: #ffe4ad;
+      --sky-b: #b9e5ff;
+      --hero-ink: #34304d;
+      --ink: #303249;
+      --muted: #62647a;
+      --purple: #7051a3;
+      --pink: #c84279;
+      --blue: #186bad;
+      --gold: #e4aa32;
+      --border: #e6dff0;
+      --shadow: 0 12px 32px #33235714;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, var(--sky-a), var(--sky-b) 430px, #f7f3fc 900px);
+      min-height: 100vh;
+      transition: background 700ms ease;
+    }
+
+    body[data-period="morning"] {
+      --sky-a: #ffe4ad;
+      --sky-b: #b9e5ff;
+      --hero-ink: #34304d;
+    }
+
+    body[data-period="day"] {
+      --sky-a: #89d4ff;
+      --sky-b: #e5f7ff;
+      --hero-ink: #263c59;
+    }
+
+    body[data-period="evening"] {
+      --sky-a: #ffc18f;
+      --sky-b: #ddb5ea;
+      --hero-ink: #493052;
+    }
+
+    body[data-period="night"] {
+      --sky-a: #152342;
+      --sky-b: #555087;
+      --hero-ink: #ffffff;
+    }
+
+    button, select, input { font: inherit; }
+
+    button, select { touch-action: manipulation; }
+
+    button, a.back-btn {
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 16px;
+      min-height: 48px;
+      padding: 10px 16px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 150ms, background 150ms;
+    }
+
+    button:hover:not(:disabled), a.back-btn:hover {
+      transform: translateY(-2px);
+      background: #f5efff;
+    }
+
+    button:active:not(:disabled), a.back-btn:active { transform: translateY(1px); }
+
+    button:disabled {
+      cursor: default;
+      opacity: .55;
+    }
+
+    button:focus-visible,
+    a.back-btn:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 4px solid #edae36;
+      outline-offset: 3px;
+    }
+
+    .primary {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .primary:hover:not(:disabled) {
+      background: #5d3f8f;
+      color: #fff;
+    }
+
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 16px 14px 44px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      background: #ffffffe0;
+      border: 2px solid #ffffff;
+      box-shadow: var(--shadow);
+      min-height: 240px;
+      margin-bottom: 16px;
+    }
+
+    .landscape {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .sun, .moon, .night-stars {
+      transition: opacity 600ms ease, transform 600ms ease;
+    }
+
+    body[data-period="morning"] .sun {
+      transform: translate(-30px, 45px);
+      opacity: .95;
+    }
+    body[data-period="morning"] .moon,
+    body[data-period="morning"] .night-stars {
+      opacity: 0;
+    }
+
+    body[data-period="day"] .sun {
+      transform: translate(45px, 0);
+      opacity: 1;
+    }
+    body[data-period="day"] .moon,
+    body[data-period="day"] .night-stars {
+      opacity: 0;
+    }
+
+    body[data-period="evening"] .sun {
+      transform: translate(110px, 85px);
+      opacity: .85;
+    }
+    body[data-period="evening"] .moon {
+      transform: translate(-20px, 15px);
+      opacity: .4;
+    }
+    body[data-period="evening"] .night-stars {
+      opacity: .2;
+    }
+
+    body[data-period="night"] .sun {
+      transform: translate(140px, 160px);
+      opacity: 0;
+    }
+    body[data-period="night"] .moon {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+    body[data-period="night"] .night-stars {
+      opacity: .95;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      padding: 24px 22px;
+      width: 60%;
+      color: var(--hero-ink);
+    }
+
+    .period-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffffd6;
+      color: var(--purple);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .period-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e4aa32;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.15;
+    }
+
+    .hero-copy p {
+      margin: 0;
+      font-size: 15px;
+      opacity: .9;
+    }
+
+    .scene-range {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      background: #39245417;
+      padding: 3px 8px;
+      border-radius: 8px;
+    }
+
+    .princess {
+      position: absolute;
+      right: 22px;
+      bottom: 0;
+      filter: drop-shadow(0 5px 6px #30234b25);
+      pointer-events: none;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 16px 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .active {
+      background: #efe6fb;
+      border-color: var(--purple);
+      color: #563987;
+    }
+
+    .format-box {
+      background: #fffffff0;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 13px 16px;
+      margin-bottom: 16px;
+    }
+
+    .format-box .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .format-help {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 390px) 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .clock-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .clock-wrap {
+      width: 100%;
+      max-width: 340px;
+      aspect-ratio: 1;
+      margin: 0 auto;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .hour-color { background: var(--pink); }
+    .minute-color { background: var(--blue); }
+
+    .digital {
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 34px;
+      font-weight: 700;
+      background: #f7f2fc;
+      border: 2px dashed #d7c5ed;
+      border-radius: 14px;
+      padding: 6px 18px;
+      margin-top: 12px;
+      color: #3b285b;
+      letter-spacing: 1px;
+    }
+
+    .clock-hint {
+      margin: 10px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      min-height: 38px;
+      line-height: 1.4;
+    }
+
+    .teaching-steps {
+      margin: 0 0 16px;
+      padding-left: 20px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .presets button {
+      min-height: 52px;
+      padding: 6px 8px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .presets small {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .slider-block {
+      background: #faf7ff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .slider-label output {
+      background: #ede2fa;
+      color: #552d87;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 10px;
+      accent-color: var(--purple);
+      margin: 6px 0;
+    }
+
+    .adjust-buttons {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .adjust-buttons button {
+      flex: 1;
+      min-height: 36px;
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .full-button {
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .game-settings {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .game-settings select {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 12px;
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .star-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff6de;
+      color: #8c6000;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+    }
+
+    .star-count svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .pop {
+      animation: pop 450ms ease;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    progress {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    progress::-webkit-progress-bar { background: #ede7f5; }
+    progress::-webkit-progress-value { background: var(--gold); }
+    progress::-moz-progress-bar { background: var(--gold); }
+
+    .question-text {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 14px;
+      color: #3b285b;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .choice {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      padding: 12px 18px;
+      border-radius: 18px;
+      min-height: 56px;
+    }
+
+    .choice strong {
+      font-size: 26px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+
+    .choice span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .choice.right {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .choice.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
+    .feedback {
+      min-height: 48px;
+      border-radius: 14px;
+      padding: 10px 14px;
+      background: #f8f6fc;
+      margin-bottom: 12px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+
+    .feedback[data-kind="correct"] {
+      background: #ecfdf5;
+      color: #166534;
+      border: 1px solid #86efac;
+      font-weight: 700;
+    }
+
+    .feedback[data-kind="wrong"] {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .feedback[data-kind="finished"] {
+      background: #fefce8;
+      color: #854d0e;
+      border: 1px solid #fde047;
+      font-weight: 700;
+    }
+
+    .reward {
+      text-align: center;
+      padding: 18px 8px;
+    }
+
+    .reward svg {
+      width: 100px;
+      height: 70px;
+      filter: drop-shadow(0 6px 12px #e4aa3240);
+    }
+
+    .reward h3 {
+      margin: 8px 0 4px;
+      color: #704499;
+      font-size: 22px;
+    }
+
+    .reward p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .small-note {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding: 14px;
+      background: #ffffffa0;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .hero-copy { width: 75%; padding: 18px; }
+      .hero-copy p { font-size: 14px; }
+      .princess { width: 100px; height: 175px; right: 8px; }
+      .card { padding: 18px; }
+      .toolbar { gap: 10px; }
+      .toolbar button, .toolbar a.back-btn { font-size: 14px; padding: 9px 12px; }
+      .clock-wrap { max-width: 320px; }
+      .choice strong { font-size: 23px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body data-period="morning">
+  <main class="app">
+    <header class="hero">
+      <!-- Landscape SVG: Sun, Moon, Stars, Castle -->
+      <svg class="landscape"
+           viewBox="0 0 1100 280"
+           preserveAspectRatio="xMidYMax slice"
+           aria-hidden="true">
+        <g class="night-stars" fill="#fff3bf">
+          <circle cx="550" cy="35" r="3"/>
+          <circle cx="645" cy="68" r="2"/>
+          <circle cx="735" cy="22" r="3"/>
+          <circle cx="930" cy="54" r="2"/>
+          <circle cx="1030" cy="25" r="3"/>
+          <path d="M590 85l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+          <path d="M985 92l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+        </g>
+
+        <g class="sun">
+          <circle cx="745" cy="60" r="31" fill="#fff1a1"/>
+          <circle cx="745" cy="60" r="42" fill="#ffe889" opacity=".25"/>
+        </g>
+
+        <path class="moon"
+              d="M770 28a35 35 0 1 0 28 53 29 29 0 0 1-28-53z"
+              fill="#fff1bc"/>
+
+        <g fill="#ffffff" opacity=".55">
+          <ellipse cx="570" cy="110" rx="47" ry="14"/>
+          <ellipse cx="598" cy="103" rx="31" ry="18"/>
+          <ellipse cx="928" cy="125" rx="53" ry="14"/>
+          <ellipse cx="954" cy="115" rx="29" ry="19"/>
+        </g>
+
+        <path d="M0 259Q220 205 430 249T800 240T1100 247V280H0Z"
+              fill="#93bc9a"/>
+        <path d="M0 278Q260 241 510 271T1100 264V280H0Z"
+              fill="#679a83"/>
+
+        <g transform="translate(705 85)">
+          <rect x="25" y="90" width="210" height="110"
+                rx="4" fill="#e4d9f0"/>
+          <rect x="2" y="65" width="48" height="135"
+                fill="#c9b6df"/>
+          <rect x="210" y="65" width="48" height="135"
+                fill="#c9b6df"/>
+          <path d="M-6 65L26 20L58 65Z" fill="#8970ba"/>
+          <path d="M202 65L234 20L266 65Z" fill="#8970ba"/>
+
+          <rect x="94" y="39" width="72" height="161"
+                fill="#f0e8f7"/>
+          <path d="M84 39L130-17L176 39Z" fill="#987bc7"/>
+          <path d="M130-17V-39L155-30L130-21"
+                stroke="#8265a8" stroke-width="3"
+                fill="#f4a5c7"/>
+
+          <path d="M112 200V159a18 18 0 0 1 36 0v41"
+                fill="#947aaf"/>
+
+          <g class="castle-window">
+            <rect x="19" y="85" width="15" height="26" rx="7"/>
+            <rect x="226" y="85" width="15" height="26" rx="7"/>
+            <rect x="119" y="59" width="22" height="31" rx="11"/>
+            <rect x="65" y="126" width="17" height="25" rx="8"/>
+            <rect x="180" y="126" width="17" height="25" rx="8"/>
+          </g>
+
+          <path d="M55 92V81H72V92H88V81H105V92
+                   M158 92V81H175V92H192V81H209V92"
+                fill="none" stroke="#e4d9f0" stroke-width="10"/>
+        </g>
+
+        <g fill="#da9abe">
+          <circle cx="635" cy="263" r="6"/>
+          <circle cx="660" cy="258" r="5"/>
+          <circle cx="1020" cy="261" r="6"/>
+          <circle cx="1040" cy="268" r="5"/>
+        </g>
+      </svg>
+
+      <div class="hero-copy">
+        <div class="period-badge">
+          <span class="period-dot"></span>
+          <span id="sceneLabel">Morning</span>
+        </div>
+        <h1>Princess Clock<br>Castle</h1>
+        <p id="sceneCaption">Wake up and get ready for school</p>
+        <span class="scene-range" id="sceneRange">05:00–11:59</span>
+      </div>
+
+      <!-- Princess Cinderella SVG Art -->
+      <svg class="princess" viewBox="0 0 160 250"
+           role="img" aria-label="Princess Cinderella in blue ballgown">
+        <ellipse cx="82" cy="240" rx="60" ry="8"
+                 fill="#382857" opacity=".12"/>
+
+        <path d="M66 118Q42 156 19 233Q79 252 145 233
+                 Q123 158 98 118Z"
+              fill="#71bde7"/>
+        <path d="M75 126Q60 172 46 239Q80 246 112 239
+                 Q101 168 88 126Z"
+              fill="#bde7fb"/>
+        <path d="M30 217Q79 235 134 217"
+              fill="none" stroke="#e1f4ff" stroke-width="4"/>
+
+        <path d="M63 91Q80 101 98 91L104 126
+                 Q80 137 58 126Z"
+              fill="#88cff0"/>
+        <path d="M61 92Q49 92 46 109Q57 118 66 105Z"
+              fill="#d5f1ff"/>
+        <path d="M98 92Q112 92 115 109Q103 118 94 105Z"
+              fill="#d5f1ff"/>
+
+        <path d="M48 109L35 143"
+              stroke="#f4c6aa" stroke-width="11"
+              stroke-linecap="round"/>
+        <path d="M111 108L124 137"
+              stroke="#f4c6aa" stroke-width="11"
+              stroke-linecap="round"/>
+        <path d="M37 137L32 153"
+              stroke="#eefaff" stroke-width="12"
+              stroke-linecap="round"/>
+        <path d="M121 129L126 145"
+              stroke="#eefaff" stroke-width="12"
+              stroke-linecap="round"/>
+
+        <rect x="72" y="76" width="17" height="23"
+              rx="6" fill="#f4c6aa"/>
+        <rect x="70" y="88" width="21" height="5"
+              rx="2" fill="#42415d"/>
+
+        <ellipse cx="81" cy="57" rx="29" ry="33" fill="#e6b74d"/>
+        <circle cx="81" cy="22" r="17" fill="#e9bd53"/>
+        <ellipse cx="81" cy="60" rx="23" ry="28" fill="#f7d1b8"/>
+        <path d="M57 47Q67 18 101 42Q94 48 79 40
+                 Q66 52 57 47Z"
+              fill="#e9bd53"/>
+
+        <path d="M58 37Q80 18 104 37"
+              fill="none" stroke="#a8dffc" stroke-width="6"/>
+
+        <path d="M68 27L73 15L81 23L89 15L94 27Z"
+              fill="#f4d47a" stroke="#bd9649" stroke-width="1.5"/>
+
+        <circle cx="73" cy="59" r="2.5" fill="#3c5269"/>
+        <circle cx="90" cy="59" r="2.5" fill="#3c5269"/>
+        <path d="M75 73Q81 78 88 73"
+              fill="none" stroke="#bd6b76"
+              stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="66" cy="69" rx="4" ry="2.5"
+                 fill="#efb0ae" opacity=".7"/>
+        <ellipse cx="97" cy="69" rx="4" ry="2.5"
+                 fill="#efb0ae" opacity=".7"/>
+      </svg>
+    </header>
+
+    <div class="toolbar">
+      <div class="button-group">
+        <a class="back-btn" href="index.html" aria-label="Back to all games">← Back to Games</a>
+        <nav class="button-group" aria-label="Select Learning Mode">
+          <button id="learnTab" class="active"
+                  aria-pressed="true" type="button">
+            Learn Mode
+          </button>
+          <button id="gameTab" aria-pressed="false" type="button">
+            Star Challenge
+          </button>
+        </nav>
+      </div>
+
+      <div class="button-group">
+        <button id="soundButton" aria-pressed="true" type="button">
+          Sound: On
+        </button>
+        <button id="voiceButton" type="button">
+          Listen to Voice
+        </button>
+      </div>
+    </div>
+
+    <section class="format-box" aria-label="Time Format">
+      <div class="row">
+        <strong>Time Display Format</strong>
+        <div class="button-group">
+          <button id="format12" class="active"
+                  aria-pressed="true" type="button">
+            12-Hour (AM / PM)
+          </button>
+          <button id="format24" aria-pressed="false" type="button">
+            24-Hour
+          </button>
+        </div>
+      </div>
+      <p id="formatHelp" class="format-help"></p>
+    </section>
+
+    <div class="layout">
+      <section class="card clock-card" aria-label="Analog Clock">
+        <div class="clock-wrap">
+          <svg id="clock" viewBox="0 0 360 360"
+               role="img" aria-labelledby="clockTitle">
+            <title id="clockTitle">Analog Clock</title>
+
+            <circle cx="180" cy="180" r="158" fill="#eee3fa"/>
+            <circle cx="180" cy="180" r="148"
+                    fill="#fffdf8" stroke="#d1b5e7" stroke-width="3"/>
+            <circle cx="180" cy="180" r="138"
+                    fill="none" stroke="#f3eaf8" stroke-width="2"/>
+
+            <g id="ticks"></g>
+            <g id="numbers"></g>
+
+            <g id="hourHand">
+              <line x1="0" y1="14" x2="0" y2="-78"
+                    stroke="#c84279" stroke-width="12"
+                    stroke-linecap="round"/>
+            </g>
+
+            <g id="minuteHand">
+              <line x1="0" y1="17" x2="0" y2="-113"
+                    stroke="#186bad" stroke-width="7"
+                    stroke-linecap="round"/>
+            </g>
+
+            <circle cx="180" cy="180" r="10"
+                    fill="#e4aa32" stroke="#fff" stroke-width="3"/>
+          </svg>
+        </div>
+
+        <div class="legend">
+          <span><i class="hour-color"></i>Pink short hand = Hour</span>
+          <span><i class="minute-color"></i>Blue long hand = Minute</span>
+        </div>
+
+        <div id="digital" class="digital">07:00 AM</div>
+        <p id="clockHint" class="clock-hint"></p>
+      </section>
+
+      <section id="lessonPanel" class="card">
+        <h2>How to Read the Clock</h2>
+
+        <ol class="teaching-steps">
+          <li>Look at the <strong style="color:var(--pink)">short pink hand</strong> to read the hour.</li>
+          <li>Look at the <strong style="color:var(--blue)">long blue hand</strong> to read the minutes.</li>
+          <li>Check the sky outside to know morning, afternoon, evening, or night!</li>
+        </ol>
+
+        <div class="presets" aria-label="Example times">
+          <button type="button" data-time="7,0">
+            Morning 7:00
+            <small>Time for school</small>
+          </button>
+          <button type="button" data-time="12,0">
+            Noon 12:00
+            <small>Lunchtime · 12 PM</small>
+          </button>
+          <button type="button" data-time="18,0">
+            Evening 6:00
+            <small>Dinner · 6 PM</small>
+          </button>
+          <button type="button" data-time="21,0">
+            Night 9:00
+            <small>Bedtime · 9 PM</small>
+          </button>
+          <button type="button" data-time="0,0">
+            Midnight 12:00
+            <small>Magic hour · 12 AM</small>
+          </button>
+          <button type="button" data-time="7,30">
+            Morning 7:30
+            <small>Half past 7</small>
+          </button>
+        </div>
+
+        <div class="slider-block">
+          <label class="slider-label" for="hourRange">
+            <span>Choose Hour of the Day</span>
+            <output id="hourOutput" for="hourRange">7 AM</output>
+          </label>
+          <input id="hourRange" type="range"
+                 min="0" max="23" step="1" value="7">
+          <div class="adjust-buttons">
+            <button type="button" data-shift="-60">− 1 Hour</button>
+            <button type="button" data-shift="60">+ 1 Hour</button>
+          </div>
+        </div>
+
+        <div class="slider-block">
+          <label class="slider-label" for="minuteRange">
+            <span>Choose Minutes (by 5 min)</span>
+            <output id="minuteOutput" for="minuteRange">00 min</output>
+          </label>
+          <input id="minuteRange" type="range"
+                 min="0" max="55" step="5" value="0">
+          <div class="adjust-buttons">
+            <button type="button" data-shift="-5">− 5 Min</button>
+            <button type="button" data-shift="5">+ 5 Min</button>
+          </div>
+        </div>
+
+        <button id="practiceButton" class="primary full-button" type="button">
+          Ready! Play the Star Challenge
+        </button>
+      </section>
+
+      <section id="gamePanel" class="card" hidden>
+        <h2>Princess Star Challenge</h2>
+
+        <div class="game-settings">
+          <label for="difficulty">
+            Difficulty:
+            <select id="difficulty">
+              <option value="hour">Level 1: Exact Hours (:00)</option>
+              <option value="half">Level 2: Hours & Half Hours (:00 & :30)</option>
+              <option value="five">Level 3: Every 5 Minutes</option>
+            </select>
+          </label>
+          <button id="restartButton" type="button">New Game</button>
+        </div>
+
+        <div class="game-stats">
+          <span id="questionCounter">Question 1 / 8</span>
+          <span id="starCount" class="star-count">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.3
+                       -6.2 3.3 1.2-7-5.1-5 7-.9z"
+                    fill="#e4aa32"/>
+            </svg>
+            <span id="starText">0 / 8 Stars</span>
+          </span>
+        </div>
+
+        <progress id="progress" max="8" value="0"
+                  aria-label="Star collection progress"></progress>
+
+        <p id="questionText" class="question-text">What time is shown on this clock?</p>
+
+        <div id="answers" class="answers"
+             role="group" aria-label="Answer options"></div>
+
+        <div id="feedback" class="feedback"
+             role="status" aria-live="polite" aria-atomic="true">
+          Look at the clock hands and the sky, then tap your answer!
+        </div>
+
+        <button id="nextButton" class="primary full-button"
+                type="button" hidden>
+          Next Question
+        </button>
+
+        <div id="reward" class="reward" hidden>
+          <svg viewBox="0 0 120 80" aria-hidden="true">
+            <path d="M15 63L7 20L35 39L60 8L85 39L113 20L105 63Z"
+                  fill="#f6cf61" stroke="#cb9433" stroke-width="3"/>
+            <rect x="15" y="60" width="90" height="13"
+                  rx="5" fill="#e9b447"/>
+            <circle cx="60" cy="43" r="7" fill="#b283d4"/>
+            <circle cx="30" cy="51" r="4" fill="#76c4e6"/>
+            <circle cx="90" cy="51" r="4" fill="#76c4e6"/>
+          </svg>
+          <h3>Princess Time Master!</h3>
+          <p>You completed the challenge! Wonderful job!</p>
+        </div>
+
+        <p class="small-note">
+          No time limit! If you make a mistake, try again. Earn a shining star for each question solved.
+        </p>
+      </section>
+    </div>
+
+    <footer class="footer small-note">
+      <div id="voiceStatus" role="status"></div>
+      <div>
+        Sky periods in this game: Morning 05:00–11:59, Afternoon 12:00–15:59,
+        Evening 16:00–19:59, and Night 20:00–04:59 to help young learners.
+      </div>
+      <div>
+        Analog clock hands circle twice a day, so observing the day/night sky helps distinguish AM from PM.
+      </div>
+      <div>
+        SVG illustration created for this educational game. Not an official Disney product.
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    // ---------- Basic Utilities ----------
+
+    const $ = id => document.getElementById(id);
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const TOTAL_QUESTIONS = 8;
+
+    const pad = n => String(n).padStart(2, "0");
+    const totalMinutes = time => time.h * 60 + time.m;
+
+    function fromMinutes(value) {
+      const normalized = ((value % 1440) + 1440) % 1440;
+      return {
+        h: Math.floor(normalized / 60),
+        m: normalized % 60
+      };
+    }
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    const periods = {
+      morning: {
+        key: "morning",
+        label: "Morning",
+        range: "05:00–11:59",
+        caption: "Wake up and get ready for school"
+      },
+      day: {
+        key: "day",
+        label: "Afternoon",
+        range: "12:00–15:59",
+        caption: "Bright daylight, lunchtime and play"
+      },
+      evening: {
+        key: "evening",
+        label: "Evening",
+        range: "16:00–19:59",
+        caption: "Golden sunset, dinner with family"
+      },
+      night: {
+        key: "night",
+        label: "Night",
+        range: "20:00–04:59",
+        caption: "Twinkling stars and peaceful bedtime"
+      }
+    };
+
+    function getPeriod(hour) {
+      if (hour >= 5 && hour < 12) return periods.morning;
+      if (hour >= 12 && hour < 16) return periods.day;
+      if (hour >= 16 && hour < 20) return periods.evening;
+      return periods.night;
+    }
+
+    const state = {
+      mode: "learn",
+      format: "ampm", // Default 12-hour AM/PM for English early learners
+      sound: true,
+      lesson: { h: 7, m: 0 }
+    };
+
+    const game = {
+      questions: [],
+      options: [],
+      index: 0,
+      stars: 0,
+      solved: false,
+      finished: false,
+      wrong: new Set()
+    };
+
+    function currentTime() {
+      if (state.mode === "learn") return state.lesson;
+      return game.questions[game.index] || state.lesson;
+    }
+
+    function formatTime(time) {
+      if (state.format === "24") {
+        return `${pad(time.h)}:${pad(time.m)}`;
+      }
+
+      const hour12 = time.h % 12 || 12;
+      const suffix = time.h < 12 ? "AM" : "PM";
+
+      return `${pad(hour12)}:${pad(time.m)} ${suffix}`;
+    }
+
+    function handExplanation(time) {
+      const hour12 = time.h % 12 || 12;
+      const nextHour = hour12 % 12 + 1;
+
+      const hourText = time.m === 0
+        ? `The short hand points directly at ${hour12}.`
+        : `The short hand is between ${hour12} and ${nextHour}, so the hour is ${hour12}.`;
+
+      const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+      const minuteText = time.m === 0
+        ? `The long hand points to 12 (0 minutes).`
+        : `The long hand points to ${minuteNumber} (${time.m} minutes).`;
+
+      return `${hourText} ${minuteText}`;
+    }
+
+    function spokenTime(time) {
+      const hour12 = time.h % 12 || 12;
+      const period = getPeriod(time.h).label.toLowerCase();
+
+      if (time.h === 0 && time.m === 0) {
+        return "It is 12 o'clock midnight.";
+      }
+      if (time.h === 12 && time.m === 0) {
+        return "It is 12 o'clock noon.";
+      }
+
+      if (state.format === "24") {
+        if (time.m === 0) {
+          return `It is ${time.h} o'clock, in the ${period}.`;
+        }
+        return `It is ${pad(time.h)} ${pad(time.m)}, in the ${period}.`;
+      }
+
+      if (time.m === 0) {
+        return `It is ${hour12} o'clock in the ${period}.`;
+      }
+      if (time.m === 30) {
+        return `It is half past ${hour12} in the ${period}.`;
+      }
+      if (time.m === 15) {
+        return `It is quarter past ${hour12} in the ${period}.`;
+      }
+      if (time.m === 45) {
+        return `It is quarter to ${(hour12 % 12) + 1} in the ${period}.`;
+      }
+
+      return `It is ${hour12} ${pad(time.m)} in the ${period}.`;
+    }
+
+    function spokenHands(time) {
+      const hour12 = time.h % 12 || 12;
+      const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+      const hourText = time.m === 0
+        ? `The pink short hand points to ${hour12}. `
+        : `The pink short hand is past ${hour12}, showing hour ${hour12}. `;
+
+      const minuteText = time.m === 0
+        ? "The blue long hand points to 12, for zero minutes."
+        : `The blue long hand points to ${minuteNumber}, for ${time.m} minutes.`;
+
+      return hourText + minuteText;
+    }
+
+    function lessonSpeech() {
+      const time = state.lesson;
+      const formatText = state.format === "24"
+        ? "In 24-hour time, hours run from 0 to 23."
+        : "In AM PM time, AM is midnight to noon, and PM is noon to midnight.";
+
+      return [
+        "Let's learn how to tell time with Princess Cinderella.",
+        "The short hand tells the hour.",
+        "The long hand tells the minutes.",
+        formatText,
+        spokenTime(time),
+        spokenHands(time)
+      ].join(" ");
+    }
+
+    function gamePrompt() {
+      const period = getPeriod(currentTime().h);
+      return (
+        `Question ${game.index + 1}. ` +
+        `It is ${period.label.toLowerCase()} time outside. ` +
+        `Look at the short pink hand and the long blue hand. ` +
+        `What time is it? Choose your answer!`
+      );
+    }
+
+    // ---------- Speech Synthesis (English) ----------
+
+    const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+    let englishVoice = null;
+    let speechTimer = null;
+    let activeUtterance = null;
+
+    function refreshVoices() {
+      if (!synth || !("SpeechSynthesisUtterance" in window)) {
+        $("voiceStatus").textContent =
+          "Speech narration is not supported on this browser, but you can still play visually.";
+        $("voiceButton").disabled = true;
+        return;
+      }
+
+      const voices = synth.getVoices();
+      const englishVoices = voices.filter(v => /^en([-_]|$)/i.test(v.lang));
+
+      // Prefer warm US / UK voices
+      englishVoice =
+        englishVoices.find(v => /en[-_]US/i.test(v.lang) && /female|samantha|victoria|zira|karen/i.test(v.name)) ||
+        englishVoices.find(v => /en[-_]US/i.test(v.lang)) ||
+        englishVoices.find(v => /en[-_]GB/i.test(v.lang)) ||
+        englishVoices[0] ||
+        null;
+
+      $("voiceStatus").textContent = englishVoice
+        ? `English voice ready: ${englishVoice.name}. Tap "Listen to Voice" or play to hear.`
+        : "Using default browser voice. For the best sound, ensure an English voice is enabled.";
+    }
+
+    function stopSpeech() {
+      if (speechTimer !== null) {
+        clearTimeout(speechTimer);
+        speechTimer = null;
+      }
+      if (synth) synth.cancel();
+      activeUtterance = null;
+    }
+
+    function speak(text) {
+      stopSpeech();
+
+      if (!state.sound || !synth || !("SpeechSynthesisUtterance" in window)) return;
+
+      speechTimer = setTimeout(() => {
+        speechTimer = null;
+        if (!state.sound) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = englishVoice?.lang || "en-US";
+        utterance.rate = 0.90;
+        utterance.pitch = 1.14;
+        utterance.volume = 0.95;
+
+        if (englishVoice) utterance.voice = englishVoice;
+
+        activeUtterance = utterance;
+
+        utterance.onend = utterance.onerror = () => {
+          if (activeUtterance === utterance) {
+            activeUtterance = null;
+          }
+        };
+
+        synth.speak(utterance);
+      }, 60);
+    }
+
+    // ---------- Sound Effects (Web Audio API) ----------
+
+    let audioContext = null;
+    const playingSounds = new Set();
+
+    function unlockAudio() {
+      if (!state.sound) return;
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return;
+
+      try {
+        if (!audioContext) {
+          audioContext = new AudioContextClass();
+        }
+        if (audioContext.state === "suspended") {
+          audioContext.resume().catch(() => {});
+        }
+      } catch (_) {}
+    }
+
+    function stopEffects() {
+      for (const oscillator of playingSounds) {
+        try { oscillator.stop(); } catch (_) {}
+      }
+      playingSounds.clear();
+    }
+
+    function playNotes(notes) {
+      if (!state.sound) return;
+      unlockAudio();
+      if (!audioContext) return;
+
+      let start = audioContext.currentTime + 0.02;
+
+      for (const note of notes) {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(note.frequency, start);
+
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.10, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + note.duration);
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        playingSounds.add(oscillator);
+
+        oscillator.onended = () => {
+          playingSounds.delete(oscillator);
+          oscillator.disconnect();
+          gain.disconnect();
+        };
+
+        oscillator.start(start);
+        oscillator.stop(start + note.duration + 0.03);
+
+        start += note.duration + 0.035;
+      }
+    }
+
+    function effect(kind) {
+      const sounds = {
+        click: [
+          { frequency: 440, duration: 0.08 }
+        ],
+        correct: [
+          { frequency: 523.25, duration: 0.10 },
+          { frequency: 659.25, duration: 0.10 },
+          { frequency: 783.99, duration: 0.18 }
+        ],
+        wrong: [
+          { frequency: 330, duration: 0.12 },
+          { frequency: 294, duration: 0.15 }
+        ],
+        finish: [
+          { frequency: 523.25, duration: 0.12 },
+          { frequency: 659.25, duration: 0.12 },
+          { frequency: 783.99, duration: 0.12 },
+          { frequency: 1046.50, duration: 0.30 }
+        ]
+      };
+
+      playNotes(sounds[kind] || sounds.click);
+    }
+
+    // ---------- Build SVG Clock Face ----------
+
+    function svgElement(tag, attributes) {
+      const element = document.createElementNS(SVG_NS, tag);
+      for (const [name, value] of Object.entries(attributes)) {
+        element.setAttribute(name, String(value));
+      }
+      return element;
+    }
+
+    function buildClock() {
+      for (let i = 0; i < 60; i++) {
+        const angle = i * Math.PI / 30;
+        const isHour = i % 5 === 0;
+        const innerRadius = isHour ? 131 : 138;
+        const outerRadius = 145;
+
+        const tick = svgElement("line", {
+          x1: 180 + innerRadius * Math.sin(angle),
+          y1: 180 - innerRadius * Math.cos(angle),
+          x2: 180 + outerRadius * Math.sin(angle),
+          y2: 180 - outerRadius * Math.cos(angle),
+          stroke: isHour ? "#8a76a9" : "#cbc0d8",
+          "stroke-width": isHour ? 3 : 1.5,
+          "stroke-linecap": "round"
+        });
+
+        $("ticks").appendChild(tick);
+      }
+
+      for (let number = 1; number <= 12; number++) {
+        const angle = number * Math.PI / 6;
+
+        const text = svgElement("text", {
+          x: 180 + 111 * Math.sin(angle),
+          y: 182 - 111 * Math.cos(angle),
+          "text-anchor": "middle",
+          "dominant-baseline": "middle",
+          "font-size": 25,
+          "font-weight": 700,
+          fill: "#343249"
+        });
+
+        text.textContent = number;
+        $("numbers").appendChild(text);
+      }
+    }
+
+    // ---------- Generate Questions & Options ----------
+
+    function minuteValues() {
+      const difficulty = $("difficulty").value;
+      if (difficulty === "hour") return [0];
+      if (difficulty === "half") return [0, 30];
+      return Array.from({ length: 12 }, (_, i) => i * 5);
+    }
+
+    function createQuestions() {
+      const pool = [];
+
+      for (let h = 0; h < 24; h++) {
+        for (const m of minuteValues()) {
+          pool.push({ h, m });
+        }
+      }
+
+      const keys = ["morning", "day", "evening", "night"];
+      const sequence = [...shuffle(keys), ...shuffle(keys)];
+      const used = new Set();
+
+      return sequence.map(key => {
+        const candidates = pool.filter(time =>
+          getPeriod(time.h).key === key &&
+          !used.has(totalMinutes(time))
+        );
+
+        const selected = randomItem(candidates);
+        used.add(totalMinutes(selected));
+
+        return { ...selected };
+      });
+    }
+
+    function createOptions(time) {
+      const correct = totalMinutes(time);
+      const difficulty = $("difficulty").value;
+
+      const delta = difficulty === "hour"
+        ? 60
+        : difficulty === "half"
+          ? 30
+          : 5;
+
+      const values = new Set([
+        correct,
+        (correct + 720) % 1440,
+        (correct + delta) % 1440
+      ]);
+
+      return shuffle([...values]);
+    }
+
+    function setFeedback(kind, text) {
+      $("feedback").dataset.kind = kind;
+      $("feedback").textContent = text;
+    }
+
+    function prepareQuestion() {
+      game.solved = false;
+      game.wrong = new Set();
+      game.options = createOptions(currentTime());
+
+      setFeedback(
+        "ready",
+        "Look at the clock hands and the sky, then tap your answer!"
+      );
+    }
+
+    function focusFirstAnswer() {
+      const button = $("answers").querySelector("button:not(:disabled)");
+      if (button) button.focus({ preventScroll: true });
+    }
+
+    function newGame() {
+      stopSpeech();
+
+      state.mode = "game";
+      game.questions = createQuestions();
+      game.index = 0;
+      game.stars = 0;
+      game.finished = false;
+
+      prepareQuestion();
+      render();
+
+      effect("click");
+      speak(gamePrompt());
+      focusFirstAnswer();
+    }
+
+    function chooseAnswer(value) {
+      if (
+        state.mode !== "game" ||
+        game.solved ||
+        game.finished ||
+        game.wrong.has(value)
+      ) return;
+
+      const time = currentTime();
+      const correct = totalMinutes(time);
+
+      if (value === correct) {
+        game.solved = true;
+        game.stars++;
+
+        setFeedback(
+          "correct",
+          `Correct! ${formatTime(time)} in the ${getPeriod(time.h).label.toLowerCase()} — You earned a star!`
+        );
+
+        render();
+
+        $("starCount").classList.remove("pop");
+        void $("starCount").offsetWidth;
+        $("starCount").classList.add("pop");
+
+        effect("correct");
+        speak(
+          "Great job! That is correct. You earned a star. " +
+          spokenTime(time)
+        );
+
+        $("nextButton").focus({ preventScroll: true });
+      } else {
+        game.wrong.add(value);
+
+        const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+        setFeedback(
+          "wrong",
+          `Not quite, try again! Notice the pink short hand and the sky. The long hand on ${minuteNumber} means ${time.m} minutes.`
+        );
+
+        renderChoices();
+
+        effect("wrong");
+        speak(
+          "That's okay, try again! Look closely at the pink hand and the sky."
+        );
+
+        focusFirstAnswer();
+      }
+    }
+
+    function nextQuestion() {
+      if (!game.solved || game.finished) return;
+
+      if (game.index === TOTAL_QUESTIONS - 1) {
+        game.finished = true;
+
+        setFeedback(
+          "finished",
+          `Wonderful! You finished all ${TOTAL_QUESTIONS} questions and earned ${game.stars} stars! Here is your royal crown!`
+        );
+
+        render();
+        effect("finish");
+
+        speak(
+          `Hooray! You completed all ${TOTAL_QUESTIONS} questions and earned ${game.stars} stars! Princess Cinderella awards you the royal Time Master Crown!`
+        );
+
+        $("restartButton").focus({ preventScroll: true });
+        return;
+      }
+
+      game.index++;
+      prepareQuestion();
+      render();
+
+      effect("click");
+      speak(gamePrompt());
+      focusFirstAnswer();
+    }
+
+    // ---------- Screen Updates ----------
+
+    function setPressed(id, selected) {
+      $(id).classList.toggle("active", selected);
+      $(id).setAttribute("aria-pressed", String(selected));
+    }
+
+    function renderChoices() {
+      $("answers").replaceChildren();
+
+      if (game.finished) return;
+
+      const correct = totalMinutes(currentTime());
+
+      for (const value of game.options) {
+        const time = fromMinutes(value);
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "choice";
+        button.disabled = game.solved || game.wrong.has(value);
+
+        if (game.solved && value === correct) {
+          button.classList.add("right");
+        }
+
+        if (game.wrong.has(value)) {
+          button.classList.add("wrong");
+        }
+
+        const timeLabel = document.createElement("strong");
+        timeLabel.textContent = formatTime(time);
+
+        const periodLabel = document.createElement("span");
+        periodLabel.textContent = `${getPeriod(time.h).label}`;
+
+        button.append(timeLabel, periodLabel);
+        button.setAttribute(
+          "aria-label",
+          `${formatTime(time)} in the ${getPeriod(time.h).label.toLowerCase()}`
+        );
+
+        button.addEventListener("click", () => chooseAnswer(value));
+        $("answers").appendChild(button);
+      }
+    }
+
+    function render() {
+      const time = currentTime();
+      const period = getPeriod(time.h);
+      const learning = state.mode === "learn";
+      const reveal = learning || game.solved;
+
+      document.body.dataset.period = period.key;
+
+      $("sceneLabel").textContent = `${period.label}`;
+      $("sceneCaption").textContent = period.caption;
+      $("sceneRange").textContent = period.range;
+
+      const hourAngle = (time.h % 12) * 30 + time.m * 0.5;
+      const minuteAngle = time.m * 6;
+
+      $("hourHand").setAttribute(
+        "transform",
+        `translate(180 180) rotate(${hourAngle})`
+      );
+
+      $("minuteHand").setAttribute(
+        "transform",
+        `translate(180 180) rotate(${minuteAngle})`
+      );
+
+      $("clockTitle").textContent =
+        `Clock during ${period.label}. ${handExplanation(time)}`;
+
+      $("digital").hidden = !reveal;
+      $("digital").textContent = formatTime(time);
+
+      $("clockHint").textContent = reveal
+        ? handExplanation(time)
+        : "Check the short hand for hours, the long hand for minutes, and look at the sky!";
+
+      $("lessonPanel").hidden = !learning;
+      $("gamePanel").hidden = learning;
+
+      setPressed("learnTab", learning);
+      setPressed("gameTab", !learning);
+      setPressed("format24", state.format === "24");
+      setPressed("format12", state.format === "ampm");
+
+      $("voiceButton").textContent =
+        !learning && !game.solved ? "Hear Question" : "Listen to Voice";
+
+      $("formatHelp").textContent = state.format === "24"
+        ? "24-Hour time uses 00:00 to 23:59: Midnight is 00:00, and Noon is 12:00."
+        : "AM is midnight to noon • PM is noon to midnight • 12 AM is Midnight • 12 PM is Noon.";
+
+      if (learning) {
+        $("hourRange").value = time.h;
+        $("minuteRange").value = time.m;
+
+        if (state.format === "ampm") {
+          const hour12 = time.h % 12 || 12;
+          const suffix = time.h < 12 ? "AM" : "PM";
+          $("hourOutput").value = `${hour12} ${suffix}`;
+        } else {
+          $("hourOutput").value = `${pad(time.h)}:00`;
+        }
+
+        $("minuteOutput").value = `${pad(time.m)} min`;
+      } else {
+        $("questionCounter").textContent = game.finished
+          ? `All ${TOTAL_QUESTIONS} questions completed!`
+          : `Question ${game.index + 1} / ${TOTAL_QUESTIONS}`;
+
+        $("starText").textContent =
+          `${game.stars} / ${TOTAL_QUESTIONS} Stars`;
+
+        $("progress").value = game.stars;
+
+        $("questionText").textContent = game.finished
+          ? "Receive Your Royal Crown!"
+          : `In the ${period.label.toLowerCase()}, what time is shown on this clock?`;
+
+        $("answers").hidden = game.finished;
+        $("reward").hidden = !game.finished;
+
+        $("nextButton").hidden = !game.solved || game.finished;
+        $("nextButton").textContent =
+          game.index === TOTAL_QUESTIONS - 1
+            ? "Get Royal Crown"
+            : "Next Question";
+
+        $("restartButton").textContent =
+          game.finished ? "Play Again" : "New Game";
+
+        renderChoices();
+      }
+    }
+
+    // ---------- Control Handlers ----------
+
+    function enterLearning() {
+      stopSpeech();
+      state.mode = "learn";
+      render();
+      effect("click");
+      speak(lessonSpeech());
+    }
+
+    function changeFormat(format) {
+      if (state.format === format) return;
+
+      state.format = format;
+      render();
+
+      if (state.mode === "game" && game.solved && !game.finished) {
+        setFeedback(
+          "correct",
+          `Correct! ${formatTime(currentTime())} in the ${getPeriod(currentTime().h).label.toLowerCase()} — You earned a star!`
+        );
+      }
+
+      effect("click");
+
+      if (state.mode === "learn") {
+        speak(lessonSpeech());
+      } else if (!game.solved) {
+        speak(gamePrompt());
+      } else if (!game.finished) {
+        speak(spokenTime(currentTime()));
+      }
+    }
+
+    function changeLessonTime(time, withSpeech = true) {
+      state.lesson = { ...time };
+      render();
+
+      if (withSpeech) {
+        effect("click");
+        speak(spokenTime(state.lesson) + " " + spokenHands(state.lesson));
+      }
+    }
+
+    $("learnTab").addEventListener("click", enterLearning);
+    $("gameTab").addEventListener("click", newGame);
+    $("practiceButton").addEventListener("click", newGame);
+    $("restartButton").addEventListener("click", newGame);
+    $("nextButton").addEventListener("click", nextQuestion);
+
+    $("format24").addEventListener("click", () => changeFormat("24"));
+    $("format12").addEventListener("click", () => changeFormat("ampm"));
+
+    $("difficulty").addEventListener("change", () => {
+      if (state.mode === "game") newGame();
+    });
+
+    document.querySelectorAll("[data-time]").forEach(button => {
+      button.addEventListener("click", () => {
+        const [h, m] = button.dataset.time.split(",").map(Number);
+        changeLessonTime({ h, m });
+      });
+    });
+
+    document.querySelectorAll("[data-shift]").forEach(button => {
+      button.addEventListener("click", () => {
+        const shift = Number(button.dataset.shift);
+        changeLessonTime(
+          fromMinutes(totalMinutes(state.lesson) + shift)
+        );
+      });
+    });
+
+    $("hourRange").addEventListener("input", event => {
+      stopSpeech();
+      changeLessonTime({
+        h: Number(event.target.value),
+        m: state.lesson.m
+      }, false);
+    });
+
+    $("minuteRange").addEventListener("input", event => {
+      stopSpeech();
+      changeLessonTime({
+        h: state.lesson.h,
+        m: Number(event.target.value)
+      }, false);
+    });
+
+    [$("hourRange"), $("minuteRange")].forEach(input => {
+      input.addEventListener("change", () => {
+        speak(spokenTime(state.lesson) + " " + spokenHands(state.lesson));
+      });
+    });
+
+    $("voiceButton").addEventListener("click", () => {
+      unlockAudio();
+
+      if (!state.sound) {
+        $("voiceStatus").textContent =
+          "Sound is currently muted. Click 'Sound: Off' to turn it back on.";
+        return;
+      }
+
+      if (state.mode === "learn") {
+        speak(lessonSpeech());
+      } else if (game.finished) {
+        speak(
+          `Great job! You collected ${game.stars} stars and finished all questions. Click Play Again to practice more!`
+        );
+      } else if (game.solved) {
+        speak(
+          spokenTime(currentTime()) + " " +
+          spokenHands(currentTime())
+        );
+      } else {
+        speak(gamePrompt());
+      }
+    });
+
+    $("soundButton").addEventListener("click", () => {
+      state.sound = !state.sound;
+
+      $("soundButton").textContent =
+        state.sound ? "Sound: On" : "Sound: Off";
+
+      $("soundButton").setAttribute(
+        "aria-pressed",
+        String(state.sound)
+      );
+
+      if (!state.sound) {
+        stopSpeech();
+        stopEffects();
+      } else {
+        refreshVoices();
+        unlockAudio();
+        effect("click");
+        speak("Sound turned on");
+      }
+    });
+
+    document.addEventListener("pointerdown", unlockAudio, { passive: true });
+    document.addEventListener("keydown", unlockAudio);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopSpeech();
+        stopEffects();
+      }
+    });
+
+    if (synth) {
+      if (typeof synth.addEventListener === "function") {
+        synth.addEventListener("voiceschanged", refreshVoices);
+      } else {
+        synth.onvoiceschanged = refreshVoices;
+      }
+    }
+
+    // ---------- Initialization ----------
+
+    buildClock();
+    refreshVoices();
+    setTimeout(refreshVoices, 500);
+    render();
+  </script>
+</body>
+</html>

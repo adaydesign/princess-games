@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8063bb">
+  <title>ปราสาทเจ้าหญิงเรียนรู้เวลา</title>
+
+  <style>
+    :root {
+      --sky-a: #ffe4ad;
+      --sky-b: #b9e5ff;
+      --hero-ink: #34304d;
+      --ink: #303249;
+      --muted: #62647a;
+      --purple: #7051a3;
+      --pink: #c84279;
+      --blue: #186bad;
+      --gold: #e4aa32;
+      --border: #e6dff0;
+      --shadow: 0 12px 32px #33235714;
+    }
+
+    * { box-sizing: border-box; }
+
+    [hidden] { display: none !important; }
+
+    body {
+      margin: 0;
+      font-family: Tahoma, "Noto Sans Thai", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, var(--sky-a), var(--sky-b) 430px, #f7f3fc 900px);
+      min-height: 100vh;
+      transition: background 700ms ease;
+    }
+
+    body[data-period="morning"] {
+      --sky-a: #ffe4ad;
+      --sky-b: #b9e5ff;
+      --hero-ink: #34304d;
+    }
+
+    body[data-period="day"] {
+      --sky-a: #89d4ff;
+      --sky-b: #e5f7ff;
+      --hero-ink: #263c59;
+    }
+
+    body[data-period="evening"] {
+      --sky-a: #ffc18f;
+      --sky-b: #ddb5ea;
+      --hero-ink: #493052;
+    }
+
+    body[data-period="night"] {
+      --sky-a: #152342;
+      --sky-b: #555087;
+      --hero-ink: #ffffff;
+    }
+
+    button, select, input { font: inherit; }
+
+    button, select { touch-action: manipulation; }
+
+    button, a.back-btn {
+      cursor: pointer;
+      border: 2px solid var(--border);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 16px;
+      min-height: 48px;
+      padding: 10px 16px;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 150ms, background 150ms;
+    }
+
+    button:hover:not(:disabled), a.back-btn:hover {
+      transform: translateY(-2px);
+      background: #f5efff;
+    }
+
+    button:active:not(:disabled), a.back-btn:active { transform: translateY(1px); }
+
+    button:disabled {
+      cursor: default;
+      opacity: .55;
+    }
+
+    button:focus-visible,
+    a.back-btn:focus-visible,
+    select:focus-visible,
+    input:focus-visible {
+      outline: 4px solid #edae36;
+      outline-offset: 3px;
+    }
+
+    .primary {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: #fff;
+    }
+
+    .primary:hover:not(:disabled) { background: #5a3b8d; }
+
+    .app {
+      width: min(1100px, calc(100% - 28px));
+      margin: 20px auto 36px;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 265px;
+      overflow: hidden;
+      border-radius: 28px;
+      border: 2px solid #ffffff80;
+      box-shadow: var(--shadow);
+      background: linear-gradient(160deg, var(--sky-a), var(--sky-b));
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 2;
+      width: 65%;
+      padding: 25px;
+      color: var(--hero-ink);
+    }
+
+    h1 {
+      margin: 10px 0;
+      font-size: clamp(25px, 3.5vw, 38px);
+      line-height: 1.35;
+    }
+
+    h2 {
+      font-size: 23px;
+      margin: 0 0 14px;
+    }
+
+    p { line-height: 1.7; }
+
+    .hero-copy p { margin: 8px 0; }
+
+    .period-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffffec;
+      color: #39324d;
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-weight: 700;
+      box-shadow: 0 3px 12px #0000000d;
+    }
+
+    .period-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #efb137;
+    }
+
+    body[data-period="night"] .period-dot { background: #8074c7; }
+
+    .scene-range {
+      display: inline-block;
+      background: #ffffffd9;
+      border-radius: 10px;
+      padding: 5px 9px;
+      color: #3c3a51;
+      font-size: 13px;
+    }
+
+    .landscape {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .sun { transition: transform 700ms ease; }
+    .moon, .night-stars { display: none; }
+
+    body[data-period="morning"] .sun {
+      transform: translate(0, 65px);
+    }
+
+    body[data-period="evening"] .sun {
+      transform: translate(0, 100px);
+    }
+
+    body[data-period="night"] .sun { display: none; }
+    body[data-period="night"] .moon,
+    body[data-period="night"] .night-stars { display: inline; }
+
+    .castle-window { fill: #efcf73; }
+
+    body[data-period="night"] .castle-window {
+      fill: #ffe796;
+      filter: drop-shadow(0 0 4px #ffe796);
+    }
+
+    .princess {
+      position: absolute;
+      z-index: 1;
+      width: 135px;
+      height: 225px;
+      right: 23px;
+      bottom: 0;
+      filter: drop-shadow(0 5px 6px #30234b25);
+      pointer-events: none;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 16px 0;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .active {
+      background: #efe6fb;
+      border-color: var(--purple);
+      color: #563987;
+    }
+
+    .format-box {
+      background: #fffffff0;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 13px 16px;
+      margin-bottom: 16px;
+    }
+
+    .format-box .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .format-help {
+      margin: 10px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: #fffffffa;
+      border: 2px solid #ffffff;
+      border-radius: 26px;
+      padding: 23px;
+      box-shadow: var(--shadow);
+    }
+
+    .clock-card { text-align: center; }
+
+    .clock-wrap {
+      width: min(100%, 365px);
+      margin: 0 auto;
+    }
+
+    #clock {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      margin: 3px 0 16px;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .legend i {
+      width: 22px;
+      height: 7px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .hour-color { background: var(--pink); }
+    .minute-color { background: var(--blue); }
+
+    .digital {
+      font-size: clamp(34px, 5vw, 48px);
+      color: #583e8e;
+      font-weight: 800;
+      letter-spacing: 1px;
+      direction: ltr;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clock-hint {
+      margin: 10px 0 0;
+      background: #f5f0fb;
+      border-radius: 16px;
+      padding: 13px;
+      font-size: 15px;
+      min-height: 74px;
+    }
+
+    .teaching-steps {
+      padding-left: 26px;
+      line-height: 1.8;
+      margin: 0 0 17px;
+    }
+
+    .presets {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    .presets button {
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .presets small {
+      display: block;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    .slider-block {
+      background: #faf7fe;
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    output { color: #67429b; }
+
+    input[type="range"] {
+      width: 100%;
+      min-height: 42px;
+      accent-color: var(--purple);
+      cursor: pointer;
+    }
+
+    .adjust-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .adjust-buttons button {
+      padding: 7px 9px;
+      font-size: 14px;
+    }
+
+    .full-button {
+      display: block;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    .game-settings {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
+    .game-settings label {
+      flex: 1;
+      min-width: 170px;
+      font-weight: 700;
+    }
+
+    select {
+      display: block;
+      width: 100%;
+      border: 2px solid var(--border);
+      border-radius: 13px;
+      padding: 11px;
+      background: #fff;
+      color: var(--ink);
+      margin-top: 7px;
+    }
+
+    .game-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #faf3df;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .star-count {
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      color: #845b12;
+    }
+
+    .star-count svg { width: 24px; height: 24px; }
+
+    progress {
+      display: block;
+      width: 100%;
+      height: 16px;
+      accent-color: var(--purple);
+      margin: 10px 0 16px;
+    }
+
+    .question-text {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 12px 0;
+    }
+
+    .answers {
+      display: grid;
+      gap: 11px;
+    }
+
+    .choice {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      text-align: left;
+      min-height: 74px;
+    }
+
+    .choice strong {
+      font-size: 25px;
+      white-space: nowrap;
+      direction: ltr;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .choice span {
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .choice.right {
+      opacity: 1;
+      border-color: #289370;
+      background: #e8f9ef;
+      color: #176b50;
+    }
+
+    .choice.wrong {
+      border-color: #d8b0bb;
+      background: #fff2f4;
+    }
+
+    .feedback {
+      margin-top: 15px;
+      min-height: 72px;
+      padding: 13px;
+      border-radius: 16px;
+      background: #f4f0fb;
+      line-height: 1.7;
+    }
+
+    .feedback[data-kind="correct"],
+    .feedback[data-kind="finished"] {
+      background: #e7f8ef;
+      color: #1b674f;
+    }
+
+    .feedback[data-kind="wrong"] {
+      background: #fff3e3;
+      color: #795222;
+    }
+
+    .reward {
+      text-align: center;
+      padding: 18px 0 6px;
+    }
+
+    .reward svg {
+      width: 105px;
+      height: 75px;
+    }
+
+    .reward h3 {
+      margin: 8px 0;
+      color: #68459c;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      background: #ffffffdb;
+      border-radius: 18px;
+      margin-top: 18px;
+      padding: 12px 16px;
+    }
+
+    .pop { animation: pop 450ms ease; }
+
+    @keyframes pop {
+      0%, 100% { transform: scale(1); }
+      45% { transform: scale(1.2); }
+    }
+
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .app { width: min(100% - 18px, 560px); margin-top: 10px; }
+      .hero { min-height: 270px; }
+      .hero-copy { width: 75%; padding: 18px; }
+      .hero-copy p { font-size: 14px; }
+      .princess { width: 100px; height: 175px; right: 8px; }
+      .card { padding: 18px; }
+      .toolbar { gap: 10px; }
+      .toolbar button, .toolbar a.back-btn { font-size: 14px; padding: 9px 12px; }
+      .clock-wrap { max-width: 320px; }
+      .choice strong { font-size: 23px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body data-period="morning">
+  <main class="app">
+    <header class="hero">
+      <!-- ฉาก SVG: พระอาทิตย์ พระจันทร์ ดาว และปราสาท -->
+      <svg class="landscape"
+           viewBox="0 0 1100 280"
+           preserveAspectRatio="xMidYMax slice"
+           aria-hidden="true">
+        <g class="night-stars" fill="#fff3bf">
+          <circle cx="550" cy="35" r="3"/>
+          <circle cx="645" cy="68" r="2"/>
+          <circle cx="735" cy="22" r="3"/>
+          <circle cx="930" cy="54" r="2"/>
+          <circle cx="1030" cy="25" r="3"/>
+          <path d="M590 85l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+          <path d="M985 92l3 8 8 3-8 3-3 8-3-8-8-3 8-3z"/>
+        </g>
+
+        <g class="sun">
+          <circle cx="745" cy="60" r="31" fill="#fff1a1"/>
+          <circle cx="745" cy="60" r="42" fill="#ffe889" opacity=".25"/>
+        </g>
+
+        <path class="moon"
+              d="M770 28a35 35 0 1 0 28 53 29 29 0 0 1-28-53z"
+              fill="#fff1bc"/>
+
+        <g fill="#ffffff" opacity=".55">
+          <ellipse cx="570" cy="110" rx="47" ry="14"/>
+          <ellipse cx="598" cy="103" rx="31" ry="18"/>
+          <ellipse cx="928" cy="125" rx="53" ry="14"/>
+          <ellipse cx="954" cy="115" rx="29" ry="19"/>
+        </g>
+
+        <path d="M0 259Q220 205 430 249T800 240T1100 247V280H0Z"
+              fill="#93bc9a"/>
+        <path d="M0 278Q260 241 510 271T1100 264V280H0Z"
+              fill="#679a83"/>
+
+        <g transform="translate(705 85)">
+          <rect x="25" y="90" width="210" height="110"
+                rx="4" fill="#e4d9f0"/>
+          <rect x="2" y="65" width="48" height="135"
+                fill="#c9b6df"/>
+          <rect x="210" y="65" width="48" height="135"
+                fill="#c9b6df"/>
+          <path d="M-6 65L26 20L58 65Z" fill="#8970ba"/>
+          <path d="M202 65L234 20L266 65Z" fill="#8970ba"/>
+
+          <rect x="94" y="39" width="72" height="161"
+                fill="#f0e8f7"/>
+          <path d="M84 39L130-17L176 39Z" fill="#987bc7"/>
+          <path d="M130-17V-39L155-30L130-21"
+                stroke="#8265a8" stroke-width="3"
+                fill="#f4a5c7"/>
+
+          <path d="M112 200V159a18 18 0 0 1 36 0v41"
+                fill="#947aaf"/>
+
+          <g class="castle-window">
+            <rect x="19" y="85" width="15" height="26" rx="7"/>
+            <rect x="226" y="85" width="15" height="26" rx="7"/>
+            <rect x="119" y="59" width="22" height="31" rx="11"/>
+            <rect x="65" y="126" width="17" height="25" rx="8"/>
+            <rect x="180" y="126" width="17" height="25" rx="8"/>
+          </g>
+
+          <path d="M55 92V81H72V92H88V81H105V92
+                   M158 92V81H175V92H192V81H209V92"
+                fill="none" stroke="#e4d9f0" stroke-width="10"/>
+        </g>
+
+        <g fill="#da9abe">
+          <circle cx="635" cy="263" r="6"/>
+          <circle cx="660" cy="258" r="5"/>
+          <circle cx="1020" cy="261" r="6"/>
+          <circle cx="1040" cy="268" r="5"/>
+        </g>
+      </svg>
+
+      <div class="hero-copy">
+        <div class="period-badge">
+          <span class="period-dot"></span>
+          <span id="sceneLabel">ช่วงเช้า</span>
+        </div>
+        <h1>ปราสาทเจ้าหญิง<br>เรียนรู้เวลา</h1>
+        <p id="sceneCaption">ตื่นนอนและเตรียมไปโรงเรียน</p>
+        <span class="scene-range" id="sceneRange">05:00–11:59</span>
+      </div>
+
+      <!-- เจ้าหญิงซินเดอเรลลา: ภาพ SVG วาดขึ้นใหม่ -->
+      <svg class="princess" viewBox="0 0 160 250"
+           role="img" aria-label="เจ้าหญิงซินเดอเรลลาในชุดสีฟ้า">
+        <ellipse cx="82" cy="240" rx="60" ry="8"
+                 fill="#382857" opacity=".12"/>
+
+        <path d="M66 118Q42 156 19 233Q79 252 145 233
+                 Q123 158 98 118Z"
+              fill="#71bde7"/>
+        <path d="M75 126Q60 172 46 239Q80 246 112 239
+                 Q101 168 88 126Z"
+              fill="#bde7fb"/>
+        <path d="M30 217Q79 235 134 217"
+              fill="none" stroke="#e1f4ff" stroke-width="4"/>
+
+        <path d="M63 91Q80 101 98 91L104 126
+                 Q80 137 58 126Z"
+              fill="#88cff0"/>
+        <path d="M61 92Q49 92 46 109Q57 118 66 105Z"
+              fill="#d5f1ff"/>
+        <path d="M98 92Q112 92 115 109Q103 118 94 105Z"
+              fill="#d5f1ff"/>
+
+        <path d="M48 109L35 143"
+              stroke="#f4c6aa" stroke-width="11"
+              stroke-linecap="round"/>
+        <path d="M111 108L124 137"
+              stroke="#f4c6aa" stroke-width="11"
+              stroke-linecap="round"/>
+        <path d="M37 137L32 153"
+              stroke="#eefaff" stroke-width="12"
+              stroke-linecap="round"/>
+        <path d="M121 129L126 145"
+              stroke="#eefaff" stroke-width="12"
+              stroke-linecap="round"/>
+
+        <rect x="72" y="76" width="17" height="23"
+              rx="6" fill="#f4c6aa"/>
+        <rect x="70" y="88" width="21" height="5"
+              rx="2" fill="#42415d"/>
+
+        <ellipse cx="81" cy="57" rx="29" ry="33" fill="#e6b74d"/>
+        <circle cx="81" cy="22" r="17" fill="#e9bd53"/>
+        <ellipse cx="81" cy="60" rx="23" ry="28" fill="#f7d1b8"/>
+        <path d="M57 47Q67 18 101 42Q94 48 79 40
+                 Q66 52 57 47Z"
+              fill="#e9bd53"/>
+
+        <path d="M58 37Q80 18 104 37"
+              fill="none" stroke="#a8dffc" stroke-width="6"/>
+
+        <path d="M68 27L73 15L81 23L89 15L94 27Z"
+              fill="#f4d47a" stroke="#bd9649" stroke-width="1.5"/>
+
+        <circle cx="73" cy="59" r="2.5" fill="#3c5269"/>
+        <circle cx="90" cy="59" r="2.5" fill="#3c5269"/>
+        <path d="M75 73Q81 78 88 73"
+              fill="none" stroke="#bd6b76"
+              stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="66" cy="69" rx="4" ry="2.5"
+                 fill="#efb0ae" opacity=".7"/>
+        <ellipse cx="97" cy="69" rx="4" ry="2.5"
+                 fill="#efb0ae" opacity=".7"/>
+      </svg>
+    </header>
+
+    <div class="toolbar">
+      <div class="button-group">
+        <a class="back-btn" href="index.html" aria-label="กลับหน้ารวมเกม">← กลับหน้ารวมเกม</a>
+        <nav class="button-group" aria-label="เลือกโหมดการเรียน">
+          <button id="learnTab" class="active"
+                  aria-pressed="true" type="button">
+            โหมดสอน
+          </button>
+          <button id="gameTab" aria-pressed="false" type="button">
+            เกมสะสมดาว
+          </button>
+        </nav>
+      </div>
+
+      <div class="button-group">
+        <button id="soundButton" aria-pressed="true" type="button">
+          เสียง: เปิด
+        </button>
+        <button id="voiceButton" type="button">
+          ฟังคำอธิบาย
+        </button>
+      </div>
+    </div>
+
+    <section class="format-box" aria-label="รูปแบบเวลา">
+      <div class="row">
+        <strong>เลือกแบบอ่านเวลา</strong>
+        <div class="button-group">
+          <button id="format24" class="active"
+                  aria-pressed="true" type="button">
+            24 ชั่วโมง
+          </button>
+          <button id="format12" aria-pressed="false" type="button">
+            AM / PM
+          </button>
+        </div>
+      </div>
+      <p id="formatHelp" class="format-help"></p>
+    </section>
+
+    <div class="layout">
+      <section class="card clock-card" aria-label="นาฬิกาแบบเข็ม">
+        <div class="clock-wrap">
+          <svg id="clock" viewBox="0 0 360 360"
+               role="img" aria-labelledby="clockTitle">
+            <title id="clockTitle">นาฬิกาแบบเข็ม</title>
+
+            <circle cx="180" cy="180" r="158" fill="#eee3fa"/>
+            <circle cx="180" cy="180" r="148"
+                    fill="#fffdf8" stroke="#d1b5e7" stroke-width="3"/>
+            <circle cx="180" cy="180" r="138"
+                    fill="none" stroke="#f3eaf8" stroke-width="2"/>
+
+            <g id="ticks"></g>
+            <g id="numbers"></g>
+
+            <g id="hourHand">
+              <line x1="0" y1="14" x2="0" y2="-78"
+                    stroke="#c84279" stroke-width="12"
+                    stroke-linecap="round"/>
+            </g>
+
+            <g id="minuteHand">
+              <line x1="0" y1="17" x2="0" y2="-113"
+                    stroke="#186bad" stroke-width="7"
+                    stroke-linecap="round"/>
+            </g>
+
+            <circle cx="180" cy="180" r="10"
+                    fill="#e4aa32" stroke="#fff" stroke-width="3"/>
+          </svg>
+        </div>
+
+        <div class="legend">
+          <span><i class="hour-color"></i>เข็มสั้น = ชั่วโมง</span>
+          <span><i class="minute-color"></i>เข็มยาว = นาที</span>
+        </div>
+
+        <div id="digital" class="digital">07:00</div>
+        <p id="clockHint" class="clock-hint"></p>
+      </section>
+
+      <section id="lessonPanel" class="card">
+        <h2>มาอ่านนาฬิกากัน</h2>
+
+        <ol class="teaching-steps">
+          <li>ดู <strong style="color:var(--pink)">เข็มสั้นสีชมพู</strong> เพื่ออ่านชั่วโมง</li>
+          <li>ดู <strong style="color:var(--blue)">เข็มยาวสีน้ำเงิน</strong> เพื่ออ่านนาที</li>
+          <li>ดูฉากเช้า–ดึก เพื่อแยกเวลาที่เข็มอยู่ตำแหน่งเดียวกัน</li>
+        </ol>
+
+        <div class="presets" aria-label="ตัวอย่างเวลา">
+          <button type="button" data-time="7,0">
+            เช้า 07:00
+            <small>เตรียมไปโรงเรียน</small>
+          </button>
+          <button type="button" data-time="12,0">
+            กลางวัน 12:00
+            <small>เที่ยงวัน · 12 PM</small>
+          </button>
+          <button type="button" data-time="18,0">
+            เย็น 18:00
+            <small>หกโมงเย็น · 6 PM</small>
+          </button>
+          <button type="button" data-time="21,0">
+            ดึก 21:00
+            <small>สามทุ่ม · 9 PM</small>
+          </button>
+          <button type="button" data-time="0,0">
+            เที่ยงคืน 00:00
+            <small>เที่ยงคืน · 12 AM</small>
+          </button>
+          <button type="button" data-time="7,30">
+            เช้า 07:30
+            <small>เข็มยาวชี้เลข 6</small>
+          </button>
+        </div>
+
+        <div class="slider-block">
+          <label class="slider-label" for="hourRange">
+            <span>เลือกชั่วโมงในหนึ่งวัน</span>
+            <output id="hourOutput" for="hourRange">07 นาฬิกา</output>
+          </label>
+          <input id="hourRange" type="range"
+                 min="0" max="23" step="1" value="7">
+          <div class="adjust-buttons">
+            <button type="button" data-shift="-60">ลด 1 ชั่วโมง</button>
+            <button type="button" data-shift="60">เพิ่ม 1 ชั่วโมง</button>
+          </div>
+        </div>
+
+        <div class="slider-block">
+          <label class="slider-label" for="minuteRange">
+            <span>เลือกนาที ทีละ 5 นาที</span>
+            <output id="minuteOutput" for="minuteRange">00 นาที</output>
+          </label>
+          <input id="minuteRange" type="range"
+                 min="0" max="55" step="5" value="0">
+          <div class="adjust-buttons">
+            <button type="button" data-shift="-5">ลด 5 นาที</button>
+            <button type="button" data-shift="5">เพิ่ม 5 นาที</button>
+          </div>
+        </div>
+
+        <button id="practiceButton" class="primary full-button" type="button">
+          พร้อมแล้ว ไปเล่นเกม
+        </button>
+      </section>
+
+      <section id="gamePanel" class="card" hidden>
+        <h2>เกมสะสมดาวของเจ้าหญิง</h2>
+
+        <div class="game-settings">
+          <label for="difficulty">
+            ระดับการฝึก
+            <select id="difficulty">
+              <option value="hour">ระดับ 1: เต็มชั่วโมง</option>
+              <option value="half">ระดับ 2: เต็ม / ครึ่งชั่วโมง</option>
+              <option value="five">ระดับ 3: ทุก 5 นาที</option>
+            </select>
+          </label>
+          <button id="restartButton" type="button">เริ่มใหม่</button>
+        </div>
+
+        <div class="game-stats">
+          <span id="questionCounter">ข้อ 1 / 8</span>
+          <span id="starCount" class="star-count">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.3
+                       -6.2 3.3 1.2-7-5.1-5 7-.9z"
+                    fill="#e4aa32"/>
+            </svg>
+            <span id="starText">0 / 8 ดาว</span>
+          </span>
+        </div>
+
+        <progress id="progress" max="8" value="0"
+                  aria-label="ความคืบหน้าการสะสมดาว"></progress>
+
+        <p id="questionText" class="question-text">นาฬิกานี้เป็นเวลากี่โมง?</p>
+
+        <div id="answers" class="answers"
+             role="group" aria-label="ตัวเลือกคำตอบ"></div>
+
+        <div id="feedback" class="feedback"
+             role="status" aria-live="polite" aria-atomic="true">
+          ดูเข็มนาฬิกาและฉาก แล้วเลือกคำตอบได้เลย
+        </div>
+
+        <button id="nextButton" class="primary full-button"
+                type="button" hidden>
+          ข้อต่อไป
+        </button>
+
+        <div id="reward" class="reward" hidden>
+          <svg viewBox="0 0 120 80" aria-hidden="true">
+            <path d="M15 63L7 20L35 39L60 8L85 39L113 20L105 63Z"
+                  fill="#f6cf61" stroke="#cb9433" stroke-width="3"/>
+            <rect x="15" y="60" width="90" height="13"
+                  rx="5" fill="#e9b447"/>
+            <circle cx="60" cy="43" r="7" fill="#b283d4"/>
+            <circle cx="30" cy="51" r="4" fill="#76c4e6"/>
+            <circle cx="90" cy="51" r="4" fill="#76c4e6"/>
+          </svg>
+          <h3>เจ้าหญิงนักอ่านเวลา</h3>
+          <p>ฝึกครบแล้ว เก่งมาก!</p>
+        </div>
+
+        <p class="small-note">
+          ไม่มีจับเวลา ตอบผิดลองใหม่ได้ และได้รับดาวเมื่อทำแต่ละข้อสำเร็จ
+          เปลี่ยนระดับจะเริ่มเกมชุดใหม่
+        </p>
+      </section>
+    </div>
+
+    <footer class="footer small-note">
+      <div id="voiceStatus" role="status"></div>
+      <div>
+        ฉากในสื่อนี้กำหนดเป็น เช้า 05:00–11:59,
+        กลางวัน 12:00–15:59, เย็น 16:00–19:59
+        และดึก 20:00–04:59 เพื่อช่วยในการเรียนรู้
+      </div>
+      <div>
+        หน้าปัดแบบเข็มหมุนซ้ำทุก 12 ชั่วโมง
+        จึงต้องดูช่วงเวลาประกอบเพื่อแยก AM/PM หรือเวลา 24 ชั่วโมง
+      </div>
+      <div>
+        ภาพ SVG วาดขึ้นใหม่สำหรับตัวอย่างนี้ ไม่ใช่สื่อทางการของ Disney
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    "use strict";
+
+    // ---------- เครื่องมือพื้นฐาน ----------
+
+    const $ = id => document.getElementById(id);
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const TOTAL_QUESTIONS = 8;
+
+    const pad = n => String(n).padStart(2, "0");
+    const totalMinutes = time => time.h * 60 + time.m;
+
+    function fromMinutes(value) {
+      const normalized = ((value % 1440) + 1440) % 1440;
+      return {
+        h: Math.floor(normalized / 60),
+        m: normalized % 60
+      };
+    }
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function randomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function thaiNumber(n) {
+      const ones = [
+        "ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่",
+        "ห้า", "หก", "เจ็ด", "แปด", "เก้า"
+      ];
+
+      if (n < 10) return ones[n];
+
+      const tens = Math.floor(n / 10);
+      const unit = n % 10;
+
+      let result = tens === 1
+        ? "สิบ"
+        : tens === 2
+          ? "ยี่สิบ"
+          : ones[tens] + "สิบ";
+
+      if (unit === 1) result += "เอ็ด";
+      else if (unit > 1) result += ones[unit];
+
+      return result;
+    }
+
+    const periods = {
+      morning: {
+        key: "morning",
+        label: "เช้า",
+        range: "05:00–11:59",
+        caption: "ตื่นนอนและเตรียมไปโรงเรียน"
+      },
+      day: {
+        key: "day",
+        label: "กลางวัน",
+        range: "12:00–15:59",
+        caption: "ท้องฟ้าสว่าง ได้เวลากินข้าวและทำกิจกรรม"
+      },
+      evening: {
+        key: "evening",
+        label: "เย็น",
+        range: "16:00–19:59",
+        caption: "พระอาทิตย์ใกล้ลับฟ้า ได้เวลากลับบ้าน"
+      },
+      night: {
+        key: "night",
+        label: "ดึก",
+        range: "20:00–04:59",
+        caption: "พระจันทร์และดวงดาว ได้เวลานอนพักผ่อน"
+      }
+    };
+
+    function getPeriod(hour) {
+      if (hour >= 5 && hour < 12) return periods.morning;
+      if (hour >= 12 && hour < 16) return periods.day;
+      if (hour >= 16 && hour < 20) return periods.evening;
+      return periods.night;
+    }
+
+    const state = {
+      mode: "learn",
+      format: "24",
+      sound: true,
+      lesson: { h: 7, m: 0 }
+    };
+
+    const game = {
+      questions: [],
+      options: [],
+      index: 0,
+      stars: 0,
+      solved: false,
+      finished: false,
+      wrong: new Set()
+    };
+
+    function currentTime() {
+      if (state.mode === "learn") return state.lesson;
+      return game.questions[game.index] || state.lesson;
+    }
+
+    function formatTime(time) {
+      if (state.format === "24") {
+        return `${pad(time.h)}:${pad(time.m)}`;
+      }
+
+      const hour12 = time.h % 12 || 12;
+      const suffix = time.h < 12 ? "AM" : "PM";
+
+      return `${pad(hour12)}:${pad(time.m)} ${suffix}`;
+    }
+
+    function handExplanation(time) {
+      const hour12 = time.h % 12 || 12;
+      const nextHour = hour12 % 12 + 1;
+
+      const hourText = time.m === 0
+        ? `เข็มสั้นชี้เลข ${hour12}`
+        : `เข็มสั้นอยู่ระหว่างเลข ${hour12} กับ ${nextHour}
+           จึงอ่านชั่วโมงเป็น ${hour12}`;
+
+      const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+      const minuteText = time.m === 0
+        ? "เข็มยาวชี้เลข 12 คือ 0 นาที"
+        : `เข็มยาวชี้เลข ${minuteNumber} คือ ${time.m} นาที`;
+
+      return `${hourText} • ${minuteText}`;
+    }
+
+    function spokenTime(time) {
+      const hour = state.format === "24"
+        ? time.h
+        : (time.h % 12 || 12);
+
+      const minuteText = time.m === 0
+        ? "ตรง"
+        : `${thaiNumber(time.m)} นาที`;
+
+      let text =
+        `เวลา ${thaiNumber(hour)} นาฬิกา ${minuteText}. `;
+
+      if (state.format === "ampm") {
+        text += time.h < 12
+          ? "เอเอ็ม หรือช่วงก่อนเที่ยงวัน. "
+          : "พีเอ็ม หรือช่วงหลังเที่ยงวัน. ";
+      }
+
+      if (time.h === 0 && time.m === 0) {
+        text += "คือเที่ยงคืน. ";
+      }
+
+      if (time.h === 12 && time.m === 0) {
+        text += "คือเที่ยงวัน. ";
+      }
+
+      text += `เป็นช่วง${getPeriod(time.h).label}.`;
+
+      return text;
+    }
+
+    function spokenHands(time) {
+      const hour12 = time.h % 12 || 12;
+      const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+      const hourText = time.m === 0
+        ? `เข็มสั้นสีชมพูชี้เลข ${thaiNumber(hour12)}. `
+        : `เข็มสั้นสีชมพูผ่านเลข ${thaiNumber(hour12)} แล้ว.
+           จึงอ่านชั่วโมงเป็น ${thaiNumber(hour12)}. `;
+
+      return hourText +
+        `เข็มยาวสีน้ำเงินชี้เลข ${thaiNumber(minuteNumber)}.
+         คือ ${thaiNumber(time.m)} นาที.`;
+    }
+
+    function lessonSpeech() {
+  const time = state.lesson;
+
+  const formatText = state.format === "24"
+    ? "แบบยี่สิบสี่ชั่วโมง ใช้ชั่วโมงตั้งแต่ศูนย์ถึงยี่สิบสาม."
+    : [
+        "แบบเอเอ็ม พีเอ็ม.",
+        "เอเอ็ม เริ่มที่เที่ยงคืน ถึงก่อนเที่ยงวัน.",
+        "พีเอ็ม เริ่มที่เที่ยงวัน ถึงก่อนเที่ยงคืน.",
+        "สิบสอง เอเอ็ม คือเที่ยงคืน.",
+        "สิบสอง พีเอ็ม คือเที่ยงวัน."
+      ].join(" ");
+
+  return [
+    "มาอ่านนาฬิกากับเจ้าหญิงกันนะ.",
+    "เข็มสั้นบอกชั่วโมง.",
+    "เข็มยาวบอกนาที.",
+    formatText,
+    spokenTime(time),
+    spokenHands(time)
+  ].join(" ");
+}
+
+    function gamePrompt() {
+      const period = getPeriod(currentTime().h);
+
+      // ไม่บอกคำตอบขณะโจทย์ยังไม่ถูกแก้
+      return (
+        `ข้อที่ ${thaiNumber(game.index + 1)}.
+         ตอนนี้เป็นช่วง${period.label}.
+         ดูเข็มสั้นสีชมพูและเข็มยาวสีน้ำเงิน.
+         นาฬิกานี้เป็นเวลากี่โมง.
+         เลือกคำตอบได้เลยนะ.`
+      );
+    }
+
+    // ---------- การสังเคราะห์เสียงภาษาไทย ----------
+
+    const synth = "speechSynthesis" in window
+      ? window.speechSynthesis
+      : null;
+
+    let thaiVoice = null;
+    let speechTimer = null;
+    let activeUtterance = null;
+
+    function refreshVoices() {
+      if (!synth || !("SpeechSynthesisUtterance" in window)) {
+        $("voiceStatus").textContent =
+          "เบราเซอร์นี้ไม่รองรับเสียงบรรยาย แต่ยังเล่นเกมและอ่านข้อความได้";
+        $("voiceButton").disabled = true;
+        return;
+      }
+
+      const voices = synth.getVoices();
+
+      const thaiVoices = voices.filter(voice =>
+        /^th([-_]|$)/i.test(voice.lang)
+      );
+
+      thaiVoice = thaiVoices.find(voice =>
+        /th[-_]TH/i.test(voice.lang)
+      ) || thaiVoices[0] || null;
+
+      $("voiceStatus").textContent = thaiVoice
+        ? `พร้อมใช้เสียงไทย: ${thaiVoice.name}
+           กด “ฟังคำอธิบาย” หรือเริ่มเกมเพื่อฟัง`
+        : "ยังไม่พบเสียงไทยในอุปกรณ์ เบราเซอร์จะลองใช้ภาษา th-TH " +
+          "หากไม่ได้ยินเสียงไทย ให้ติดตั้งเสียงภาษาไทยหรือใช้อุปกรณ์อื่น";
+    }
+
+    function stopSpeech() {
+      if (speechTimer !== null) {
+        clearTimeout(speechTimer);
+        speechTimer = null;
+      }
+
+      if (synth) synth.cancel();
+
+      activeUtterance = null;
+    }
+
+    function speak(text) {
+      stopSpeech();
+
+      if (
+        !state.sound ||
+        !synth ||
+        !("SpeechSynthesisUtterance" in window)
+      ) return;
+
+      // เว้นช่วงสั้น ๆ หลัง cancel เพื่อให้หลายเบราเซอร์ทำงานได้ราบรื่น
+      speechTimer = setTimeout(() => {
+        speechTimer = null;
+
+        if (!state.sound) return;
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "th-TH";
+        utterance.rate = 0.88;
+        utterance.pitch = 1.08;
+        utterance.volume = 0.9;
+
+        if (thaiVoice) utterance.voice = thaiVoice;
+
+        activeUtterance = utterance;
+
+        utterance.onend = utterance.onerror = () => {
+          if (activeUtterance === utterance) {
+            activeUtterance = null;
+          }
+        };
+
+        synth.speak(utterance);
+      }, 60);
+    }
+
+    // ---------- เสียงเอฟเฟกต์ ไม่ต้องใช้ไฟล์เสียง ----------
+
+    let audioContext = null;
+    const playingSounds = new Set();
+
+    function unlockAudio() {
+      if (!state.sound) return;
+
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+
+      if (!AudioContextClass) return;
+
+      try {
+        if (!audioContext) {
+          audioContext = new AudioContextClass();
+        }
+
+        if (audioContext.state === "suspended") {
+          audioContext.resume().catch(() => {});
+        }
+      } catch (_) {
+        // หากอุปกรณ์ไม่รองรับเสียง เกมยังทำงานต่อได้
+      }
+    }
+
+    function stopEffects() {
+      for (const oscillator of playingSounds) {
+        try { oscillator.stop(); } catch (_) {}
+      }
+      playingSounds.clear();
+    }
+
+    function playNotes(notes) {
+      if (!state.sound) return;
+
+      unlockAudio();
+
+      if (!audioContext) return;
+
+      let start = audioContext.currentTime + 0.02;
+
+      for (const note of notes) {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(note.frequency, start);
+
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.10, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(
+          0.0001,
+          start + note.duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
+
+        playingSounds.add(oscillator);
+
+        oscillator.onended = () => {
+          playingSounds.delete(oscillator);
+          oscillator.disconnect();
+          gain.disconnect();
+        };
+
+        oscillator.start(start);
+        oscillator.stop(start + note.duration + 0.03);
+
+        start += note.duration + 0.035;
+      }
+    }
+
+    function effect(kind) {
+      const sounds = {
+        click: [
+          { frequency: 440, duration: 0.08 }
+        ],
+        correct: [
+          { frequency: 523.25, duration: 0.10 },
+          { frequency: 659.25, duration: 0.10 },
+          { frequency: 783.99, duration: 0.18 }
+        ],
+        wrong: [
+          { frequency: 330, duration: 0.12 },
+          { frequency: 294, duration: 0.15 }
+        ],
+        finish: [
+          { frequency: 523.25, duration: 0.12 },
+          { frequency: 659.25, duration: 0.12 },
+          { frequency: 783.99, duration: 0.12 },
+          { frequency: 1046.50, duration: 0.30 }
+        ]
+      };
+
+      playNotes(sounds[kind] || sounds.click);
+    }
+
+    // ---------- วาดหน้าปัด SVG ----------
+
+    function svgElement(tag, attributes) {
+      const element = document.createElementNS(SVG_NS, tag);
+
+      for (const [name, value] of Object.entries(attributes)) {
+        element.setAttribute(name, String(value));
+      }
+
+      return element;
+    }
+
+    function buildClock() {
+      for (let i = 0; i < 60; i++) {
+        const angle = i * Math.PI / 30;
+        const isHour = i % 5 === 0;
+        const innerRadius = isHour ? 131 : 138;
+        const outerRadius = 145;
+
+        const tick = svgElement("line", {
+          x1: 180 + innerRadius * Math.sin(angle),
+          y1: 180 - innerRadius * Math.cos(angle),
+          x2: 180 + outerRadius * Math.sin(angle),
+          y2: 180 - outerRadius * Math.cos(angle),
+          stroke: isHour ? "#8a76a9" : "#cbc0d8",
+          "stroke-width": isHour ? 3 : 1.5,
+          "stroke-linecap": "round"
+        });
+
+        $("ticks").appendChild(tick);
+      }
+
+      for (let number = 1; number <= 12; number++) {
+        const angle = number * Math.PI / 6;
+
+        const text = svgElement("text", {
+          x: 180 + 111 * Math.sin(angle),
+          y: 182 - 111 * Math.cos(angle),
+          "text-anchor": "middle",
+          "dominant-baseline": "middle",
+          "font-size": 25,
+          "font-weight": 700,
+          fill: "#343249"
+        });
+
+        text.textContent = number;
+        $("numbers").appendChild(text);
+      }
+    }
+
+    // ---------- สร้างโจทย์และตัวเลือก ----------
+
+    function minuteValues() {
+      const difficulty = $("difficulty").value;
+
+      if (difficulty === "hour") return [0];
+      if (difficulty === "half") return [0, 30];
+
+      return Array.from({ length: 12 }, (_, i) => i * 5);
+    }
+
+    function createQuestions() {
+      const pool = [];
+
+      for (let h = 0; h < 24; h++) {
+        for (const m of minuteValues()) {
+          pool.push({ h, m });
+        }
+      }
+
+      // ครบทุกช่วงเวลา ช่วงละ 2 ข้อ และไม่ซ้ำกัน
+      const keys = ["morning", "day", "evening", "night"];
+      const sequence = [...shuffle(keys), ...shuffle(keys)];
+      const used = new Set();
+
+      return sequence.map(key => {
+        const candidates = pool.filter(time =>
+          getPeriod(time.h).key === key &&
+          !used.has(totalMinutes(time))
+        );
+
+        const selected = randomItem(candidates);
+        used.add(totalMinutes(selected));
+
+        return { ...selected };
+      });
+    }
+
+    function createOptions(time) {
+      const correct = totalMinutes(time);
+      const difficulty = $("difficulty").value;
+
+      const delta = difficulty === "hour"
+        ? 60
+        : difficulty === "half"
+          ? 30
+          : 5;
+
+      // ตัวลวงหนึ่งตัวมีเข็มตำแหน่งเดียวกัน แต่ต่างกัน 12 ชั่วโมง
+      const values = new Set([
+        correct,
+        (correct + 720) % 1440,
+        (correct + delta) % 1440
+      ]);
+
+      return shuffle([...values]);
+    }
+
+    function setFeedback(kind, text) {
+      $("feedback").dataset.kind = kind;
+      $("feedback").textContent = text;
+    }
+
+    function prepareQuestion() {
+      game.solved = false;
+      game.wrong = new Set();
+      game.options = createOptions(currentTime());
+
+      setFeedback(
+        "ready",
+        "ดูเข็มนาฬิกาและฉาก แล้วเลือกคำตอบได้เลย"
+      );
+    }
+
+    function focusFirstAnswer() {
+      const button = $("answers").querySelector("button:not(:disabled)");
+      if (button) button.focus({ preventScroll: true });
+    }
+
+    function newGame() {
+      stopSpeech();
+
+      state.mode = "game";
+      game.questions = createQuestions();
+      game.index = 0;
+      game.stars = 0;
+      game.finished = false;
+
+      prepareQuestion();
+      render();
+
+      effect("click");
+      speak(gamePrompt());
+      focusFirstAnswer();
+    }
+
+    function chooseAnswer(value) {
+      if (
+        state.mode !== "game" ||
+        game.solved ||
+        game.finished ||
+        game.wrong.has(value)
+      ) return;
+
+      const time = currentTime();
+      const correct = totalMinutes(time);
+
+      if (value === correct) {
+        game.solved = true;
+        game.stars++;
+
+        setFeedback(
+          "correct",
+          `ถูกต้อง! ${formatTime(time)} ช่วง${getPeriod(time.h).label}
+           ได้รับดาวอีก 1 ดวง`
+        );
+
+        render();
+
+        $("starCount").classList.remove("pop");
+        void $("starCount").offsetWidth;
+        $("starCount").classList.add("pop");
+
+        effect("correct");
+        speak(
+          "ถูกต้อง เก่งมาก. ได้รับดาวหนึ่งดวง. " +
+          spokenTime(time)
+        );
+
+        $("nextButton").focus({ preventScroll: true });
+      } else {
+        game.wrong.add(value);
+
+        const minuteNumber = time.m === 0 ? 12 : time.m / 5;
+
+        setFeedback(
+          "wrong",
+          `ลองอีกครั้งนะ ดูเข็มสั้นสีชมพูและช่วงเวลาในฉาก
+           เข็มยาวชี้เลข ${minuteNumber} คือ ${time.m} นาที`
+        );
+
+        renderChoices();
+
+        effect("wrong");
+        speak(
+          "ไม่เป็นไร ลองใหม่ได้นะ. " +
+          "ดูเข็มสั้นสีชมพูและฉากให้ดี. " +
+          `เข็มยาวชี้เลข ${thaiNumber(minuteNumber)}.
+           คือ ${thaiNumber(time.m)} นาที.`
+        );
+
+        focusFirstAnswer();
+      }
+    }
+
+    function nextQuestion() {
+      if (!game.solved || game.finished) return;
+
+      if (game.index === TOTAL_QUESTIONS - 1) {
+        game.finished = true;
+
+        setFeedback(
+          "finished",
+          `ยอดเยี่ยม! ฝึกครบ ${TOTAL_QUESTIONS} ข้อ
+           สะสมได้ ${game.stars} ดาว
+           รับมงกุฎเจ้าหญิงนักอ่านเวลาได้เลย`
+        );
+
+        render();
+        effect("finish");
+
+        speak(
+          `ยอดเยี่ยม. ฝึกครบ ${thaiNumber(TOTAL_QUESTIONS)} ข้อแล้ว.
+           สะสมได้ ${thaiNumber(game.stars)} ดาว.
+           เจ้าหญิงขอมอบมงกุฎนักอ่านเวลาให้หนู.
+           ถ้าอยากฝึกอีก กดเล่นอีกครั้งได้เลยนะ.`
+        );
+
+        $("restartButton").focus({ preventScroll: true });
+        return;
+      }
+
+      game.index++;
+      prepareQuestion();
+      render();
+
+      effect("click");
+      speak(gamePrompt());
+      focusFirstAnswer();
+    }
+
+    // ---------- อัปเดตหน้าจอ ----------
+
+    function setPressed(id, selected) {
+      $(id).classList.toggle("active", selected);
+      $(id).setAttribute("aria-pressed", String(selected));
+    }
+
+    function renderChoices() {
+      $("answers").replaceChildren();
+
+      if (game.finished) return;
+
+      const correct = totalMinutes(currentTime());
+
+      for (const value of game.options) {
+        const time = fromMinutes(value);
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "choice";
+        button.disabled = game.solved || game.wrong.has(value);
+
+        if (game.solved && value === correct) {
+          button.classList.add("right");
+        }
+
+        if (game.wrong.has(value)) {
+          button.classList.add("wrong");
+        }
+
+        const timeLabel = document.createElement("strong");
+        timeLabel.textContent = formatTime(time);
+
+        const periodLabel = document.createElement("span");
+        periodLabel.textContent = `ช่วง${getPeriod(time.h).label}`;
+
+        button.append(timeLabel, periodLabel);
+        button.setAttribute(
+          "aria-label",
+          `${formatTime(time)} ช่วง${getPeriod(time.h).label}`
+        );
+
+        button.addEventListener("click", () => chooseAnswer(value));
+        $("answers").appendChild(button);
+      }
+    }
+
+    function render() {
+      const time = currentTime();
+      const period = getPeriod(time.h);
+      const learning = state.mode === "learn";
+      const reveal = learning || game.solved;
+
+      document.body.dataset.period = period.key;
+
+      $("sceneLabel").textContent = `ช่วง${period.label}`;
+      $("sceneCaption").textContent = period.caption;
+      $("sceneRange").textContent = period.range;
+
+      // เข็มสั้นเคลื่อนตามนาที ไม่กระโดดอยู่ที่เลขชั่วโมง
+      const hourAngle = (time.h % 12) * 30 + time.m * 0.5;
+      const minuteAngle = time.m * 6;
+
+      $("hourHand").setAttribute(
+        "transform",
+        `translate(180 180) rotate(${hourAngle})`
+      );
+
+      $("minuteHand").setAttribute(
+        "transform",
+        `translate(180 180) rotate(${minuteAngle})`
+      );
+
+      $("clockTitle").textContent =
+        `นาฬิกาช่วง${period.label}. ${handExplanation(time)}`;
+
+      $("digital").hidden = !reveal;
+      $("digital").textContent = formatTime(time);
+
+      $("clockHint").textContent = reveal
+        ? handExplanation(time)
+        : "ดูเข็มสั้นเพื่ออ่านชั่วโมง ดูเข็มยาวเพื่ออ่านนาที และดูฉากประกอบ";
+
+      $("lessonPanel").hidden = !learning;
+      $("gamePanel").hidden = learning;
+
+      setPressed("learnTab", learning);
+      setPressed("gameTab", !learning);
+      setPressed("format24", state.format === "24");
+      setPressed("format12", state.format === "ampm");
+
+      $("voiceButton").textContent =
+        !learning && !game.solved ? "ฟังโจทย์" : "ฟังคำอธิบาย";
+
+      $("formatHelp").textContent = state.format === "24"
+        ? "แบบ 24 ชั่วโมงใช้ 00–23 นาฬิกา: เที่ยงคืน = 00:00 และเที่ยงวัน = 12:00"
+        : "AM = เที่ยงคืนถึงก่อนเที่ยงวัน • PM = เที่ยงวันถึงก่อนเที่ยงคืน • " +
+          "12 AM = เที่ยงคืน • 12 PM = เที่ยงวัน";
+
+      if (learning) {
+        $("hourRange").value = time.h;
+        $("minuteRange").value = time.m;
+
+        $("hourOutput").value = `${pad(time.h)} นาฬิกา`;
+        $("minuteOutput").value = `${pad(time.m)} นาที`;
+      } else {
+        $("questionCounter").textContent = game.finished
+          ? `ครบ ${TOTAL_QUESTIONS} ข้อแล้ว`
+          : `ข้อ ${game.index + 1} / ${TOTAL_QUESTIONS}`;
+
+        $("starText").textContent =
+          `${game.stars} / ${TOTAL_QUESTIONS} ดาว`;
+
+        $("progress").value = game.stars;
+
+        $("questionText").textContent = game.finished
+          ? "รับมงกุฎนักอ่านเวลา!"
+          : `นาฬิกาช่วง${period.label}นี้ เป็นเวลากี่โมง?`;
+
+        $("answers").hidden = game.finished;
+        $("reward").hidden = !game.finished;
+
+        $("nextButton").hidden = !game.solved || game.finished;
+        $("nextButton").textContent =
+          game.index === TOTAL_QUESTIONS - 1
+            ? "รับมงกุฎ"
+            : "ข้อต่อไป";
+
+        $("restartButton").textContent =
+          game.finished ? "เล่นอีกครั้ง" : "เริ่มใหม่";
+
+        renderChoices();
+      }
+    }
+
+    // ---------- การควบคุมโหมดและรูปแบบเวลา ----------
+
+    function enterLearning() {
+      stopSpeech();
+      state.mode = "learn";
+      render();
+      effect("click");
+      speak(lessonSpeech());
+    }
+
+    function changeFormat(format) {
+      if (state.format === format) return;
+
+      state.format = format;
+      render();
+
+      if (state.mode === "game" && game.solved && !game.finished) {
+        setFeedback(
+          "correct",
+          `ถูกต้อง! ${formatTime(currentTime())}
+           ช่วง${getPeriod(currentTime().h).label}
+           ได้รับดาวอีก 1 ดวง`
+        );
+      }
+
+      effect("click");
+
+      if (state.mode === "learn") {
+        speak(lessonSpeech());
+      } else if (!game.solved) {
+        speak(gamePrompt());
+      } else if (!game.finished) {
+        speak(spokenTime(currentTime()));
+      }
+    }
+
+    function changeLessonTime(time, withSpeech = true) {
+      state.lesson = { ...time };
+      render();
+
+      if (withSpeech) {
+        effect("click");
+        speak(spokenTime(state.lesson) + " " + spokenHands(state.lesson));
+      }
+    }
+
+    $("learnTab").addEventListener("click", enterLearning);
+    $("gameTab").addEventListener("click", newGame);
+    $("practiceButton").addEventListener("click", newGame);
+    $("restartButton").addEventListener("click", newGame);
+    $("nextButton").addEventListener("click", nextQuestion);
+
+    $("format24").addEventListener("click", () => changeFormat("24"));
+    $("format12").addEventListener("click", () => changeFormat("ampm"));
+
+    $("difficulty").addEventListener("change", () => {
+      if (state.mode === "game") newGame();
+    });
+
+    document.querySelectorAll("[data-time]").forEach(button => {
+      button.addEventListener("click", () => {
+        const [h, m] = button.dataset.time.split(",").map(Number);
+        changeLessonTime({ h, m });
+      });
+    });
+
+    document.querySelectorAll("[data-shift]").forEach(button => {
+      button.addEventListener("click", () => {
+        const shift = Number(button.dataset.shift);
+        changeLessonTime(
+          fromMinutes(totalMinutes(state.lesson) + shift)
+        );
+      });
+    });
+
+    $("hourRange").addEventListener("input", event => {
+      stopSpeech();
+
+      changeLessonTime({
+        h: Number(event.target.value),
+        m: state.lesson.m
+      }, false);
+    });
+
+    $("minuteRange").addEventListener("input", event => {
+      stopSpeech();
+
+      changeLessonTime({
+        h: state.lesson.h,
+        m: Number(event.target.value)
+      }, false);
+    });
+
+    [$("hourRange"), $("minuteRange")].forEach(input => {
+      input.addEventListener("change", () => {
+        speak(spokenTime(state.lesson) + " " + spokenHands(state.lesson));
+      });
+    });
+
+    $("voiceButton").addEventListener("click", () => {
+      unlockAudio();
+
+      if (!state.sound) {
+        $("voiceStatus").textContent =
+          "ขณะนี้ปิดเสียงอยู่ กด “เสียง: ปิด” เพื่อเปิดเสียงก่อน";
+        return;
+      }
+
+      if (state.mode === "learn") {
+        speak(lessonSpeech());
+      } else if (game.finished) {
+        speak(
+          `เก่งมาก. สะสมได้ ${thaiNumber(game.stars)} ดาว.
+           ฝึกครบทุกข้อแล้ว. กดเล่นอีกครั้งเพื่อฝึกต่อได้เลย.`
+        );
+      } else if (game.solved) {
+        speak(
+          spokenTime(currentTime()) + " " +
+          spokenHands(currentTime())
+        );
+      } else {
+        speak(gamePrompt());
+      }
+    });
+
+    $("soundButton").addEventListener("click", () => {
+      state.sound = !state.sound;
+
+      $("soundButton").textContent =
+        state.sound ? "เสียง: เปิด" : "เสียง: ปิด";
+
+      $("soundButton").setAttribute(
+        "aria-pressed",
+        String(state.sound)
+      );
+
+      if (!state.sound) {
+        stopSpeech();
+        stopEffects();
+      } else {
+        refreshVoices();
+        unlockAudio();
+        effect("click");
+        speak("เปิดเสียงแล้ว");
+      }
+    });
+
+    // เบราเซอร์ส่วนใหญ่ต้องได้รับการแตะหรือกดปุ่มก่อนเล่นเสียง
+    document.addEventListener("pointerdown", unlockAudio, { passive: true });
+    document.addEventListener("keydown", unlockAudio);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopSpeech();
+        stopEffects();
+      }
+    });
+
+    if (synth) {
+      if (typeof synth.addEventListener === "function") {
+        synth.addEventListener("voiceschanged", refreshVoices);
+      } else {
+        synth.onvoiceschanged = refreshVoices;
+      }
+    }
+
+    // ---------- เริ่มต้น ----------
+
+    buildClock();
+    refreshVoices();
+    setTimeout(refreshVoices, 500);
+    render();
+
+    // ไม่เล่นเสียงอัตโนมัติเมื่อเปิดไฟล์
+    // ให้เด็กหรือผู้สอนกดฟัง/เริ่มเกมก่อน
+  </script>
+</body>
+</html>
