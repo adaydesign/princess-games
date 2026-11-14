@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>👑 เขาวงกตเจ้าหญิง 2 — ผจญภัย 6 อาณาจักร</title>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;font-family:'Mali','Itim','Tahoma',sans-serif;background:#ffd6e8;touch-action:none;transition:background .6s}
+#view{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;top:8px;left:8px;right:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;z-index:5;pointer-events:none}
+.panel{background:rgba(255,255,255,.9);border-radius:18px;padding:6px 12px;box-shadow:0 5px 0 rgba(0,0,0,.15);border:3px solid #fff;display:flex;align-items:center;gap:6px;pointer-events:auto;flex-wrap:wrap}
+#hearts{display:flex;gap:2px}
+#hearts svg{width:30px;height:30px}
+#slowBadge{display:none;background:#ffe066;border-radius:12px;padding:2px 8px;font-weight:700;color:#8a5a00;font-size:14px;animation:pulse 1s infinite}
+#levelInfo{font-weight:700;color:#c2185b;font-size:17px}
+#slots{display:flex;gap:4px}
+.slot{width:42px;height:42px;border-radius:12px;background:#f1eef0;border:3px dashed #ccc;display:flex;align-items:center;justify-content:center}
+.slot svg{width:34px;height:34px}
+.slot:not(.got) svg{filter:grayscale(1) brightness(.5);opacity:.3}
+.slot.got{background:#fff7d6;border:3px solid #ffc300;animation:pop .5s}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;border:none;border-radius:14px;font-family:inherit;font-weight:700;cursor:pointer;background:linear-gradient(#ff8fc7,#ff5fa2);color:#fff;box-shadow:0 5px 0 #c2185b;padding:8px 14px;font-size:18px;transition:transform .1s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 #c2185b}
+.btn.small{font-size:20px;padding:4px 9px}
+.btn.home-btn{background:linear-gradient(#f3e8ff,#e2d1f8);color:#4f2888;box-shadow:0 4px 0 #b794e6;font-size:15px;padding:6px 11px}
+.btn.home-btn:active{box-shadow:0 1px 0 #b794e6}
+.btn.back-btn{background:linear-gradient(#f3e8ff,#e2d1f8);color:#4f2888;box-shadow:0 5px 0 #b794e6;font-size:17px;padding:10px 18px;margin-top:10px}
+.btn.back-btn:active{box-shadow:0 1px 0 #b794e6}
+.modal-actions{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:10px}
+.modal-actions .btn.big,.modal-actions .btn.back-btn{margin-top:0}
+.btn.off{filter:grayscale(1);opacity:.55}
+.btn.gold{background:linear-gradient(#ffe066,#ffb703);box-shadow:0 6px 0 #c77800;color:#6b3a00}
+.btn.big{font-size:26px;padding:14px 36px;margin-top:10px}
+#dpad{position:fixed;left:14px;bottom:14px;width:186px;height:186px;z-index:6}
+#dpad button{position:absolute;width:62px;height:62px;border-radius:18px;border:3px solid #fff;background:rgba(255,255,255,.85);box-shadow:0 5px 0 rgba(0,0,0,.2);font-size:30px;color:#e91e63;touch-action:none;cursor:pointer;font-family:inherit}
+#dpad button.on{transform:translateY(3px);background:#ffd1e6;box-shadow:0 2px 0 rgba(0,0,0,.2)}
+#bUp{left:62px;top:0}#bDown{left:62px;top:124px}#bLeft{left:0;top:62px}#bRight{left:124px;top:62px}
+#hintBtn{position:fixed;right:16px;bottom:24px;z-index:6;font-size:22px;padding:14px 18px}
+#bubble{position:fixed;top:90px;left:50%;transform:translateX(-50%);background:#fff;border:4px solid #ffc2e0;border-radius:20px;padding:8px 18px;font-size:19px;color:#7a1d4f;font-weight:700;max-width:min(92vw,600px);text-align:center;z-index:8;box-shadow:0 5px 0 #f5a3c9;opacity:0;transition:opacity .3s;pointer-events:none}
+#bubble.show{opacity:1}
+.modal{position:fixed;inset:0;background:rgba(60,20,80,.5);display:flex;align-items:center;justify-content:center;z-index:20;padding:12px}
+.modal.hidden{display:none}
+.card{background:linear-gradient(#fff,#fff0f7);border-radius:28px;padding:18px 20px;max-width:560px;width:100%;text-align:center;border:5px solid #ffc2e0;box-shadow:0 10px 0 #e07bb0,0 20px 40px rgba(0,0,0,.3);animation:popIn .35s;max-height:96vh;overflow:auto}
+.card h1{margin:4px 0;color:#d6336c;font-size:34px;text-shadow:0 3px 0 #ffd1e6}
+.card h2{margin:2px 0;color:#d6336c;font-size:26px}
+.card p{margin:4px 0;font-size:18px;color:#7a1d4f}
+.bigicon{font-size:60px;animation:pulse 1.5s infinite}
+.howto{display:grid;gap:6px;text-align:left;font-size:18px;color:#5a2a4a;background:#fff;border-radius:18px;padding:12px 16px;margin:10px 0;border:3px solid #ffe0ef}
+.qhead{display:flex;align-items:center;justify-content:center;gap:10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+.opt{background:#fff;border:4px solid #ffd1e6;border-radius:22px;box-shadow:0 6px 0 #f5a3c9;cursor:pointer;padding:6px;font-family:inherit}
+.opt svg{width:100%;height:auto;max-height:26vh;display:block;margin:auto}
+.opt:active{transform:translateY(3px)}
+.opt.wrong{animation:shake .4s;opacity:.35;pointer-events:none}
+.opt.right{border-color:#2ec27e;box-shadow:0 6px 0 #1a9e5f;background:#e9fff3;animation:pop .5s}
+.stars{font-size:46px;letter-spacing:6px}
+.stars span{display:inline-block;animation:pop .6s both}
+.stars span:nth-child(2){animation-delay:.2s}.stars span:nth-child(3){animation-delay:.4s}
+#winSyms{display:flex;justify-content:center;gap:10px;margin:8px 0}
+#winSyms svg{width:56px;height:56px;background:#fff7d6;border-radius:14px;border:3px solid #ffc300}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.cf{position:absolute;top:-20px;width:12px;height:16px;border-radius:3px;animation:fall linear forwards}
+.tw{transform-box:fill-box;transform-origin:center;animation:tw .8s infinite alternate}
+.hintdot{transform-box:fill-box;transform-origin:center;animation:hintPop .5s both}
+@keyframes pop{0%{transform:scale(.5)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes pulse{50%{transform:scale(1.08)}}
+@keyframes fall{to{transform:translateY(112vh) rotate(800deg)}}
+@keyframes tw{from{opacity:.25;transform:scale(.6)}to{opacity:1;transform:scale(1.2)}}
+@keyframes hintPop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@media (max-width:600px){#dpad{transform:scale(.85);transform-origin:left bottom}#levelInfo{font-size:14px}#hearts svg{width:24px;height:24px}.slot{width:36px;height:36px}.slot svg{width:28px;height:28px}}
+</style>
+</head>
+<body>
+
+<svg id="view" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#fffbe0" stop-opacity=".95"/>
+      <stop offset=".5" stop-color="#ffe066" stop-opacity=".45"/>
+      <stop offset="1" stop-color="#ffe066" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g id="floorLayer"></g>
+  <g id="hintLayer"></g>
+  <g id="rowsLayer"></g>
+</svg>
+
+<div class="hud">
+  <div class="panel"><a class="btn small home-btn" href="index.html" aria-label="กลับหน้ารวมเกม" title="กลับหน้ารวมเกม">🏠 หน้าหลัก</a><div id="hearts"></div><span id="slowBadge">🐢 เดินช้า! ไปเก็บหัวใจ</span></div>
+  <div class="panel" id="levelInfo">ด่าน 1</div>
+  <div class="panel">
+    <div id="slots"></div>
+    <button class="btn small" id="bSfx" title="เสียงเอฟเฟกต์">🔊</button>
+    <button class="btn small" id="bMusic" title="เพลง">🎵</button>
+    <button class="btn small" id="bVoice" title="เสียงบรรยาย">🗣️</button>
+  </div>
+</div>
+
+<div id="bubble"></div>
+
+<div id="dpad">
+  <button id="bUp" data-d="up">▲</button>
+  <button id="bLeft" data-d="left">◀</button>
+  <button id="bRight" data-d="right">▶</button>
+  <button id="bDown" data-d="down">▼</button>
+</div>
+<button class="btn gold" id="hintBtn">✨ ช่วยหาทาง</button>
+
+<!-- หน้าเริ่ม -->
+<div id="startModal" class="modal">
+  <div class="card">
+    <div class="bigicon">👑</div>
+    <h1>เขาวงกตเจ้าหญิง 2</h1>
+    <p style="font-weight:700;color:#c2185b">ผจญภัย 6 อาณาจักร</p>
+    <div class="howto">
+      <div>🕹️ เดินด้วยปุ่มลูกศร (หรือปุ่ม W A S D)</div>
+      <div>✨ ตามหาสัญลักษณ์วิเศษ 3 อย่าง</div>
+      <div>🧩 ตอบคำถาม "ภาพไหนไม่เหมือนเพื่อน"</div>
+      <div>🚪 เก็บครบแล้วไปที่ประตูทางออก</div>
+      <div>❤️ ระวังมอนสเตอร์และกับดักนะ</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn gold big" id="startBtn">▶ เริ่มเล่น</button>
+      <a class="btn back-btn" href="index.html">← กลับหน้ารวมเกม</a>
+    </div>
+  </div>
+</div>
+
+<!-- คำถาม -->
+<div id="qModal" class="modal hidden">
+  <div class="card">
+    <div class="qhead">
+      <svg id="qSym" viewBox="-22 -22 44 44" width="64" height="64"></svg>
+      <div><h2 id="qTitle">พบสัญลักษณ์!</h2></div>
+    </div>
+    <p id="qHint">ภาพไหนไม่เหมือนเพื่อน? แตะเลือกเลย</p>
+    <div id="qOpts" class="opts"></div>
+    <button class="btn" id="qSpeak">🔈 ฟังอีกครั้ง</button>
+  </div>
+</div>
+
+<!-- ชนะ -->
+<div id="winModal" class="modal hidden">
+  <div class="card">
+    <h1>🎉 ยินดีด้วย! 🎉</h1>
+    <div class="stars"><span>⭐</span><span>⭐</span><span>⭐</span></div>
+    <p id="winText">เจ้าหญิงผ่านด่านแล้ว</p>
+    <div id="winSyms"></div>
+    <div class="modal-actions">
+      <button class="btn gold big" id="nextBtn">▶ เล่นต่อ (ด่านใหม่)</button>
+      <a class="btn back-btn" href="index.html">← กลับหน้ารวมเกม</a>
+    </div>
+  </div>
+</div>
+
+<div id="confetti"></div>
+
+<script>
+(()=>{
+'use strict';
+/* ================= ค่าพื้นฐาน & ตัวช่วย ================= */
+const T=64, WH=18, NS='http://www.w3.org/2000/svg';
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const key=(x,y)=>x+','+y;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function shade(hex,amt){
+  let c=hex.replace('#','');if(c.length===3)c=c.split('').map(x=>x+x).join('');
+  const n=[0,2,4].map(i=>parseInt(c.substr(i,2),16));
+  const f=v=>Math.round(clamp(amt<0?v*(1+amt):v+(255-v)*amt,0,255));
+  return '#'+n.map(v=>f(v).toString(16).padStart(2,'0')).join('');
+}
+function starPts(cx,cy,R,r,n){const s=[];for(let i=0;i<n*2;i++){const a=-Math.PI/2+i*Math.PI/n,rr=i%2?r:R;s.push((cx+Math.cos(a)*rr).toFixed(1)+','+(cy+Math.sin(a)*rr).toFixed(1));}return s.join(' ');}
+function mk(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+const DV=[[1,0],[-1,0],[0,1],[0,-1]];
+const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+const OPP={up:'down',down:'up',left:'right',right:'left'};
+const HEART_PATH='M0,10 C-22,-6 -12,-24 0,-12 C12,-24 22,-6 0,10Z';
+
+/* ================= สัญลักษณ์วิเศษ ================= */
+const SYM={
+  crown:{name:'มงกุฎ',draw:()=>`<polygon points="-16,8 -16,-9 -8,-1 0,-15 8,-1 16,-9 16,8" fill="#ffd23f" stroke="#c98a00" stroke-width="2" stroke-linejoin="round"/><rect x="-16" y="7" width="32" height="7" rx="2" fill="#f4a300"/><circle cx="0" cy="3" r="3.5" fill="#ff4d8d"/><circle cx="-9" cy="4" r="2.2" fill="#3a86ff"/><circle cx="9" cy="4" r="2.2" fill="#3a86ff"/>`},
+  snowflake:{name:'เกล็ดหิมะ',draw:()=>`<g stroke="#3fa9f5" stroke-width="3.5" stroke-linecap="round" fill="none">${[0,60,120].map(a=>`<g transform="rotate(${a})"><line x1="0" y1="-17" x2="0" y2="17"/><polyline points="-5,-13 0,-8 5,-13"/><polyline points="-5,13 0,8 5,13"/></g>`).join('')}</g><circle r="3" fill="#fff" stroke="#3fa9f5" stroke-width="2"/>`},
+  gem:{name:'อัญมณี',draw:()=>`<polygon points="-15,-6 -8,-15 8,-15 15,-6 0,15" fill="#c77dff" stroke="#7b2cbf" stroke-width="2" stroke-linejoin="round"/><polygon points="-15,-6 15,-6 0,15" fill="#9d4edd"/><polygon points="-8,-15 -3,-6 3,-6 8,-15" fill="#e0aaff"/>`},
+  shell:{name:'เปลือกหอย',draw:()=>`<path d="M0,13 L-17,-3 Q0,-22 17,-3 Z" fill="#ffb4c8" stroke="#e5678e" stroke-width="2" stroke-linejoin="round"/><g stroke="#e5678e" stroke-width="1.6"><line x1="0" y1="13" x2="-9" y2="-11"/><line x1="0" y1="13" x2="0" y2="-14"/><line x1="0" y1="13" x2="9" y2="-11"/></g><rect x="-5" y="10" width="10" height="6" rx="2" fill="#e5678e"/>`},
+  star:{name:'ดาววิเศษ',draw:()=>`<polygon points="${starPts(0,1,18,8,5)}" fill="#ffd23f" stroke="#e09f00" stroke-width="2" stroke-linejoin="round"/><circle cx="-3" cy="0" r="1.6" fill="#7a4b00"/><circle cx="3" cy="0" r="1.6" fill="#7a4b00"/>`},
+  pearl:{name:'ไข่มุก',draw:()=>`<circle r="13" fill="#fff6fb" stroke="#d4a5c4" stroke-width="2.5"/><circle cx="-4" cy="-4" r="4" fill="#fff"/><circle cx="4" cy="5" r="6" fill="#f3d9ea" opacity=".6"/><polygon points="${starPts(12,-12,5,2,4)}" fill="#ffe066"/>`},
+  rose:{name:'กุหลาบวิเศษ',draw:()=>`<rect x="-1.5" y="4" width="3" height="14" fill="#2e8b57"/><ellipse cx="6" cy="12" rx="6" ry="3" fill="#3cb371"/><circle cy="-4" r="11" fill="#ff3d6e" stroke="#b8003a" stroke-width="2"/><path d="M-5,-4 Q0,-13 5,-4 Q0,3 -3,-3" stroke="#b8003a" stroke-width="1.8" fill="none"/>`},
+  lantern:{name:'โคมลอย',draw:()=>`<circle r="18" fill="url(#glow)"/><rect x="-11" y="-14" width="22" height="26" rx="7" fill="#ffb703" stroke="#d97706" stroke-width="2"/><rect x="-7" y="-17" width="14" height="4" rx="1" fill="#8d5524"/><rect x="-7" y="11" width="14" height="4" rx="1" fill="#8d5524"/><polygon points="${starPts(0,0,7,3,8)}" fill="#fff3b0"/>`},
+  sun:{name:'ดวงอาทิตย์',draw:()=>`${[0,45,90,135,180,225,270,315].map(a=>`<polygon points="-3.5,-12 3.5,-12 0,-19" fill="#ff9f1c" transform="rotate(${a})"/>`).join('')}<circle r="11" fill="#ffd23f" stroke="#ff9f1c" stroke-width="2"/><circle cx="-4" cy="-2" r="1.6" fill="#7a4b00"/><circle cx="4" cy="-2" r="1.6" fill="#7a4b00"/><path d="M-4,3 Q0,7 4,3" stroke="#7a4b00" stroke-width="1.6" fill="none"/>`},
+  apple:{name:'แอปเปิลทองคำ',draw:()=>`<rect x="-1.5" y="-17" width="3" height="8" fill="#6b3e1f"/><ellipse cx="6" cy="-13" rx="6" ry="3" fill="#2ec27e"/><circle cx="-5" cy="2" r="11" fill="#e63946"/><circle cx="5" cy="2" r="11" fill="#e63946"/><circle cx="-6" cy="-3" r="3" fill="#fff" opacity=".6"/>`},
+  slipper:{name:'รองเท้าแก้ว',draw:()=>`<path d="M-17,10 L-17,2 Q-16,-6 -8,-4 L4,-10 Q12,-14 16,-8 L17,4 L13,4 L12,10 Z" fill="#cdeafe" stroke="#4ea8de" stroke-width="2" stroke-linejoin="round"/><rect x="11" y="4" width="3" height="11" fill="#4ea8de"/><circle cx="-7" cy="0" r="3" fill="#fff"/><polygon points="${starPts(-12,-12,5,2,4)}" fill="#fff" stroke="#4ea8de" stroke-width=".8"/>`},
+  pumpkin:{name:'ฟักทองวิเศษ',draw:()=>`<ellipse cx="-7" cy="3" rx="8" ry="11" fill="#fb8500"/><ellipse cx="7" cy="3" rx="8" ry="11" fill="#fb8500"/><ellipse cx="0" cy="3" rx="8" ry="12" fill="#ffa62b" stroke="#d96c00" stroke-width="1.5"/><rect x="-2" y="-14" width="4" height="7" rx="1" fill="#2d6a4f"/><path d="M2,-12 Q9,-16 10,-9" stroke="#52b788" stroke-width="2" fill="none"/>`}
+};
+
+/* ================= ของประดับ ================= */
+const DECO={
+  pine:()=>`<rect x="-3" y="-6" width="6" height="8" fill="#7f5539"/><polygon points="0,-40 -15,-4 15,-4" fill="#2a9d8f"/><polygon points="0,-40 -8,-22 8,-22" fill="#fff"/><polygon points="0,-40 -15,-4 0,-4" fill="#000" opacity=".12"/>`,
+  snowman:()=>`<circle cy="-8" r="11" fill="#fff" stroke="#cfe8f5" stroke-width="2"/><circle cy="-26" r="8" fill="#fff" stroke="#cfe8f5" stroke-width="2"/><polygon points="0,-26 9,-24 0,-23" fill="#ff8c1a"/><circle cx="-3" cy="-29" r="1.5" fill="#333"/><circle cx="3" cy="-29" r="1.5" fill="#333"/><rect x="-8" y="-35" width="16" height="3" fill="#333"/><rect x="-5" y="-43" width="10" height="9" fill="#333"/><rect x="-9" y="-19" width="18" height="3" fill="#e63946"/>`,
+  crystal:()=>`<polygon points="0,-38 8,-14 0,-2 -8,-14" fill="#bdf0ff" stroke="#5ac8fa" stroke-width="2"/><polygon points="12,-24 17,-10 12,-2 7,-10" fill="#e0fbff" stroke="#5ac8fa" stroke-width="2"/><polygon points="-12,-20 -8,-8 -12,-2 -16,-8" fill="#e0fbff" stroke="#5ac8fa" stroke-width="2"/>`,
+  seaweed:()=>`<path d="M-6,0 Q-14,-12 -6,-22 Q2,-32 -6,-44" stroke="#2ec27e" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M6,0 Q12,-10 6,-18 Q0,-26 6,-34" stroke="#52d68a" stroke-width="5" fill="none" stroke-linecap="round"/>`,
+  coral:()=>`<path d="M0,0 L0,-20 M0,-14 L-10,-26 M0,-18 L9,-32 M-10,-26 L-12,-34 M9,-32 L14,-38" stroke="#ff6f91" stroke-width="6" stroke-linecap="round" fill="none"/>`,
+  bubbles:()=>`<circle cx="-6" cy="-12" r="7" fill="#e0fbff" opacity=".75" stroke="#fff" stroke-width="2"/><circle cx="6" cy="-27" r="5" fill="#e0fbff" opacity=".75" stroke="#fff" stroke-width="2"/><circle cx="-2" cy="-39" r="3" fill="#e0fbff" opacity=".75" stroke="#fff" stroke-width="1.5"/>`,
+  candle:()=>`<circle cy="-31" r="11" fill="#ffd166" opacity=".3"/><rect x="-6" y="-26" width="12" height="24" rx="2" fill="#fff8e7" stroke="#e6cfa0" stroke-width="2"/><path d="M0,-38 Q6,-30 0,-27 Q-6,-30 0,-38Z" fill="#ffb703"/><rect x="-10" y="-4" width="20" height="5" rx="2" fill="#d4a017"/>`,
+  clock:()=>`<rect x="-12" y="-40" width="24" height="40" rx="4" fill="#8d5524"/><polygon points="-14,-40 0,-50 14,-40" fill="#6b3e1f"/><circle cy="-26" r="9" fill="#fff8e7" stroke="#d4a017" stroke-width="2"/><line x1="0" y1="-26" x2="0" y2="-32" stroke="#333" stroke-width="2"/><line x1="0" y1="-26" x2="5" y2="-26" stroke="#333" stroke-width="2"/><circle cy="-8" r="4" fill="#ffd166"/>`,
+  flower:()=>{const c=pick(['#ff8fc7','#ffd23f','#c77dff','#7cc7ff']);return `<rect x="-1.5" y="-12" width="3" height="12" fill="#2e8b57"/>${[0,72,144,216,288].map(a=>`<circle cx="0" cy="-7" r="5" fill="${c}" transform="translate(0,-14) rotate(${a})"/>`).join('')}<circle cy="-14" r="4" fill="#fff3b0"/>`;},
+  mushroom:()=>`<rect x="-5" y="-14" width="10" height="14" rx="3" fill="#fff4e0"/><path d="M-16,-12 Q0,-36 16,-12 Z" fill="#e63946"/><circle cx="-6" cy="-20" r="2.5" fill="#fff"/><circle cx="5" cy="-24" r="3" fill="#fff"/><circle cx="9" cy="-16" r="2" fill="#fff"/>`
+};
+
+/* ================= ธีม ================= */
+const THEMES=[
+  {id:'ice',name:'ปราสาทน้ำแข็ง',bg:'#bfe6ff',floorA:'#eaf8ff',floorB:'#d6f0ff',wall:'#7cc6ee',wallTop:'#dcf4ff',dress:'#5ab4f0',hair:'#fff3d6',
+   decos:['pine','snowman','crystal'],hazard:{name:'แท่งน้ำแข็ง',color:'#aeeaff'},monster:{name:'ยักษ์หิมะ',color:'#f2fbff',feat:'horns'},symbols:['snowflake','crown','gem']},
+  {id:'sea',name:'อาณาจักรใต้ทะเล',bg:'#6cc6dd',floorA:'#f9e6bd',floorB:'#f1d9a4',wall:'#2a8fb0',wallTop:'#5fc0d8',dress:'#2ec4b6',hair:'#e63946',
+   decos:['seaweed','coral','bubbles'],hazard:{name:'เม่นทะเล',color:'#9d4edd'},monster:{name:'ฉลามจอมซน',color:'#8ea9c1',feat:'fin'},symbols:['shell','star','pearl']},
+  {id:'rose',name:'ปราสาทกุหลาบมนตรา',bg:'#4a3570',floorA:'#f6e2c7',floorB:'#ecd2ac',wall:'#8d6e9e',wallTop:'#c3a9d3',dress:'#ffd23f',hair:'#8b5a2b',
+   decos:['candle','clock','flower'],hazard:{name:'หนามกุหลาบ',color:'#3a9d5d'},monster:{name:'หมาป่าจอมซน',color:'#868e96',feat:'ears'},symbols:['rose','crown','star']},
+  {id:'tower',name:'หอคอยโคมลอย',bg:'#2f3180',floorA:'#c3ef93',floorB:'#afe27b',wall:'#9b7fd1',wallTop:'#cdb8f2',dress:'#c77dff',hair:'#ffe066',
+   decos:['flower','mushroom','pine'],hazard:{name:'เถาวัลย์หนาม',color:'#6a994e'},monster:{name:'ค้างคาวจอมป่วน',color:'#6a2bb0',feat:'wings'},symbols:['lantern','sun','crown']},
+  {id:'forest',name:'ป่ามหัศจรรย์',bg:'#95d5b2',floorA:'#e3f7e6',floorB:'#cfeed6',wall:'#2d6a4f',wallTop:'#52b788',dress:'#3a86ff',hair:'#2b2b2b',
+   decos:['mushroom','flower','pine'],hazard:{name:'หนามพิษ',color:'#c1121f'},monster:{name:'ก็อบลินจอมซน',color:'#80b918',feat:'ears'},symbols:['apple','star','gem']},
+  {id:'ball',name:'ปราสาทงานเต้นรำ',bg:'#ffcfe4',floorA:'#fff2f8',floorB:'#ffe0ee',wall:'#8fb8f5',wallTop:'#d4e6ff',dress:'#a0d8ff',hair:'#ffd166',
+   decos:['clock','candle','flower'],hazard:{name:'หนามแหลม',color:'#adb5bd'},monster:{name:'แมวดำจอมป่วน',color:'#3d4148',feat:'ears'},symbols:['slipper','pumpkin','star']}
+];
+
+/* ================= เสียง (Web Audio) ================= */
+let AC=null, sfxOn=true, musicOn=true, voiceOn=true, started=false;
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}if(AC.state==='suspended')AC.resume();return AC;}
+function tone(f,d,type='sine',v=.15,delay=0,f2=null,isMusic=false){
+  if(isMusic?!musicOn:!sfxOn)return;const a=ac();if(!a)return;
+  const t=a.currentTime+delay,o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.05);
+}
+function noise(d,v=.1){
+  if(!sfxOn)return;const a=ac();if(!a)return;
+  const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);
+  for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);
+  const s=a.createBufferSource(),g=a.createGain(),f=a.createBiquadFilter();
+  f.type='bandpass';f.frequency.value=900;s.buffer=b;g.gain.value=v;
+  s.connect(f);f.connect(g);g.connect(a.destination);s.start();
+}
+const SFX={
+  step:()=>tone(620+Math.random()*120,.05,'triangle',.035),
+  heart:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.22,'sine',.16,i*.08)),
+  hurt:()=>{tone(440,.35,'sawtooth',.09,0,140);noise(.2,.12);},
+  correct:()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.28,'triangle',.15,i*.09)),
+  wrong:()=>{tone(320,.18,'square',.05,0,260);tone(260,.25,'square',.05,.18,190);},
+  locked:()=>{tone(180,.12,'square',.06);tone(150,.15,'square',.06,.12);},
+  open:()=>[392,523,659,784,1047,1568].forEach((f,i)=>tone(f,.32,'sine',.14,i*.07)),
+  win:()=>{[523,523,659,784,659,784,1047].forEach((f,i)=>{tone(f,.3,'triangle',.16,i*.16);tone(f/2,.3,'sine',.07,i*.16);});},
+  click:()=>tone(880,.06,'sine',.08),
+  slow:()=>tone(330,.7,'sine',.12,0,110),
+  magic:()=>{for(let i=0;i<9;i++)tone(1200+Math.random()*1300,.12,'sine',.05,i*.05);}
+};
+// เพลงประกอบกล่องดนตรี
+const CHORDS=[[262,330,392],[220,262,330],[175,220,262],[196,247,294]];
+let mStep=0;
+setInterval(()=>{
+  if(!started||!musicOn||!AC)return;
+  const ch=CHORDS[Math.floor(mStep/8)%4],pat=[0,1,2,1,2,1,0,2];
+  tone(ch[pat[mStep%8]]*2,.4,'sine',.03,0,null,true);
+  if(mStep%8===0)tone(ch[0],1.3,'triangle',.025,0,null,true);
+  mStep++;
+},300);
+
+/* ================= เสียงบรรยายภาษาไทย ================= */
+let thVoice=null, bubbleTimer=null;
+function loadVoices(){const vs=speechSynthesis.getVoices();thVoice=vs.find(v=>/th[-_]TH/i.test(v.lang))||vs.find(v=>/^th/i.test(v.lang))||null;}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
+function say(text){
+  const b=$('bubble');b.textContent='💬 '+text;b.classList.add('show');
+  clearTimeout(bubbleTimer);bubbleTimer=setTimeout(()=>b.classList.remove('show'),Math.max(2600,text.length*110));
+  if(!voiceOn||!('speechSynthesis' in window))return;
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.lang='th-TH';if(thVoice)u.voice=thVoice;u.rate=.95;u.pitch=1.3;
+    setTimeout(()=>speechSynthesis.speak(u),60);
+  }catch(e){}
+}
+
+/* ================= สร้างเขาวงกต ================= */
+function genMaze(cw,ch){
+  const W=cw*2+1,H=ch*2+1,g=Array.from({length:H},()=>Array(W).fill(1));
+  const vis=new Set(['0,0']),stack=[[0,0]];g[1][1]=0;
+  while(stack.length){
+    const [cx,cy]=stack[stack.length-1];
+    const nb=shuffle(DV.slice()).map(([dx,dy])=>[cx+dx,cy+dy,dx,dy])
+      .filter(([nx,ny])=>nx>=0&&ny>=0&&nx<cw&&ny<ch&&!vis.has(key(nx,ny)));
+    if(!nb.length){stack.pop();continue;}
+    const [nx,ny,dx,dy]=nb[0];
+    g[cy*2+1+dy][cx*2+1+dx]=0;g[ny*2+1][nx*2+1]=0;vis.add(key(nx,ny));stack.push([nx,ny]);
+  }
+  // เปิดทางวนเพิ่ม เพื่อไม่ให้ทางตันเยอะเกินไป
+  let removed=0,tries=0;const extra=Math.floor(cw*ch*.1);
+  while(removed<extra&&tries<600){
+    tries++;const x=ri(1,W-2),y=ri(1,H-2);if(g[y][x]!==1)continue;
+    if(x%2===1&&y%2===0&&g[y-1][x]===0&&g[y+1][x]===0){g[y][x]=0;removed++;}
+    else if(x%2===0&&y%2===1&&g[y][x-1]===0&&g[y][x+1]===0){g[y][x]=0;removed++;}
+  }
+  return g;
+}
+function bfs(grid,sx,sy){
+  const d=grid.map(r=>r.map(()=>-1)),q=[[sx,sy]];d[sy][sx]=0;let i=0;
+  while(i<q.length){const [x,y]=q[i++];for(const [dx,dy] of DV){const nx=x+dx,ny=y+dy;
+    if(grid[ny]&&grid[ny][nx]===0&&d[ny][nx]<0){d[ny][nx]=d[y][x]+1;q.push([nx,ny]);}}}
+  return d;
+}
+function bfsPath(grid,sx,sy,targets){
+  const prev=new Map(),q=[[sx,sy]],seen=new Set([key(sx,sy)]);let i=0,end=null;
+  while(i<q.length){const [x,y]=q[i++];if(targets.has(key(x,y))){end=[x,y];break;}
+    for(const [dx,dy] of DV){const nx=x+dx,ny=y+dy,k=key(nx,ny);
+      if(grid[ny]&&grid[ny][nx]===0&&!seen.has(k)){seen.add(k);prev.set(k,[x,y]);q.push([nx,ny]);}}}
+  if(!end)return [];
+  const path=[];let c=end;while(c){path.unshift(c);c=prev.get(key(c[0],c[1]));}
+  return path;
+}
+
+/* ================= สถานะเกม ================= */
+const floorLayer=$('floorLayer'),hintLayer=$('hintLayer'),rowsLayer=$('rowsLayer'),svg=$('view');
+let G=null, level=1, lastTheme=null, animT=0;
+const cam={x:0,y:0,init:false};
+
+function newLevel(){
+  let th;do{th=pick(THEMES);}while(th.id===lastTheme);lastTheme=th.id;
+  const cw=Math.min(6+level,13),ch=Math.min(4+level,10);
+  const grid=genMaze(cw,ch),W=grid[0].length,H=grid.length;
+  const [sx,sy]=pick([[1,1],[W-2,1],[1,H-2],[W-2,H-2]]);
+  const dist=bfs(grid,sx,sy);
+  const deg=(x,y)=>DV.filter(([dx,dy])=>grid[y+dy][x+dx]===0).length;
+  const floors=[];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(grid[y][x]===0)floors.push({x,y,d:dist[y][x]});
+  const used=new Set([key(sx,sy)]);
+  const man=(a,b)=>Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+
+  // ประตูทางออก: ทางตันที่ไกลที่สุด
+  const dead=floors.filter(f=>deg(f.x,f.y)===1&&f.d>0);
+  const door=(dead.length?dead:floors).slice().sort((a,b)=>b.d-a.d)[0];
+  used.add(key(door.x,door.y));
+
+  // สัญลักษณ์ 3 อย่าง
+  const cands=shuffle(floors.filter(f=>f.d>=Math.max(3,Math.floor(door.d*.25))&&!used.has(key(f.x,f.y))));
+  cands.sort((a,b)=>deg(a.x,a.y)-deg(b.x,b.y));
+  const syms=[];
+  for(const c of cands){if(syms.length>=3)break;
+    if(syms.every(s=>man(s,c)>=4)&&man(c,door)>=3){syms.push(c);used.add(key(c.x,c.y));}}
+  for(const c of shuffle(floors.filter(f=>f.d>0))){if(syms.length>=3)break;
+    if(!used.has(key(c.x,c.y))){syms.push(c);used.add(key(c.x,c.y));}}
+
+  // หัวใจ
+  const hearts=[];
+  for(const c of shuffle(floors.filter(f=>f.d>=3))){if(hearts.length>=3)break;
+    if(!used.has(key(c.x,c.y))&&hearts.every(h=>man(h,c)>=4)){hearts.push({x:c.x,y:c.y});used.add(key(c.x,c.y));}}
+
+  // กับดัก (อยู่ในทางตรง เปิด-ปิดเป็นจังหวะ)
+  const hazards=[];const nh=Math.min(2+level,9);
+  for(const c of shuffle(floors.filter(f=>f.d>=3))){if(hazards.length>=nh)break;
+    const {x,y}=c;const straight=(grid[y][x-1]===0&&grid[y][x+1]===0&&deg(x,y)===2)||(grid[y-1][x]===0&&grid[y+1][x]===0&&deg(x,y)===2);
+    if(straight&&!used.has(key(x,y))&&hazards.every(h=>man(h,c)>=3)){hazards.push({x,y,phase:rnd(0,3.2),lift:0});used.add(key(x,y));}}
+
+  // มอนสเตอร์
+  const monsters=[];const nm=Math.min(1+level,6);
+  let mc=shuffle(floors.filter(f=>f.d>=6&&!used.has(key(f.x,f.y))));
+  if(mc.length<nm)mc=shuffle(floors.filter(f=>f.d>=4&&!used.has(key(f.x,f.y))));
+  for(const c of mc){if(monsters.length>=nm)break;
+    if(monsters.every(m=>man({x:m.gx,y:m.gy},c)>=4))
+      monsters.push({gx:c.x,gy:c.y,x:c.x,y:c.y,tx:c.x,ty:c.y,moving:false,prog:0,dur:Math.max(.42,.72-level*.03),dir:null,wait:rnd(0,1),ph:rnd(0,6),face:1,row:-1});}
+
+  G={th,grid,W,H,
+    player:{gx:sx,gy:sy,x:sx,y:sy,tx:sx,ty:sy,moving:false,prog:0,dur:.22,face:1,row:-1},
+    hp:5,inv:0,got:[false,false,false],
+    syms:syms.map((s,i)=>({x:s.x,y:s.y,type:th.symbols[i],taken:false})),
+    hearts,hazards,monsters,door:{x:door.x,y:door.y,open:false},
+    paused:true,won:false,time:0,lockedSayT:-9,hintT:0,hintCD:0,shake:0,q:null,qDone:false};
+  cam.init=false;
+  buildWorld();updateHearts();updateSlots();
+  $('levelInfo').textContent=`ด่าน ${level} · ${th.name}`;
+}
+
+/* ================= วาดฉาก ================= */
+function wallSVG(x,y){
+  const th=G.th,px=x*T,py=y*T,dark=shade(th.wall,-.25);
+  let s=`<rect x="${px}" y="${py+T-WH}" width="${T}" height="${WH}" fill="${th.wall}"/>`;
+  s+=`<line x1="${px+T/2}" y1="${py+T-WH}" x2="${px+T/2}" y2="${py+T}" stroke="${dark}" stroke-width="2" opacity=".5"/>`;
+  s+=`<rect x="${px}" y="${py-WH}" width="${T}" height="${T}" fill="${th.wallTop}"/>`;
+  s+=`<rect x="${px+5}" y="${py-WH+5}" width="${T-10}" height="${T-10}" rx="8" fill="none" stroke="${shade(th.wallTop,-.13)}" stroke-width="2.5"/>`;
+  s+=`<rect x="${px}" y="${py+T-WH}" width="${T}" height="3" fill="${dark}" opacity=".6"/>`;
+  const d=G.decoMap.get(key(x,y));
+  if(d)s+=`<g transform="translate(${px+T/2},${py-WH+T/2+10})">${DECO[d]()}</g>`;
+  return s;
+}
+function hazardSVG(){
+  const c=G.th.hazard.color,d=shade(c,-.4),l=shade(c,.25);
+  return `<rect x="-25" y="-16" width="50" height="38" rx="10" fill="${d}" opacity=".3"/>
+  <g class="spk">${[-15,0,15].map(x=>`<polygon points="${x-7},14 ${x},-16 ${x+7},14" fill="${c}" stroke="${d}" stroke-width="2" stroke-linejoin="round"/>`).join('')}
+  ${[-8,8].map(x=>`<polygon points="${x-6},20 ${x},-4 ${x+6},20" fill="${l}" stroke="${d}" stroke-width="2" stroke-linejoin="round"/>`).join('')}</g>`;
+}
+function heartItemSVG(){
+  return `<ellipse cx="0" cy="20" rx="14" ry="5" fill="rgba(0,0,0,.2)"/><g class="b"><circle r="22" fill="url(#glow)" opacity=".6"/>
+  <path d="${HEART_PATH}" transform="scale(1.4)" fill="#ff4d6d" stroke="#c9184a" stroke-width="1.8"/>
+  <ellipse cx="-8" cy="-11" rx="5" ry="3" fill="#fff" opacity=".6"/></g>`;
+}
+function symbolItemSVG(type){
+  return `<ellipse cx="0" cy="20" rx="16" ry="5" fill="rgba(0,0,0,.2)"/><g class="b"><circle r="26" fill="url(#glow)"/>${SYM[type].draw()}
+  <polygon class="tw" points="${starPts(18,-18,6,2,4)}" fill="#fff"/><polygon class="tw" style="animation-delay:.4s" points="${starPts(-18,-12,4,1.5,4)}" fill="#fff"/></g>`;
+}
+function doorSVG(open){
+  const th=G.th,st=shade(th.wall,.2),sd=shade(th.wall,-.25);
+  let s=open?`<circle cx="0" cy="-10" r="50" fill="url(#glow)"/>`:'';
+  s+=`<rect x="-34" y="-60" width="14" height="80" fill="${st}" stroke="${sd}" stroke-width="2"/>
+  <rect x="20" y="-60" width="14" height="80" fill="${st}" stroke="${sd}" stroke-width="2"/>
+  <polygon points="-38,-60 -27,-80 -16,-60" fill="#ff5fa2"/><polygon points="16,-60 27,-80 38,-60" fill="#ff5fa2"/>
+  <rect x="-20" y="-48" width="40" height="68" fill="${st}" stroke="${sd}" stroke-width="2"/>
+  <polygon points="-23,-48 0,-70 23,-48" fill="#ff8fc7"/>
+  <line x1="0" y1="-70" x2="0" y2="-88" stroke="#555" stroke-width="2"/><polygon points="0,-88 13,-84 0,-80" fill="#ffd23f"/>
+  <path d="M-14,20 L-14,-20 Q0,-38 14,-20 L14,20 Z" fill="${open?'#fff7c2':'#8d5524'}" stroke="${open?'#ffd23f':'#5c3a1e'}" stroke-width="3"/>`;
+  if(open){
+    s+=`<polygon class="tw" points="${starPts(0,-4,8,3,4)}" fill="#fff"/><polygon class="tw" style="animation-delay:.3s" points="${starPts(-26,-30,6,2,4)}" fill="#ffe066"/><polygon class="tw" style="animation-delay:.6s" points="${starPts(26,-36,6,2,4)}" fill="#ffe066"/>`;
+  }else{
+    s+=`<line x1="-5" y1="-26" x2="-5" y2="20" stroke="#5c3a1e" stroke-width="2"/><line x1="5" y1="-26" x2="5" y2="20" stroke="#5c3a1e" stroke-width="2"/>
+    <path d="M-4,-4 L-4,-9 Q0,-15 4,-9 L4,-4" stroke="#c98a00" stroke-width="2.5" fill="none"/>
+    <rect x="-7" y="-4" width="14" height="12" rx="2" fill="#ffd23f" stroke="#c98a00" stroke-width="1.5"/>
+    ${[0,1,2].map(i=>`<circle cx="${-10+i*10}" cy="-54" r="3.5" fill="${G.got[i]?'#ffd23f':'#ddd'}" stroke="#c98a00" stroke-width="1"/>`).join('')}`;
+  }
+  return s;
+}
+function playerSVG(th){
+  const dress=th.dress,dd=shade(dress,-.25),dl=shade(dress,.35),hair=th.hair,hd=shade(hair,-.22),skin='#ffd6a5',sd='#e8b27d';
+  return `<ellipse cx="0" cy="0" rx="18" ry="6" fill="rgba(0,0,0,.25)"/>
+  <g class="pb"><g class="pf">
+    <rect x="-16" y="-58" width="32" height="34" rx="4" fill="${hd}"/>
+    <polygon points="-18,-2 18,-2 12,-28 -12,-28" fill="${dress}"/>
+    <polygon points="18,-2 23,-6 16,-30 12,-28" fill="${dd}"/>
+    <rect x="-18" y="-7" width="36" height="5" fill="${dl}" opacity=".6"/>
+    <rect x="-10" y="-38" width="20" height="12" rx="2" fill="${dl}"/>
+    <rect x="-16" y="-37" width="6" height="15" rx="2" fill="${skin}"/>
+    <rect x="10" y="-37" width="6" height="15" rx="2" fill="${sd}"/>
+    <rect x="-13" y="-62" width="26" height="25" rx="4" fill="${skin}"/>
+    <polygon points="13,-62 18,-65 18,-40 13,-37" fill="${sd}"/>
+    <rect x="-15" y="-67" width="30" height="10" rx="3" fill="${hair}"/>
+    <polygon points="15,-67 20,-70 20,-59 15,-57" fill="${hd}"/>
+    <rect x="-15" y="-60" width="5" height="22" rx="2" fill="${hair}"/>
+    <rect x="-7" y="-53" width="4" height="6" rx="1.5" fill="#3b2a20"/><rect x="3" y="-53" width="4" height="6" rx="1.5" fill="#3b2a20"/>
+    <rect x="-6" y="-52" width="1.5" height="1.5" fill="#fff"/><rect x="4" y="-52" width="1.5" height="1.5" fill="#fff"/>
+    <circle cx="-8" cy="-44" r="2.5" fill="#ff8fab" opacity=".6"/><circle cx="8" cy="-44" r="2.5" fill="#ff8fab" opacity=".6"/>
+    <path d="M-4,-44 Q0,-40 4,-44" stroke="#3b2a20" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <polygon points="-9,-67 -9,-75 -4,-71 0,-78 4,-71 9,-75 9,-67" fill="#ffd23f" stroke="#e09f00" stroke-width="1.5" stroke-linejoin="round"/>
+    <circle cx="0" cy="-70" r="1.8" fill="#ff4d8d"/>
+  </g>
+  <g class="sweat" style="display:none"><text x="12" y="-68" font-size="16">💦</text><text x="-34" y="-52" font-size="15">🐢</text></g>
+  </g>`;
+}
+function monsterSVG(m){
+  const c=G.th.monster.color,d=shade(c,-.3),l=shade(c,.3),f=G.th.monster.feat;
+  let back='',front='';
+  if(f==='horns')front=`<polygon points="-16,-40 -12,-54 -6,-40" fill="#fff3c4" stroke="#c9a227" stroke-width="1.5"/><polygon points="6,-40 12,-54 16,-40" fill="#fff3c4" stroke="#c9a227" stroke-width="1.5"/>`;
+  if(f==='ears')front=`<polygon points="-18,-40 -14,-56 -4,-40" fill="${d}"/><polygon points="4,-40 14,-56 18,-40" fill="${d}"/><polygon points="-14,-41 -13,-50 -8,-41" fill="#ffb3c6"/><polygon points="8,-41 13,-50 14,-41" fill="#ffb3c6"/>`;
+  if(f==='fin')front=`<polygon points="-6,-44 4,-64 12,-44" fill="${d}"/>`;
+  if(f==='wings')back=`<g class="wing"><polygon points="-18,-32 -42,-46 -36,-26 -42,-14 -18,-20" fill="${d}"/><polygon points="18,-32 42,-46 36,-26 42,-14 18,-20" fill="${d}"/></g>`;
+  const eyeW=f==='horns'||c.toLowerCase()==='#f2fbff'?'#9ad0f5':'#fff';
+  return `<ellipse cx="0" cy="0" rx="18" ry="6" fill="rgba(0,0,0,.25)"/>
+  <g class="mb"><g class="mf">${back}
+    <rect x="-14" y="-6" width="9" height="7" rx="2" fill="${d}"/><rect x="5" y="-6" width="9" height="7" rx="2" fill="${d}"/>
+    <polygon points="-18,-42 -12,-47 24,-47 18,-42" fill="${l}"/>
+    <polygon points="18,-42 24,-47 24,-11 18,-5" fill="${d}"/>
+    <rect x="-18" y="-42" width="36" height="37" rx="5" fill="${c}" stroke="${d}" stroke-width="2"/>
+    ${front}
+    <rect x="-13" y="-34" width="10" height="11" rx="3" fill="${eyeW}"/><rect x="3" y="-34" width="10" height="11" rx="3" fill="${eyeW}"/>
+    <rect x="-9" y="-30" width="5" height="6" rx="1.5" fill="#222"/><rect x="7" y="-30" width="5" height="6" rx="1.5" fill="#222"/>
+    <line x1="-14" y1="-38" x2="-3" y2="-35" stroke="#222" stroke-width="2.5" stroke-linecap="round"/><line x1="14" y1="-38" x2="3" y2="-35" stroke="#222" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="-9" y="-19" width="18" height="7" rx="3" fill="#5a1e2e"/>
+    <polygon points="-7,-19 -5,-15 -3,-19" fill="#fff"/><polygon points="3,-19 5,-15 7,-19" fill="#fff"/>
+  </g></g>`;
+}
+
+function buildWorld(){
+  const {th,grid,W,H}=G;
+  document.body.style.background=th.bg;svg.style.background=th.bg;
+  hintLayer.innerHTML='';rowsLayer.innerHTML='';
+  let f=`<rect x="-12" y="${-WH-12}" width="${W*T+24}" height="${H*T+WH+40}" rx="18" fill="${shade(th.wall,-.45)}"/>`;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(grid[y][x]===0){
+    f+=`<rect x="${x*T}" y="${y*T}" width="${T}" height="${T}" fill="${(x+y)%2?th.floorA:th.floorB}"/>`;
+    if(Math.random()<.15)f+=`<circle cx="${x*T+rnd(12,52)}" cy="${y*T+rnd(12,52)}" r="${rnd(2,4)}" fill="${shade(th.floorA,-.12)}"/>`;
+  }
+  floorLayer.innerHTML=f;
+  G.decoMap=new Map();
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(grid[y][x]===1&&Math.random()<.17)G.decoMap.set(key(x,y),pick(th.decos));
+  G.rowEls=[];
+  for(let y=0;y<H;y++){
+    const g=mk('g',{},rowsLayer);G.rowEls.push(g);
+    let s='';for(let x=0;x<W;x++)if(grid[y][x]===1)s+=wallSVG(x,y);
+    g.innerHTML=s;
+  }
+  const place=(o,html)=>{o.el=mk('g',{transform:`translate(${o.x*T+T/2},${o.y*T+T/2})`},G.rowEls[o.y]);o.el.innerHTML=html;o.b=o.el.querySelector('.b');};
+  G.hazards.forEach(h=>{place(h,hazardSVG());h.spk=h.el.querySelector('.spk');});
+  G.door.el=mk('g',{transform:`translate(${G.door.x*T+T/2},${G.door.y*T+T/2})`},G.rowEls[G.door.y]);
+  G.door.el.innerHTML=doorSVG(false);
+  G.syms.forEach(s=>place(s,symbolItemSVG(s.type)));
+  G.hearts.forEach(h=>place(h,heartItemSVG()));
+  G.monsters.forEach(m=>{m.el=mk('g',{},G.rowEls[m.gy]);m.row=m.gy;m.el.innerHTML=monsterSVG(m);m.mb=m.el.querySelector('.mb');m.mf=m.el.querySelector('.mf');m.wing=m.el.querySelector('.wing');});
+  const p=G.player;p.el=mk('g',{},G.rowEls[p.gy]);p.row=p.gy;p.el.innerHTML=playerSVG(th);
+  p.pb=p.el.querySelector('.pb');p.pf=p.el.querySelector('.pf');p.sweat=p.el.querySelector('.sweat');
+}
+function addHeart(x,y){const h={x,y};h.el=mk('g',{transform:`translate(${x*T+T/2},${y*T+T/2})`},G.rowEls[y]);h.el.innerHTML=heartItemSVG();h.b=h.el.querySelector('.b');G.hearts.push(h);}
+
+/* ================= HUD ================= */
+function updateHearts(){
+  let s='';for(let i=0;i<5;i++){const full=i<G.hp;
+    s+=`<svg viewBox="-17 -20 34 32"><path d="${HEART_PATH}" fill="${full?'#ff4d6d':'#e6dde2'}" stroke="${full?'#c9184a':'#b8a9b1'}" stroke-width="2.5"/>${full?'<ellipse cx="-6" cy="-9" rx="4" ry="2.5" fill="#fff" opacity=".6"/>':''}</svg>`;}
+  $('hearts').innerHTML=s;$('slowBadge').style.display=G.hp===0?'inline-block':'none';
+}
+function updateSlots(){
+  $('slots').innerHTML=G.th.symbols.map((t,i)=>`<div class="slot ${G.got[i]?'got':''}"><svg viewBox="-22 -22 44 44">${SYM[t].draw()}</svg></div>`).join('');
+}
+const allGot=()=>G.got.every(Boolean);
+const show=id=>$(id).classList.remove('hidden');
+const hide=id=>$(id).classList.add('hidden');
+
+/* ================= อินพุต ================= */
+const held=[];let tapDir=null;
+function press(d){if(!held.includes(d))held.push(d);tapDir=d;}
+function release(d){const i=held.indexOf(d);if(i>=0)held.splice(i,1);}
+function currentDir(){if(held.length)return held[held.length-1];const t=tapDir;tapDir=null;return t;}
+const KEYMAP={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
+addEventListener('keydown',e=>{const d=KEYMAP[e.code];if(d){e.preventDefault();if(!e.repeat)press(d);}});
+addEventListener('keyup',e=>{const d=KEYMAP[e.code];if(d)release(d);});
+addEventListener('blur',()=>{held.length=0;});
+document.querySelectorAll('#dpad button').forEach(b=>{
+  const d=b.dataset.d;
+  b.addEventListener('pointerdown',e=>{e.preventDefault();ac();press(d);b.classList.add('on');try{b.setPointerCapture(e.pointerId);}catch(_){}});
+  const up=()=>{release(d);b.classList.remove('on');};
+  b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);
+});
+
+/* ================= ตรรกะเกม ================= */
+function tryMove(){
+  const p=G.player,d=currentDir();if(!d)return;
+  const [dx,dy]=DIRS[d];if(dx)p.face=dx;
+  const nx=p.gx+dx,ny=p.gy+dy;
+  if(!G.grid[ny]||G.grid[ny][nx]!==0)return;
+  if(nx===G.door.x&&ny===G.door.y&&!allGot()){
+    if(G.time-G.lockedSayT>3.5){G.lockedSayT=G.time;SFX.locked();
+      const left=G.got.filter(v=>!v).length;
+      say(`ประตูยังล็อกอยู่ ต้องหาสัญลักษณ์อีก ${left} อย่างก่อนนะ`);}
+    return;
+  }
+  p.tx=nx;p.ty=ny;p.moving=true;p.prog=0;
+  p.dur=G.hp>0?.22:.22/0.2; // พลังชีวิต 0 = ความเร็วเหลือ 20% (ช้าลง 80%)
+  SFX.step();
+}
+function arrive(){
+  const p=G.player;
+  const si=G.syms.findIndex(s=>!s.taken&&s.x===p.gx&&s.y===p.gy);
+  if(si>=0){openQuestion(si);return;}
+  const hi=G.hearts.findIndex(h=>h.x===p.gx&&h.y===p.gy);
+  if(hi>=0&&G.hp<5){
+    const h=G.hearts[hi];h.el.remove();G.hearts.splice(hi,1);
+    const wasZero=G.hp===0;G.hp++;SFX.heart();updateHearts();
+    say(wasZero?'เย้! ได้หัวใจแล้ว เจ้าหญิงเดินเร็วเหมือนเดิมแล้ว':'ได้หัวใจเพิ่มแล้ว เก่งมาก');
+  }
+  if(p.gx===G.door.x&&p.gy===G.door.y&&allGot())win();
+}
+function hurt(src){
+  if(G.inv>0)return;
+  G.inv=1.6;
+  if(G.hp<=0)return;
+  G.hp--;G.shake=.35;SFX.hurt();updateHearts();
+  if(G.hp===0){setTimeout(SFX.slow,250);say('โอ๊ย! หัวใจหมดแล้ว เจ้าหญิงเดินช้าลง รีบไปเก็บหัวใจนะ');ensureHeart();}
+  else say(pick([`ระวัง${src}นะ!`,`โอ๊ะ! โดน${src}`,`ระวังด้วยนะ เหลือหัวใจ ${G.hp} ดวง`]));
+}
+function ensureHeart(){
+  if(G.hearts.length)return;
+  const p=G.player,d=bfs(G.grid,p.gx,p.gy);
+  const busy=new Set([key(G.door.x,G.door.y),...G.syms.filter(s=>!s.taken).map(s=>key(s.x,s.y)),...G.hazards.map(h=>key(h.x,h.y))]);
+  let c=[];
+  for(let y=0;y<G.H;y++)for(let x=0;x<G.W;x++)if(d[y][x]>=3&&d[y][x]<=9&&!busy.has(key(x,y)))c.push([x,y]);
+  if(!c.length)for(let y=0;y<G.H;y++)for(let x=0;x<G.W;x++)if(d[y][x]>=1&&!busy.has(key(x,y)))c.push([x,y]);
+  if(c.length){const [x,y]=pick(c);addHeart(x,y);}
+}
+function update(dt){
+  G.time+=dt;if(G.inv>0)G.inv-=dt;if(G.hintCD>0)G.hintCD-=dt;
+  const p=G.player;
+  if(p.moving){
+    p.prog+=dt/p.dur;
+    if(p.prog>=1){p.gx=p.tx;p.gy=p.ty;p.moving=false;p.prog=0;arrive();if(G.paused)return;}
+  }
+  if(!p.moving)tryMove();
+  p.x=p.moving?p.gx+(p.tx-p.gx)*p.prog:p.gx;
+  p.y=p.moving?p.gy+(p.ty-p.gy)*p.prog:p.gy;
+
+  const PER=3.2;
+  for(const h of G.hazards){
+    const ph=(G.time+h.phase)%PER;h.active=ph<PER*.5;h.warn=!h.active&&ph>PER-.6;
+    if(h.active&&Math.abs(p.x-h.x)<.5&&Math.abs(p.y-h.y)<.5)hurt(G.th.hazard.name);
+  }
+  for(const m of G.monsters){
+    if(m.wait>0)m.wait-=dt;
+    else if(!m.moving){
+      const opts=Object.keys(DIRS).filter(k=>{const [dx,dy]=DIRS[k],nx=m.gx+dx,ny=m.gy+dy;
+        return G.grid[ny][nx]===0&&!(nx===G.door.x&&ny===G.door.y);});
+      if(opts.length){let c=opts.filter(k=>k!==OPP[m.dir]);if(!c.length)c=opts;
+        const k=pick(c);m.dir=k;const [dx,dy]=DIRS[k];if(dx)m.face=dx;
+        m.tx=m.gx+dx;m.ty=m.gy+dy;m.moving=true;m.prog=0;}
+    }
+    if(m.moving){m.prog+=dt/m.dur;if(m.prog>=1){m.gx=m.tx;m.gy=m.ty;m.moving=false;m.prog=0;if(Math.random()<.12)m.wait=rnd(.4,1.2);}}
+    m.x=m.moving?m.gx+(m.tx-m.gx)*m.prog:m.gx;m.y=m.moving?m.gy+(m.ty-m.gy)*m.prog:m.gy;
+    if(Math.hypot(p.x-m.x,p.y-m.y)<.62)hurt(G.th.monster.name);
+  }
+  if(G.hp===0&&!G.hearts.length)ensureHeart();
+}
+function placeRow(o,row){if(o.row!==row){o.row=row;G.rowEls[row].appendChild(o.el);}}
+function render(dt){
+  animT+=dt;const p=G.player;
+  placeRow(p,Math.round(p.y));
+  const bob=p.moving?-Math.abs(Math.sin(animT*14))*4:Math.sin(animT*3);
+  p.el.setAttribute('transform',`translate(${p.x*T+T/2},${p.y*T+T*.8})`);
+  p.pb.setAttribute('transform',`translate(0,${bob.toFixed(2)})`);
+  p.pf.setAttribute('transform',`scale(${p.face},1)`);
+  p.el.style.opacity=G.inv>0&&Math.floor(animT*12)%2?.35:1;
+  p.sweat.style.display=G.hp===0?'':'none';
+  for(const m of G.monsters){
+    placeRow(m,Math.round(m.y));
+    m.el.setAttribute('transform',`translate(${m.x*T+T/2},${m.y*T+T*.8})`);
+    m.mb.setAttribute('transform',`translate(0,${(-Math.abs(Math.sin(animT*8+m.ph))*4).toFixed(2)})`);
+    m.mf.setAttribute('transform',`scale(${m.face},1)`);
+    if(m.wing)m.wing.setAttribute('transform',`translate(0,-26) scale(1,${(.6+Math.abs(Math.sin(animT*12))*.5).toFixed(2)}) translate(0,26)`);
+  }
+  for(const h of G.hazards){
+    h.lift+=((h.active?1:.12)-h.lift)*Math.min(1,dt*14);
+    const jx=h.warn?Math.sin(animT*60)*1.5:0;
+    h.spk.setAttribute('transform',`translate(${jx.toFixed(2)},20) scale(1,${h.lift.toFixed(3)}) translate(0,-20)`);
+  }
+  G.syms.forEach((s,i)=>{if(s.taken)return;
+    s.b.setAttribute('transform',`translate(0,${(Math.sin(animT*3+i)*4-6).toFixed(2)})`);
+    const d=Math.hypot(p.x-s.x,p.y-s.y);
+    s.el.style.opacity=d<3.5?1:(.22+.12*Math.sin(animT*4+i)); // ซ่อนอยู่ เห็นชัดเมื่อเข้าใกล้
+  });
+  G.hearts.forEach((h,i)=>h.b.setAttribute('transform',`translate(0,${(Math.sin(animT*3.5+i)*3-6).toFixed(2)}) scale(${(1+Math.sin(animT*6)*.06).toFixed(3)})`));
+  if(G.hintT>0){G.hintT-=dt;if(G.hintT<=0)hintLayer.innerHTML='';}
+  camera(dt);
+}
+function camera(dt){
+  const sw=innerWidth,sh=innerHeight,tiles=sw<sh?7:8.5;
+  const unit=Math.min(sw,sh)/(tiles*T),vw=sw/unit,vh=sh/unit;
+  const p=G.player;
+  let tx=p.x*T+T/2-vw/2,ty=p.y*T+T/2-vh/2+T*.3;
+  const minX=-T*.6,maxX=G.W*T+T*.6-vw,minY=-WH-T*1.6,maxY=G.H*T+T*1.4-vh;
+  tx=maxX<minX?(minX+maxX)/2:clamp(tx,minX,maxX);
+  ty=maxY<minY?(minY+maxY)/2:clamp(ty,minY,maxY);
+  if(!cam.init){cam.x=tx;cam.y=ty;cam.init=true;}
+  const k=Math.min(1,dt*6);cam.x+=(tx-cam.x)*k;cam.y+=(ty-cam.y)*k;
+  let ox=0,oy=0;if(G.shake>0){G.shake-=dt;ox=rnd(-6,6);oy=rnd(-6,6);}
+  svg.setAttribute('viewBox',`${(cam.x+ox).toFixed(1)} ${(cam.y+oy).toFixed(1)} ${vw.toFixed(1)} ${vh.toFixed(1)}`);
+}
+
+/* ================= คำถาม: ภาพไหนไม่เหมือนเพื่อน ================= */
+const QCOLORS=['#ff4d6d','#3a86ff','#2ec27e','#ffbe0b','#9b5de5','#fb8500'];
+const QSHAPES=['circle','square','triangle','star','heart'];
+const HINTS={color:'ลองดูสีให้ดีนะ',shape:'ลองดูรูปร่างนะ',size:'ลองดูขนาดนะ ภาพไหนเล็กกว่าเพื่อน',dots:'ลองนับจุดดูนะ',rotate:'ลองดูว่าลูกศรชี้ไปทางไหนนะ'};
+function makeQuestion(){
+  const type=pick(['color','shape','size','dots','rotate']);
+  const base={shape:pick(QSHAPES),color:pick(QCOLORS),scale:1,rot:0,dots:0};
+  const odd={...base};
+  if(type==='color')odd.color=pick(QCOLORS.filter(c=>c!==base.color));
+  if(type==='shape')odd.shape=pick(QSHAPES.filter(s=>s!==base.shape));
+  if(type==='size')odd.scale=.5;
+  if(type==='dots'){base.shape=odd.shape=pick(['circle','square']);const pr=shuffle(pick([[1,3],[2,4],[1,4]]).slice());base.dots=pr[0];odd.dots=pr[1];}
+  if(type==='rotate'){base.shape=odd.shape='arrow';base.rot=pick([0,90,180,270]);odd.rot=base.rot+180;}
+  const ans=ri(0,3);
+  return {type,ans,opts:[0,1,2,3].map(i=>i===ans?odd:base)};
+}
+function shapeSVG(o){
+  const c=o.color,d=shade(c,-.3),A=`fill="${c}" stroke="${d}" stroke-width="5" stroke-linejoin="round"`;
+  let body;
+  switch(o.shape){
+    case 'circle':body=`<circle r="36" ${A}/>`;break;
+    case 'square':body=`<rect x="-33" y="-33" width="66" height="66" rx="12" ${A}/>`;break;
+    case 'triangle':body=`<polygon points="0,-38 38,30 -38,30" ${A}/>`;break;
+    case 'star':body=`<polygon points="${starPts(0,3,42,18,5)}" ${A}/>`;break;
+    case 'heart':body=`<path d="M0,34 C-60,-4 -30,-52 0,-20 C30,-52 60,-4 0,34Z" ${A}/>`;break;
+    case 'arrow':body=`<polygon points="0,-42 34,-4 13,-4 13,38 -13,38 -13,-4 -34,-4" ${A}/>`;break;
+  }
+  const DOTS={1:[[0,0]],2:[[-14,0],[14,0]],3:[[0,-14],[-14,12],[14,12]],4:[[-14,-14],[14,-14],[-14,14],[14,14]]};
+  const dots=(DOTS[o.dots]||[]).map(([x,y])=>`<circle cx="${x}" cy="${y}" r="8" fill="#fff" stroke="${d}" stroke-width="2"/>`).join('');
+  const shine=(o.shape==='arrow'||o.dots)?'':`<ellipse cx="-13" cy="-12" rx="8" ry="5" fill="#fff" opacity=".45"/>`;
+  return `<g transform="translate(60,62) rotate(${o.rot}) scale(${o.scale})"><g transform="translate(4,5)" opacity=".15">${body.replace(/fill="[^"]*"/,'fill="#000"')}</g>${body}${dots}${shine}</g>`;
+}
+function openQuestion(si){
+  G.paused=true;held.length=0;G.qIdx=si;G.qDone=false;
+  const s=G.syms[si],q=makeQuestion();G.q=q;
+  $('qSym').innerHTML=SYM[s.type].draw();
+  $('qTitle').textContent=`พบ${SYM[s.type].name}!`;
+  $('qHint').textContent='ภาพไหนไม่เหมือนเพื่อน? แตะเลือกเลย';
+  const box=$('qOpts');box.innerHTML='';
+  q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt';
+    b.innerHTML=`<svg viewBox="0 0 120 120">${shapeSVG(o)}</svg>`;b.onclick=()=>answer(i,b);box.appendChild(b);});
+  show('qModal');SFX.magic();
+  say(`เจอ${SYM[s.type].name}แล้ว! ภาพไหนไม่เหมือนเพื่อน แตะเลือกเลยนะ`);
+}
+function answer(i,b){
+  if(G.qDone)return;
+  if(i===G.q.ans){
+    G.qDone=true;b.classList.add('right');SFX.correct();
+    const s=G.syms[G.qIdx];s.taken=true;s.el.remove();G.got[G.qIdx]=true;updateSlots();
+    G.door.el.innerHTML=doorSVG(false);
+    const left=G.got.filter(v=>!v).length,all=left===0;
+    say(`เก่งมาก! ได้รับ${SYM[s.type].name}แล้ว`+(all?' ครบ 3 อย่างแล้ว ประตูเปิดแล้ว ไปหาประตูทางออกกันเลย':` เหลืออีก ${left} อย่างนะ`));
+    confetti(40);
+    setTimeout(()=>{hide('qModal');G.paused=false;G.inv=Math.max(G.inv,1);if(all)openDoor();},1700);
+  }else{
+    b.classList.add('wrong');SFX.wrong();
+    const h=HINTS[G.q.type];$('qHint').textContent='ยังไม่ใช่ ลองใหม่นะ 😊 '+h;
+    say('ยังไม่ใช่ ลองใหม่อีกครั้งนะ '+h);
+  }
+}
+function openDoor(){G.door.open=true;G.door.el.innerHTML=doorSVG(true);SFX.open();}
+function win(){
+  G.paused=true;G.won=true;held.length=0;SFX.win();
+  $('winText').textContent=`เจ้าหญิงผ่านด่าน ${level} "${G.th.name}" แล้ว เก่งที่สุดเลย!`;
+  $('winSyms').innerHTML=G.th.symbols.map(t=>`<svg viewBox="-22 -22 44 44">${SYM[t].draw()}</svg>`).join('');
+  show('winModal');confetti(140);
+  say(`เย้! ยินดีด้วย ผ่านด่าน ${level} แล้ว เก่งที่สุดเลย`);
+}
+function confetti(n){
+  const box=$('confetti'),cols=['#ff4d6d','#ffd23f','#3a86ff','#2ec27e','#c77dff','#ff8fc7'];
+  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='cf';
+    d.style.left=rnd(0,100)+'vw';d.style.background=pick(cols);
+    d.style.animationDuration=rnd(2,4)+'s';d.style.animationDelay=rnd(0,.6)+'s';
+    if(Math.random()<.4)d.style.borderRadius='50%';
+    box.appendChild(d);setTimeout(()=>d.remove(),5000);}
+}
+
+/* ================= ปุ่มช่วยหาทาง ================= */
+function showHint(){
+  if(!G||G.paused||G.hintCD>0)return;
+  const targets=new Set(allGot()?[key(G.door.x,G.door.y)]:G.syms.filter(s=>!s.taken).map(s=>key(s.x,s.y)));
+  const path=bfsPath(G.grid,G.player.gx,G.player.gy,targets);
+  if(path.length<2)return;
+  hintLayer.innerHTML=path.slice(1).map(([x,y],i)=>`<polygon class="hintdot" style="animation-delay:${(i*.05).toFixed(2)}s" points="${starPts(x*T+T/2,y*T+T/2,10,4,5)}" fill="#ffe066" stroke="#ffb703" stroke-width="2"/>`).join('');
+  G.hintT=4.5;G.hintCD=2;SFX.magic();
+  say(allGot()?'ตามดาววิเศษไปที่ประตูทางออกนะ':'ตามดาววิเศษไปหาสัญลักษณ์นะ');
+}
+
+/* ================= ปุ่มต่าง ๆ ================= */
+$('startBtn').onclick=()=>{
+  ac();started=true;SFX.click();hide('startModal');G.paused=false;
+  const names=G.th.symbols.map(t=>SYM[t].name).join(' ');
+  say(`ยินดีต้อนรับสู่${G.th.name} ช่วยเจ้าหญิงตามหา ${names} แล้วไปที่ประตูทางออกนะ`);
+};
+$('nextBtn').onclick=()=>{
+  SFX.click();hide('winModal');level++;newLevel();G.paused=false;
+  const names=G.th.symbols.map(t=>SYM[t].name).join(' ');
+  say(`ด่าน ${level} ${G.th.name} ตามหา ${names} กันเลย`);
+};
+$('qSpeak').onclick=()=>{SFX.click();say($('qHint').textContent);};
+$('hintBtn').onclick=()=>{ac();showHint();};
+$('bSfx').onclick=e=>{sfxOn=!sfxOn;e.currentTarget.classList.toggle('off',!sfxOn);SFX.click();};
+$('bMusic').onclick=e=>{musicOn=!musicOn;e.currentTarget.classList.toggle('off',!musicOn);SFX.click();};
+$('bVoice').onclick=e=>{voiceOn=!voiceOn;e.currentTarget.classList.toggle('off',!voiceOn);if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel();SFX.click();};
+const stopSpeech=()=>{if('speechSynthesis' in window)speechSynthesis.cancel();};
+document.querySelectorAll('a[href="index.html"]').forEach(a=>a.addEventListener('click',stopSpeech));
+addEventListener('pagehide',stopSpeech);
+
+/* ================= เริ่มเกม ================= */
+let lastT=0;
+function loop(ts){
+  const dt=Math.min(.05,(ts-lastT)/1000||0);lastT=ts;
+  if(G){if(!G.paused)update(dt);render(dt);}
+  requestAnimationFrame(loop);
+}
+newLevel();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
